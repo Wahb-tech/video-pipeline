@@ -1,0 +1,90 @@
+name: Generate ZOOP Luxury Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      style:
+        description: Luxury style
+        required: true
+        type: choice
+        default: mixed
+        options:
+          - mixed
+          - dark_luxury
+          - summer_luxury
+          - dubai
+          - yacht_life
+      duration:
+        description: Duration in seconds
+        required: true
+        default: "15"
+      clips:
+        description: Number of cuts
+        required: true
+        default: "10"
+      bpm:
+        description: Music BPM for cut rhythm
+        required: true
+        default: "120"
+      text_mode:
+        description: Overlay text
+        required: true
+        type: choice
+        default: minimal
+        options:
+          - minimal
+          - none
+      music_file:
+        description: Optional filename from assets/music, e.g. track.mp3
+        required: false
+        default: ""
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install FFmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate video
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: |
+          MUSIC=""
+          if [ -n "${{ inputs.music_file }}" ] && [ -f "assets/music/${{ inputs.music_file }}" ]; then
+            MUSIC="assets/music/${{ inputs.music_file }}"
+          fi
+          python -m src.main \
+            --style "${{ inputs.style }}" \
+            --duration "${{ inputs.duration }}" \
+            --clips "${{ inputs.clips }}" \
+            --bpm "${{ inputs.bpm }}" \
+            --text-mode "${{ inputs.text_mode }}" \
+            --music "$MUSIC"
+
+      - name: Upload ZOOP package
+        uses: actions/upload-artifact@v4
+        with:
+          name: zoop-luxury-video
+          path: |
+            output/ZOOP_READY.mp4
+            output/caption.txt
+            output/creative_plan.json
+            output/sources.json
+          retention-days: 14
