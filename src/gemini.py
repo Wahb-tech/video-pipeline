@@ -36,7 +36,7 @@ def generate_plan(style, duration, clip_count, text_mode):
     if not key:
         return fallback_plan(style, duration, clip_count, text_mode)
 
-    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
     endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
     prompt = f"""
 You are the creative director for a short vertical luxury-lifestyle edit intended for an adult audience.
