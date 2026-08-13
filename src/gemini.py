@@ -71,8 +71,21 @@ Rules:
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json"}
     }
-    response = requests.post(endpoint, json=payload, timeout=60)
-    response.raise_for_status()
+    response = requests.post(
+        endpoint,
+        headers={
+            "x-goog-api-key": key,
+            "Content-Type": "application/json"
+        },
+        json=payload,
+        timeout=60
+    )
+    
+    if not response.ok:
+        raise RuntimeError(
+            f"Gemini API error {response.status_code}: {response.text}"
+        )
+    
     data = response.json()
     text = data["candidates"][0]["content"]["parts"][0]["text"]
     plan = extract_json(text)
