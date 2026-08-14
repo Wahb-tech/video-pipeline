@@ -48,38 +48,88 @@ def concat_clips(clips, output):
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_path), "-c", "copy", str(output)])
 
 
-def make_text_overlay(text, output, position="center"):
-    if not text:
+def make_text_overlay(text, output, position="bottom"):
+    """
+    Crée un overlay de texte style '69perception' avec fond noir effet pill.
+    position: "bottom" (par défaut) ou "center"
+    """
+    if not text or not text.strip():
         return None
-    canvas = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
+    
+    # Nettoyer et formater le texte
+    text = text.strip().upper()
+    
+    # Si le texte est trop long, on le tronque à 5 mots max
+    words = text.split()
+    if len(words) > 5:
+        text = " ".join(words[:5]) + "."
+    
+    # Dimensions du canvas (1080x1920)
+    W, H = 1080, 1920
+    canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
+    
+    # Essayer d'utiliser une police moderne et impactante
     font_paths = [
+        "/usr/share/fonts/truetype/msttcorefonts/Helvetica_Bold.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
+        "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
     ]
     font_path = next((p for p in font_paths if os.path.exists(p)), None)
-    font = ImageFont.truetype(font_path, 74) if font_path else ImageFont.load_default()
-    words = text.upper().split()
-    lines, current = [], []
-    for word in words:
-        test = " ".join(current + [word])
-        if draw.textbbox((0, 0), test, font=font)[2] > 900 and current:
-            lines.append(" ".join(current))
-            current = [word]
-        else:
-            current.append(word)
-    if current:
-        lines.append(" ".join(current))
-    line_h = 95
-    total_h = len(lines) * line_h
-    y = 760 if position == "center" else 1350
-    y -= total_h // 2
-    for line in lines:
-        box = draw.textbbox((0, 0), line, font=font, stroke_width=3)
-        w = box[2] - box[0]
-        x = (1080 - w) // 2
-        draw.text((x, y), line, font=font, fill="white", stroke_width=5, stroke_fill="black")
-        y += line_h
+    
+    # Taille de police : 100px (énorme, style impact)
+    font = ImageFont.truetype(font_path, 100) if font_path else ImageFont.load_default()
+    
+    # Calculer la boîte de texte
+    bbox = draw.textbbox((0, 0), text, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    
+    # Padding autour du texte (effet "pill")
+    padding_x, padding_y = 60, 30
+    box_w = tw + padding_x * 2
+    box_h = th + padding_y * 2
+    
+    # Position en bas (à 78% de la hauteur) ou au centre
+    if position == "bottom":
+        x = (W - box_w) // 2
+        y = int(H * 0.78)  # 78% du bas, laisse respirer en dessous
+    else:  # center
+        x = (W - box_w) // 2
+        y = (H - box_h) // 2
+    
+    # 1. DESSINER LE FOND NOIR ARRONDI (effet pill)
+    radius = 30
+    bg = Image.new("RGBA", (box_w, box_h), (0, 0, 0, 0))
+    bg_draw = ImageDraw.Draw(bg)
+    bg_draw.rounded_rectangle(
+        [(0, 0), (box_w, box_h)],
+        radius=radius,
+        fill=(0, 0, 0, 180)  # Noir semi-transparent
+    )
+    canvas.paste(bg, (x, y), bg)
+    
+    # 2. DESSINER LE TEXTE (sur le fond)
+    tx = x + padding_x
+    ty = y + padding_y
+    
+    # Ombre portée (drop shadow) pour plus d'impact
+    shadow_offset = 4
+    draw.text(
+        (tx + shadow_offset, ty + shadow_offset),
+        text,
+        font=font,
+        fill=(0, 0, 0, 100)  # Ombre noire transparente
+    )
+    
+    # Texte principal : blanc pur
+    draw.text(
+        (tx, ty),
+        text,
+        font=font,
+        fill=(255, 255, 255, 255)  # Blanc pur
+    )
+    
     canvas.save(output)
     return output
 
