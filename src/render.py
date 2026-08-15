@@ -48,83 +48,38 @@ def concat_clips(clips, output):
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_path), "-c", "copy", str(output)])
 
 
-def make_text_overlay(text, output, position="bottom"):
-    """
-    Crée un overlay de texte style 'luxe discret' inspiré de 69perception.
-    position: "bottom" (par défaut) ou "center"
-    """
-    if not text or not text.strip():
+def make_text_overlay(text, output, position="center"):
+    if not text:
         return None
-    
-    # Nettoyer et formater le texte
-    text = text.strip().upper()
-    
-    # Si le texte est trop long, on le tronque à 5 mots max
-    words = text.split()
-    if len(words) > 5:
-        text = " ".join(words[:5]) + "."
-    
-    # Dimensions du canvas (1080x1920)
-    W, H = 1080, 1920
-    canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    canvas = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
-    
-    # Priorité aux polices modernes (Roboto, Liberation, DejaVu en dernier)
     font_paths = [
-        "/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
     ]
     font_path = next((p for p in font_paths if os.path.exists(p)), None)
-    
-    # Taille équilibrée : 68px (élégant)
-    font = ImageFont.truetype(font_path, 68) if font_path else ImageFont.load_default()
-    
-    # Calculer la boîte de texte
-    bbox = draw.textbbox((0, 0), text, font=font)
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    
-    # Padding plus compact
-    padding_x, padding_y = 40, 20
-    box_w = tw + padding_x * 2
-    box_h = th + padding_y * 2
-    
-    # Position en bas (82% pour plus d'élégance)
-    if position == "bottom":
-        x = (W - box_w) // 2
-        y = int(H * 0.82)  # Légèrement plus bas
-    else:  # center
-        x = (W - box_w) // 2
-        y = (H - box_h) // 2
-    
-    # Fond noir arrondi (plus transparent)
-    radius = 25
-    bg = Image.new("RGBA", (box_w, box_h), (0, 0, 0, 0))
-    bg_draw = ImageDraw.Draw(bg)
-    bg_draw.rounded_rectangle(
-        [(0, 0), (box_w, box_h)],
-        radius=radius,
-        fill=(0, 0, 0, 140)  # Opacité réduite (55%)
-    )
-    canvas.paste(bg, (x, y), bg)
-    
-    # Ombre portée subtile
-    shadow_offset = 3
-    draw.text(
-        (x + padding_x + shadow_offset, y + padding_y + shadow_offset),
-        text,
-        font=font,
-        fill=(0, 0, 0, 80)  # Ombre plus légère
-    )
-    
-    # Texte principal : blanc pur
-    draw.text(
-        (x + padding_x, y + padding_y),
-        text,
-        font=font,
-        fill=(255, 255, 255, 255)
-    )
-    
+    font = ImageFont.truetype(font_path, 74) if font_path else ImageFont.load_default()
+    words = text.upper().split()
+    lines, current = [], []
+    for word in words:
+        test = " ".join(current + [word])
+        if draw.textbbox((0, 0), test, font=font)[2] > 900 and current:
+            lines.append(" ".join(current))
+            current = [word]
+        else:
+            current.append(word)
+    if current:
+        lines.append(" ".join(current))
+    line_h = 95
+    total_h = len(lines) * line_h
+    y = 760 if position == "center" else 1350
+    y -= total_h // 2
+    for line in lines:
+        box = draw.textbbox((0, 0), line, font=font, stroke_width=3)
+        w = box[2] - box[0]
+        x = (1080 - w) // 2
+        draw.text((x, y), line, font=font, fill="white", stroke_width=5, stroke_fill="black")
+        y += line_h
     canvas.save(output)
     return output
 
