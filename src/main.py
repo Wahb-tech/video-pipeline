@@ -47,12 +47,12 @@ def main():
     sources = []
 
     for i, category in enumerate(plan["categories"]):
-        item = find_clip(category, used)
+        item = find_clip(category, used, args.style)
         used.add(f'{item["provider"]}:{item["id"]}')
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"
         download(item["url"], raw)
-        normalize_clip(raw, norm, lengths[i])
+        normalize_clip(raw, norm, lengths[i], args.style)
         normalized.append(norm)
         item["category"] = category
         item["cut_seconds"] = lengths[i]

@@ -2,7 +2,7 @@ import os
 import random
 import requests
 from pathlib import Path
-from .config import CATEGORIES
+from .config import CATEGORIES, DARK_QUERIES
 
 UA = "ZoopLuxuryFactory/1.0"
 
@@ -81,8 +81,9 @@ def score(item):
     return s + random.random() * 2
 
 
-def find_clip(category, used_ids):
-    queries = CATEGORIES[category][:]
+def find_clip(category, used_ids, style="mixed"):
+    query_map = DARK_QUERIES if style == "dark_luxury" else CATEGORIES
+    queries = query_map[category][:]
     random.shuffle(queries)
     pool = []
     for query in queries[:2]:

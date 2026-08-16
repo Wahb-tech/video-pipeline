@@ -57,7 +57,7 @@ Return ONLY valid JSON with this schema:
 }}
 
 Allowed category names only:
-yacht, pool, dubai, supercar, private_jet, villa, beach, nightlife, watch, hotel, monaco, restaurant
+yacht, pool, dubai, supercar, private_jet, villa, beach, nightlife, watch, cash, business, hotel, monaco, restaurant
 
 Rules:
 - categories must contain exactly {clip_count} entries
@@ -65,6 +65,7 @@ Rules:
 - create visual variety
 - if text_mode is none, overlay_text must be empty
 - if text_mode is minimal, overlay_text must be extremely short
+- for dark_luxury, strongly favor supercar, cash, watch, business, dubai, nightlife and dark interiors
 - no narration and no educational script
 """.strip()
     payload = {

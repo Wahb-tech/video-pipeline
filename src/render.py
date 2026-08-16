@@ -1,10 +1,7 @@
-import json
-import math
 import os
 import random
 import subprocess
 from pathlib import Path
-
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -31,33 +28,22 @@ def choose_cut_lengths(duration, count, bpm):
     return [x * scale for x in lengths]
 
 
-# --- "Dark luxury" grading -------------------------------------------------
-# Desaturated, slightly cooled shadows, gentle vignette, subtle grain.
-# Tune GRADE_* constants to taste rather than editing the filter string.
-GRADE_CONTRAST = 1.15
-GRADE_BRIGHTNESS = -0.06
-GRADE_SATURATION = 0.75
-GRADE_VIGNETTE = "PI/4"
-GRADE_GRAIN = 6
-
-
-def build_grade_filter():
-    return (
-        f"eq=contrast={GRADE_CONTRAST}:brightness={GRADE_BRIGHTNESS}:saturation={GRADE_SATURATION},"
-        "curves=r='0/0 0.5/0.42 1/0.95':b='0/0.02 0.5/0.55 1/1',"
-        f"vignette={GRADE_VIGNETTE},"
-        f"noise=alls={GRADE_GRAIN}:allf=t"
-    )
-
-
-def normalize_clip(src, dst, seconds):
+def normalize_clip(src, dst, seconds, style="mixed"):
     total = probe_duration(src)
     max_start = max(0.0, total - seconds - 0.1)
     start = random.uniform(0, max_start) if max_start > 0 else 0
-    vf = (
-        "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,setsar=1,"
-        + build_grade_filter()
-    )
+    filters = [
+        "scale=1080:1920:force_original_aspect_ratio=increase",
+        "crop=1080:1920",
+        "fps=30",
+        "setsar=1"
+    ]
+    if style == "dark_luxury":
+        filters.extend([
+            "eq=brightness=-0.10:contrast=1.18:saturation=0.78:gamma=0.93",
+            "vignette=PI/6"
+        ])
+    vf = ",".join(filters)
     run([
         "ffmpeg", "-y", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{seconds:.3f}",
         "-an", "-vf", vf, "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
@@ -71,80 +57,48 @@ def concat_clips(clips, output):
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(list_path), "-c", "copy", str(output)])
 
 
-# --- Text overlay ------------------------------------------------------
-# Condensed display fonts read as "premium / intimidating" far better than
-# generic DejaVu/Liberation. Install these in the build image (apt or
-# vendor the .ttf into the repo, e.g. assets/fonts/).
-FONT_PATHS = [
-    "/usr/share/fonts/truetype/anton/Anton-Regular.ttf",
-    "/usr/share/fonts/truetype/bebas-neue/BebasNeue-Regular.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-    "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
-]
-
-TEXT_FILL = (230, 230, 225)          # off-white, not pure white
-TEXT_STROKE_FILL = (0, 0, 0)
-TEXT_STROKE_WIDTH = 2                # thin stroke reads premium, thick reads "meme"
-TEXT_TRACKING = 6                    # letter-spacing in px, gives the "engraved" look
+def _font_path():
+    candidates = [
+        "/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    ]
+    return next((p for p in candidates if os.path.exists(p)), None)
 
 
-def draw_tracked_text(draw, pos, text, font, fill, stroke_width, stroke_fill, tracking=0):
-    x, y = pos
+def _tracked_width(draw, text, font, spacing):
+    widths = []
     for ch in text:
-        draw.text((x, y), ch, font=font, fill=fill, stroke_width=stroke_width, stroke_fill=stroke_fill)
-        bbox = draw.textbbox((0, 0), ch, font=font)
-        x += (bbox[2] - bbox[0]) + tracking
-    return x
+        box = draw.textbbox((0, 0), ch, font=font)
+        widths.append(box[2] - box[0])
+    return sum(widths) + max(0, len(text) - 1) * spacing
 
 
-def tracked_text_width(draw, text, font, tracking=0):
-    width = 0
+def _draw_tracked(draw, text, font, x, y, spacing, fill):
+    cursor = x
     for ch in text:
-        bbox = draw.textbbox((0, 0), ch, font=font)
-        width += (bbox[2] - bbox[0]) + tracking
-    return width - tracking if text else 0
+        box = draw.textbbox((0, 0), ch, font=font)
+        w = box[2] - box[0]
+        draw.text((cursor, y), ch, font=font, fill=fill)
+        cursor += w + spacing
 
 
 def make_text_overlay(text, output, position="center"):
     if not text:
         return None
-
     canvas = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
-
-    font_path = next((p for p in FONT_PATHS if os.path.exists(p)), None)
-    font = ImageFont.truetype(font_path, 74) if font_path else ImageFont.load_default()
-
-    words = text.upper().split()
-    lines, current = [], []
-    for word in words:
-        test = " ".join(current + [word])
-        test_w = tracked_text_width(draw, test, font, TEXT_TRACKING)
-        if test_w > 900 and current:
-            lines.append(" ".join(current))
-            current = [word]
-        else:
-            current.append(word)
-    if current:
-        lines.append(" ".join(current))
-
-    line_h = 95
-    total_h = len(lines) * line_h
-    y = 760 if position == "center" else 1350
-    y -= total_h // 2
-
-    for line in lines:
-        w = tracked_text_width(draw, line, font, TEXT_TRACKING)
-        x = (1080 - w) // 2
-        draw_tracked_text(
-            draw, (x, y), line, font,
-            fill=TEXT_FILL,
-            stroke_width=TEXT_STROKE_WIDTH,
-            stroke_fill=TEXT_STROKE_FILL,
-            tracking=TEXT_TRACKING,
-        )
-        y += line_h
-
+    font_path = _font_path()
+    font = ImageFont.truetype(font_path, 27) if font_path else ImageFont.load_default()
+    clean = " ".join(text.upper().split())
+    spacing = 11
+    width = _tracked_width(draw, clean, font, spacing)
+    while width > 760 and spacing > 4:
+        spacing -= 1
+        width = _tracked_width(draw, clean, font, spacing)
+    x = (1080 - width) / 2
+    y = 906 if position == "center" else 1435
+    _draw_tracked(draw, clean, font, x, y, spacing, (238, 238, 238, 230))
     canvas.save(output)
     return output
 
