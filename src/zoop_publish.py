@@ -17,16 +17,64 @@ def click_if_visible(locator):
     return False
 
 def fill_caption(page):
-    textarea = page.locator("textarea")
-    if textarea.count() > 0:
-        textarea.first.fill(CAPTION)
-        return
+    page.wait_for_timeout(3000)
 
-    editable = page.locator('[contenteditable="true"]')
-    if editable.count() > 0:
-        editable.first.fill(CAPTION)
-        return
+    selectors = [
+        'textarea[placeholder*="caption" i]',
+        'input[placeholder*="caption" i]',
+        '[aria-label*="caption" i]',
+        '[data-placeholder*="caption" i]',
+        'textarea',
+        '[contenteditable="true"]',
+        '[role="textbox"]',
+    ]
 
+    for selector in selectors:
+        locator = page.locator(selector)
+
+        for i in range(locator.count()):
+            field = locator.nth(i)
+
+            try:
+                if not field.is_visible():
+                    continue
+
+                field.click()
+                field.fill(CAPTION)
+                print(f"Caption filled with selector: {selector}")
+                return
+            except Exception:
+                try:
+                    field.click()
+                    page.keyboard.press("ControlOrMeta+A")
+                    page.keyboard.type(CAPTION)
+                    print(f"Caption typed with selector: {selector}")
+                    return
+                except Exception:
+                    pass
+
+    print("Visible inputs:")
+    for selector in ["input", "textarea", '[contenteditable="true"]', '[role="textbox"]']:
+        locator = page.locator(selector)
+
+        for i in range(locator.count()):
+            field = locator.nth(i)
+            try:
+                if field.is_visible():
+                    print(
+                        selector,
+                        i,
+                        "placeholder=",
+                        field.get_attribute("placeholder"),
+                        "aria-label=",
+                        field.get_attribute("aria-label"),
+                        "class=",
+                        field.get_attribute("class"),
+                    )
+            except Exception:
+                pass
+
+    page.screenshot(path="zoop_caption_not_found.png", full_page=True)
     raise RuntimeError("Caption field not found")
 
 def upload_video(page):
