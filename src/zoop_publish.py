@@ -115,6 +115,47 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
+    def log_response(response):
+        try:
+            if response.status >= 400:
+                print(
+                    "HTTP_ERROR",
+                    response.status,
+                    response.request.method,
+                    response.url,
+                    flush=True,
+                )
+        except Exception:
+            pass
+
+    def log_request_failed(request):
+        try:
+            print(
+                "REQUEST_FAILED",
+                request.method,
+                request.url,
+                request.failure,
+                flush=True,
+            )
+        except Exception:
+            pass
+
+    def log_console(msg):
+        try:
+            if msg.type in ("error", "warning"):
+                print(
+                    "BROWSER_CONSOLE",
+                    msg.type,
+                    msg.text,
+                    flush=True,
+                )
+        except Exception:
+            pass
+
+    page.on("response", log_response)
+    page.on("requestfailed", log_request_failed)
+    page.on("console", log_console)
+
     page.goto(
         "https://app.zoop.club/profile",
         wait_until="domcontentloaded",
@@ -166,6 +207,15 @@ with sync_playwright() as p:
         path="zoop_before_caption.png",
         full_page=True,
     )
+
+    if "/connection-error" in page.url:
+        page.screenshot(
+            path="zoop_connection_error.png",
+            full_page=True,
+        )
+        raise RuntimeError(
+            "ZOOP redirected to connection-error after the upload/Next step"
+        )
 
     fill_caption(page)
 

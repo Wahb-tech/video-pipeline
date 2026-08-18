@@ -57,6 +57,7 @@ jobs:
             zoop_dry_run.png
             zoop_caption_not_found.png
             zoop_before_caption.png
+            zoop_connection_error.png
             zoop_debug.html
           if-no-files-found: ignore
 
