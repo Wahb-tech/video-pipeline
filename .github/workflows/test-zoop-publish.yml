@@ -1,0 +1,56 @@
+name: Test ZOOP Publisher
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Create test video
+        run: |
+          ffmpeg -y \
+            -f lavfi \
+            -i color=c=black:s=1080x1920:d=2 \
+            -r 30 \
+            -pix_fmt yuv420p \
+            /tmp/zoop_test.mp4
+
+      - name: Restore ZOOP session
+        env:
+          ZOOP_STORAGE_STATE_B64: ${{ secrets.ZOOP_STORAGE_STATE_B64 }}
+        run: |
+          printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
+          chmod 600 zoop_state.json
+
+      - name: Test publisher
+        env:
+          ZOOP_VIDEO: /tmp/zoop_test.mp4
+          ZOOP_CAPTION: ONE DAY.
+          ZOOP_STATE: zoop_state.json
+        run: python src/zoop_publish.py
+
+      - name: Upload debug screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zoop-dry-run
+          path: zoop_dry_run.png
+          if-no-files-found: ignore
+
+      - name: Delete session file
+        if: always()
+        run: rm -f zoop_state.json
