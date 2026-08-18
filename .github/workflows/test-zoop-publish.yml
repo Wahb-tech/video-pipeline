@@ -41,6 +41,15 @@ jobs:
           printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
           chmod 600 zoop_state.json
 
+      - name: Diagnose ZOOP CORS
+        run: |
+          echo "=== ZOOP PREFLIGHT ==="
+          curl -i -X OPTIONS \
+            'https://api-v2.influencerindex.com/production/app-users/me-check' \
+            -H 'Origin: https://app.zoop.club' \
+            -H 'Access-Control-Request-Method: GET' \
+            -H 'Access-Control-Request-Headers: authorization'
+
       - name: Test publisher
         env:
           ZOOP_VIDEO: /tmp/zoop_test.mp4
