@@ -55,6 +55,9 @@ jobs:
           ZOOP_VIDEO: /tmp/zoop_test.mp4
           ZOOP_CAPTION: ONE DAY.
           ZOOP_STATE: zoop_state.json
+          ZOOP_SCHEDULE_DATE: "2026-08-20"
+          ZOOP_SCHEDULE_TIME: "12:00"
+          ZOOP_SCHEDULE_COMMIT: "0"
         run: python src/zoop_publish.py
 
       - name: Upload debug screenshot
@@ -67,6 +70,8 @@ jobs:
             zoop_caption_not_found.png
             zoop_before_caption.png
             zoop_connection_error.png
+            zoop_schedule_ready.png
+            zoop_schedule_field_error.png
             zoop_debug.html
           if-no-files-found: ignore
 

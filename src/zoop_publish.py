@@ -6,6 +6,9 @@ from playwright.sync_api import sync_playwright
 VIDEO = Path(os.environ.get("ZOOP_VIDEO", "/tmp/zoop_test.mp4"))
 CAPTION = os.environ.get("ZOOP_CAPTION", "ONE DAY.")
 STATE = os.environ.get("ZOOP_STATE", "zoop_state.json")
+SCHEDULE_DATE = os.environ.get("ZOOP_SCHEDULE_DATE", "")
+SCHEDULE_TIME = os.environ.get("ZOOP_SCHEDULE_TIME", "")
+SCHEDULE_COMMIT = os.environ.get("ZOOP_SCHEDULE_COMMIT", "0") == "1"
 
 def click_if_visible(locator):
     try:
@@ -103,6 +106,107 @@ def upload_video(page):
             pass
 
     raise RuntimeError("Upload control not found")
+
+
+def schedule_post(page):
+    if not SCHEDULE_DATE or not SCHEDULE_TIME:
+        raise RuntimeError("Schedule date/time missing")
+
+    button = page.get_by_role(
+        "button",
+        name=re.compile(r"schedule post", re.I),
+    )
+
+    button.first.wait_for(state="visible", timeout=15000)
+    button.first.click()
+
+    page.wait_for_timeout(1200)
+
+    def fill_field(kind, value):
+        labels = page.get_by_label(re.compile(kind, re.I))
+
+        for i in range(labels.count()):
+            field = labels.nth(i)
+            try:
+                if field.is_visible():
+                    field.fill(value)
+                    return True
+            except Exception:
+                pass
+
+        selectors = [
+            f'input[type="{kind}"]',
+            f'input[placeholder*="{kind}" i]',
+            f'input[aria-label*="{kind}" i]',
+            f'[role="textbox"][aria-label*="{kind}" i]',
+        ]
+
+        for selector in selectors:
+            fields = page.locator(selector)
+
+            for i in range(fields.count()):
+                field = fields.nth(i)
+
+                try:
+                    if not field.is_visible():
+                        continue
+
+                    field.fill(value)
+                    return True
+                except Exception:
+                    try:
+                        field.click()
+                        page.keyboard.press("Control+A")
+                        page.keyboard.type(value)
+                        return True
+                    except Exception:
+                        pass
+
+        return False
+
+    if not fill_field("date", SCHEDULE_DATE):
+        page.screenshot(
+            path="zoop_schedule_field_error.png",
+            full_page=True,
+        )
+        raise RuntimeError("Schedule date field not found")
+
+    if not fill_field("time", SCHEDULE_TIME):
+        page.screenshot(
+            path="zoop_schedule_field_error.png",
+            full_page=True,
+        )
+        raise RuntimeError("Schedule time field not found")
+
+    page.screenshot(
+        path="zoop_schedule_ready.png",
+        full_page=True,
+    )
+
+    final_button = page.get_by_role(
+        "button",
+        name=re.compile(r"^schedule$", re.I),
+    )
+
+    final_button.first.wait_for(
+        state="visible",
+        timeout=10000,
+    )
+
+    if not SCHEDULE_COMMIT:
+        print("ZOOP_SCHEDULE_DRY_RUN_OK", flush=True)
+        print(f"DATE={SCHEDULE_DATE}", flush=True)
+        print(f"TIME={SCHEDULE_TIME}", flush=True)
+        return
+
+    final_button.first.click()
+    page.wait_for_timeout(3000)
+
+    if "/connection-error" in page.url:
+        raise RuntimeError("ZOOP connection error while scheduling")
+
+    print("ZOOP_SCHEDULE_SUBMITTED", flush=True)
+
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
@@ -289,6 +393,8 @@ with sync_playwright() as p:
         )
 
     fill_caption(page)
+
+    schedule_post(page)
 
     page.screenshot(
         path="zoop_dry_run.png",
