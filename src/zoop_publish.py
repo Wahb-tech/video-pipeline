@@ -145,6 +145,28 @@ with sync_playwright() as p:
 
     page.wait_for_timeout(3000)
 
+    print("=== ZOOP DEBUG ===")
+    print("URL:", page.url)
+    print("TITLE:", page.title())
+
+    try:
+        print("BODY TEXT:")
+        print(page.locator("body").inner_text()[:12000])
+    except Exception as e:
+        print("BODY TEXT ERROR:", e)
+
+    print("FRAMES:", len(page.frames))
+    for i, frame in enumerate(page.frames):
+        print("FRAME", i, frame.url)
+
+    html = page.content()
+    Path("zoop_debug.html").write_text(html)
+
+    page.screenshot(
+        path="zoop_before_caption.png",
+        full_page=True,
+    )
+
     fill_caption(page)
 
     page.screenshot(
