@@ -113,6 +113,77 @@ with sync_playwright() as p:
         timezone_id="Europe/Zurich",
     )
 
+    def zoop_api_bridge(route):
+        request = route.request
+
+        try:
+            if request.method == "OPTIONS":
+                requested_headers = request.headers.get(
+                    "access-control-request-headers",
+                    "authorization,content-type",
+                )
+
+                requested_method = request.headers.get(
+                    "access-control-request-method",
+                    "GET",
+                )
+
+                route.fulfill(
+                    status=204,
+                    headers={
+                        "Access-Control-Allow-Origin": "https://app.zoop.club",
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": requested_headers,
+                        "Access-Control-Allow-Methods": (
+                            f"{requested_method}, GET, POST, PUT, PATCH, DELETE, OPTIONS"
+                        ),
+                        "Access-Control-Max-Age": "600",
+                    },
+                    body="",
+                )
+
+                print(
+                    "CORS_BRIDGE_PREFLIGHT",
+                    requested_method,
+                    requested_headers,
+                    flush=True,
+                )
+                return
+
+            response = route.fetch(timeout=60000)
+
+            headers = dict(response.headers)
+            headers["access-control-allow-origin"] = "https://app.zoop.club"
+            headers["access-control-allow-credentials"] = "true"
+
+            print(
+                "CORS_BRIDGE_RESPONSE",
+                response.status,
+                request.method,
+                request.url,
+                flush=True,
+            )
+
+            route.fulfill(
+                response=response,
+                headers=headers,
+            )
+
+        except Exception as exc:
+            print(
+                "CORS_BRIDGE_ERROR",
+                request.method,
+                request.url,
+                repr(exc),
+                flush=True,
+            )
+            route.abort()
+
+    context.route(
+        "https://api-v2.influencerindex.com/**",
+        zoop_api_bridge,
+    )
+
     page = context.new_page()
 
     def log_response(response):
