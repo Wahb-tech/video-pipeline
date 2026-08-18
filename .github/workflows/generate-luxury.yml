@@ -3,88 +3,110 @@ name: Generate ZOOP Luxury Video
 on:
   workflow_dispatch:
     inputs:
-      style:
-        description: Luxury style
+      theme:
+        description: Dark luxury theme
         required: true
         type: choice
-        default: mixed
-        options:
-          - mixed
-          - dark_luxury
-          - summer_luxury
-          - dubai
-          - yacht_life
-      duration:
-        description: Duration in seconds
-        required: true
-        default: "15"
-      clips:
-        description: Number of cuts
-        required: true
-        default: "10"
-      bpm:
-        description: Music BPM for cut rhythm
-        required: true
-        default: "120"
-      text_mode:
+        default: auto
+        options: [auto, dark_cars, money, dark_life, mixed_dark]
+      copy_variant:
         description: Overlay text
         required: true
         type: choice
-        default: minimal
+        default: auto
+        options: [auto, one_day, soon, none]
+      caption_variant:
+        description: Caption style
+        required: true
+        type: choice
+        default: auto
+        options: [auto, choice, aspiration, minimal]
+      audio:
+        description: Known audio strategy
+        required: true
+        type: choice
+        default: auto
         options:
-          - minimal
+          - auto
           - none
-      music_file:
-        description: Optional filename from assets/music, e.g. track.mp3
-        required: false
-        default: ""
+          - te_conoci_super_slowed
+          - gozalo_super_slowed
+          - no_era_amor_super_slowed
+          - luz_roja_slowed
+          - luna_bala_slowed
+          - sempero_super_slowed
+          - passo_bem_solto_slowed
+      duration:
+        description: Duration in seconds
+        required: true
+        default: "25"
+      clips:
+        description: Number of cuts
+        required: true
+        default: "17"
+      bpm:
+        description: Cut rhythm reference
+        required: true
+        default: "100"
+
+permissions:
+  contents: write
 
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-
       - name: Install FFmpeg and fonts
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation fonts-urw-base35
-
       - name: Install Python dependencies
         run: pip install -r requirements.txt
-
       - name: Generate video
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-3.6-flash
+          GEMINI_MODEL: gemini-2.5-flash
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: |
-          MUSIC=""
-          if [ -n "${{ inputs.music_file }}" ] && [ -f "assets/music/${{ inputs.music_file }}" ]; then
-            MUSIC="assets/music/${{ inputs.music_file }}"
-          fi
           python -m src.main \
-            --style "${{ inputs.style }}" \
+            --style dark_luxury \
+            --theme "${{ inputs.theme }}" \
+            --copy-variant "${{ inputs.copy_variant }}" \
+            --caption-variant "${{ inputs.caption_variant }}" \
+            --audio "${{ inputs.audio }}" \
             --duration "${{ inputs.duration }}" \
             --clips "${{ inputs.clips }}" \
-            --bpm "${{ inputs.bpm }}" \
-            --text-mode "${{ inputs.text_mode }}" \
-            --music "$MUSIC"
-
+            --bpm "${{ inputs.bpm }}"
+      - name: Save experiment history
+        run: |
+          git config user.name "zoop-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/generated.csv data/used_stock.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "Record generated ZOOP experiment"
+            git pull --rebase origin main
+            git push origin main
+          fi
       - name: Upload ZOOP package
         uses: actions/upload-artifact@v4
         with:
-          name: zoop-luxury-video
+          name: zoop-ready-${{ github.run_id }}
           path: |
             output/ZOOP_READY.mp4
             output/caption.txt
+            output/post_card.md
+            output/EXPERIMENT_ID.txt
             output/creative_plan.json
+            output/audio_plan.json
             output/sources.json
-          retention-days: 14
+            output/rights_manifest.json
+          retention-days: 30

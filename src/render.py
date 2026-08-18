@@ -115,14 +115,17 @@ def add_overlay(video, overlay, output):
     ])
 
 
-def add_music(video, music, output, target_duration, music_volume=0.75):
+def add_music(video, music, output, target_duration, music_volume=0.75, start_sec=None):
     if not music:
         run(["ffmpeg", "-y", "-i", str(video), "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
              "-shortest", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", str(output)])
         return
     m_total = probe_duration(music)
     max_start = max(0.0, m_total - target_duration - 0.1)
-    start = random.uniform(0, max_start) if max_start > 0 else 0
+    if start_sec is None:
+        start = random.uniform(0, max_start) if max_start > 0 else 0
+    else:
+        start = max(0.0, min(float(start_sec), max_start if max_start > 0 else float(start_sec)))
     fade_out = max(0, target_duration - 1.0)
     af = f"volume={music_volume},afade=t=in:st=0:d=0.4,afade=t=out:st={fade_out:.2f}:d=1.0"
     run([

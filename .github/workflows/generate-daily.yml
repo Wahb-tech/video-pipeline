@@ -1,0 +1,79 @@
+name: Automatic ZOOP Content Factory
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: zoop-content-factory
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install FFmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation fonts-urw-base35
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate optimized dark-luxury video
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: |
+          python -m src.main \
+            --style dark_luxury \
+            --theme auto \
+            --copy-variant auto \
+            --caption-variant auto \
+            --duration 25 \
+            --clips 17 \
+            --bpm 100 \
+            --audio auto
+
+      - name: Save experiment history
+        run: |
+          git config user.name "zoop-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/generated.csv data/used_stock.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "Record scheduled ZOOP experiment"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
+      - name: Upload ZOOP package
+        uses: actions/upload-artifact@v4
+        with:
+          name: zoop-auto-${{ github.run_id }}
+          path: |
+            output/ZOOP_READY.mp4
+            output/caption.txt
+            output/post_card.md
+            output/EXPERIMENT_ID.txt
+            output/creative_plan.json
+            output/audio_plan.json
+            output/sources.json
+            output/rights_manifest.json
+          retention-days: 30

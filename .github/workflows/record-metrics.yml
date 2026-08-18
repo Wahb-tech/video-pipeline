@@ -1,0 +1,90 @@
+name: Record ZOOP Metrics
+
+on:
+  workflow_dispatch:
+    inputs:
+      experiment_id:
+        description: Experiment ID from the video package
+        required: true
+      published_at:
+        description: Publication date/time, optional
+        required: false
+        default: ""
+      views:
+        description: Views or reach
+        required: true
+        default: "0"
+      likes:
+        description: Likes
+        required: true
+        default: "0"
+      comments:
+        description: Comments
+        required: true
+        default: "0"
+      shares:
+        description: Shares
+        required: true
+        default: "0"
+      follows:
+        description: Followers gained from this post if known
+        required: true
+        default: "0"
+      completion_rate:
+        description: Completion rate 0-100 if ZOOP exposes it
+        required: false
+        default: "0"
+      avg_watch_seconds:
+        description: Average watch seconds if ZOOP exposes it
+        required: false
+        default: "0"
+      post_url:
+        description: ZOOP post URL, optional
+        required: false
+        default: ""
+      notes:
+        description: Optional notes
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Record metrics
+        run: |
+          python -m src.metrics \
+            --experiment-id "${{ inputs.experiment_id }}" \
+            --published-at "${{ inputs.published_at }}" \
+            --views "${{ inputs.views }}" \
+            --likes "${{ inputs.likes }}" \
+            --comments "${{ inputs.comments }}" \
+            --shares "${{ inputs.shares }}" \
+            --follows "${{ inputs.follows }}" \
+            --completion-rate "${{ inputs.completion_rate }}" \
+            --avg-watch-seconds "${{ inputs.avg_watch_seconds }}" \
+            --post-url "${{ inputs.post_url }}" \
+            --notes "${{ inputs.notes }}"
+
+      - name: Update strategy report
+        run: python -m src.analyze
+
+      - name: Save metrics and strategy
+        run: |
+          git config user.name "zoop-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/metrics.csv data/strategy_state.json reports/latest.md
+          git commit -m "Record ZOOP metrics and update strategy"
+          git pull --rebase origin main
+          git push origin main

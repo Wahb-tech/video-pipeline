@@ -1,85 +1,154 @@
-# ZOOP Luxury Factory
+# ZOOP Dark-Luxury Factory v3
 
-Cloud-run vertical luxury edit generator. It is designed to run in GitHub Actions, so the editing/rendering work happens on a GitHub-hosted runner rather than on your computer.
+A cloud-first dark-luxury short-video factory built for GitHub Actions. It keeps the validated visual baseline (25 seconds, 17 cuts, dark-luxury grading) and adds an experiment/learning loop so the content mix evolves from the performance of your own posts.
 
-## What it creates
+## What is automated
 
-A 9:16 luxury-lifestyle edit assembled from licensed stock-video API results: yachts, Dubai, supercars, adult pool/beach lifestyle, private jets, villas, hotels, nightlife, watches and similar footage.
+- Generates dark-luxury vertical edits from Pexels/Pixabay stock footage.
+- Uses Gemini as an optional creative director and falls back safely if Gemini is unavailable.
+- Keeps the approved dark grade and tracked minimalist text style.
+- Avoids recently reused stock clips across videos.
+- Generates a short caption variant for each post.
+- Produces a provenance/rights manifest for every export.
+- Generates one upload-ready package twice per day via GitHub Actions.
+- Records every generated experiment in `data/generated.csv`.
+- Lets you record post performance through a GitHub Actions form.
+- Re-analyzes theme/copy/caption performance after each metrics entry and weekly.
+- Uses a 70/30 exploit/explore strategy after enough samples, while forcing early exploration so every variant gets tested.
 
-The final artifact contains:
+## What is not automated
+
+Direct ZOOP posting is intentionally not included. As of this version, ZOOP does not publish a public creator-upload API, and its policies restrict automated/bot/script interaction. The system therefore automates production, packaging, experiment selection and learning, while the final ZOOP upload stays manual.
+
+When ZOOP presents an AI Content / AI Edited Content label during upload, use the appropriate label for content that falls within ZOOP's current labelling rules.
+
+## Baseline
+
+The automatic factory uses:
+
+- Style: `dark_luxury`
+- Duration: `25s`
+- Cuts: `17`
+- BPM: `100`
+- Position: centered minimalist text
+
+## Experiment factors
+
+### Theme
+
+- `dark_cars`: supercars, Dubai night, watches, dark business/lifestyle
+- `money`: cash, watches, suits, cars, premium interiors
+- `dark_life`: nightlife, restaurants, hotels, Dubai, private jets
+- `mixed_dark`: broad dark-luxury mix
+
+### Overlay copy
+
+- `one_day` → `ONE DAY.`
+- `soon` → `SOON.`
+- `none` → no text
+
+### Caption type
+
+- `choice`: simple A/B question
+- `aspiration`: short aspirational question
+- `minimal`: minimal dark-luxury caption
+
+## Workflows
+
+### Generate ZOOP Luxury Video
+
+Manual generator. You can choose the experiment factors yourself or leave them on `auto`.
+
+### Automatic ZOOP Content Factory
+
+Runs twice per day at 07:00 and 17:00 UTC. Each run creates one 25s / 17-cut dark-luxury video and uploads a GitHub artifact named `zoop-auto-<run_id>`.
+
+The artifact contains:
 
 - `ZOOP_READY.mp4`
 - `caption.txt`
+- `post_card.md`
+- `EXPERIMENT_ID.txt`
 - `creative_plan.json`
 - `sources.json`
+- `rights_manifest.json`
 
-There is no YouTube uploader and no ZOOP automation. The output is simply prepared for manual upload to ZOOP.
+### Record ZOOP Metrics
 
-## Pipeline
+After posting a video, run this workflow and enter its `experiment_id` plus the metrics ZOOP exposes to you:
 
-1. GitHub Actions starts an Ubuntu runner.
-2. Gemini optionally acts as creative director and chooses the sequence, minimal overlay text and caption.
-3. Pexels and/or Pixabay are searched for matching stock clips.
-4. The system prefers portrait/high-resolution clips and avoids reusing the same source in one edit.
-5. Each source is cut to a short segment and cropped to 1080x1920.
-6. Cuts are distributed around the BPM you specify.
-7. The clips are concatenated with hard cuts.
-8. Optional minimal text is burned into the image.
-9. Optional music is added.
-10. GitHub uploads the final package as a workflow artifact.
+- views/reach
+- likes
+- comments
+- shares
+- followers gained
+- completion rate if available
+- average watch seconds if available
 
-## Required secrets
+The workflow updates `data/metrics.csv`, `data/strategy_state.json` and `reports/latest.md`.
 
-In GitHub: `Settings -> Secrets and variables -> Actions`.
+### Analyze ZOOP Strategy
 
-You need at least one stock provider:
+Runs weekly and can also be run manually. It builds a report showing which themes, overlay texts and caption styles are winning.
 
-- `PEXELS_API_KEY`
-- `PIXABAY_API_KEY`
+## Internal scoring
 
-Optional:
+The pipeline uses its own comparison score. This is not claimed to be ZOOP's ranking formula.
 
-- `GEMINI_API_KEY`
+The score rewards:
 
-If Gemini is missing, the generator still works using built-in creative presets.
+- likes
+- comments more heavily than likes
+- shares more heavily than comments
+- followers gained most heavily
+- completion rate as an optional secondary signal
+
+Results are smoothed so one tiny post cannot immediately become the permanent winner.
+
+## Strategy logic
+
+At first, the system prioritizes under-tested variants until each factor has enough observations. After that it uses approximately:
+
+- 70% exploitation: choose the strongest factor values so far
+- 30% exploration: keep testing alternatives
+
+This avoids getting stuck on a false winner too early.
+
+## Clip reuse protection
+
+`data/used_stock.csv` stores recent stock IDs. New videos avoid the most recently used stock clips so the account does not repeatedly recycle the same footage.
+
+## Provenance
+
+Every package contains `rights_manifest.json`, including provider, stock ID, source page, author when available, search query and license reference. Keep this file with the corresponding post archive.
 
 ## Music
 
-Put music you have the right to use inside `assets/music/` and commit it to your own repository, then type its filename when running the workflow.
+Add music you have the right to use in `assets/music/`. With `--music auto`, the generator randomly selects an audio file from that folder. If the folder contains no track, the exported video contains a silent audio stream.
 
-Example: `luxury-house-01.mp3`
+## API secrets
 
-If no music is provided, the output is generated with silent audio. The repo deliberately does not scrape copyrighted TikTok/Instagram music.
+Set these GitHub repository secrets:
 
-## Run
+- `PEXELS_API_KEY`
+- `PIXABAY_API_KEY`
+- `GEMINI_API_KEY` (optional but recommended)
 
-Open `Actions -> Generate ZOOP Luxury Video -> Run workflow`.
+## First recommended operating loop
 
-Recommended first test:
+1. Let the factory create up to two videos per day.
+2. Post the best generated package to ZOOP manually.
+3. Keep the `EXPERIMENT_ID.txt` value.
+4. After the post has had time to collect meaningful engagement, run `Record ZOOP Metrics`.
+5. Repeat without manually changing the visual baseline.
+6. Review `reports/latest.md` after roughly 20, 40 and 60 recorded posts.
 
-- style: `mixed`
-- duration: `15`
-- clips: `10`
-- BPM: `120`
-- text mode: `minimal`
-- music file: leave blank for the first technical test
+The goal is to optimize from your own account data rather than pretend to know ZOOP's private ranking formula.
 
-After the job finishes, download the `zoop-luxury-video` artifact from the workflow run.
+## V4 known-audio strategy
 
-## Styles
+The pipeline now has a dark-luxury audio catalog in `data/audio_catalog.json`. It can select among `TE CONOCÍ`, `GOZALO`, `NO ERA AMOR`, `LUZ ROJA`, `LUNA BALA`, `SEMPERO`, and `PASSO BEM SOLTO`, mapping each one to the visual theme and learning from recorded post metrics.
 
-- `dark_luxury`: night cars, Dubai, watches, jets, nightlife
-- `summer_luxury`: pools, beaches, yachts, Monaco, villas
-- `dubai`: Dubai-heavy edit
-- `yacht_life`: yachts, pools, beaches, Monaco
-- `mixed`: broad luxury mix
+The catalog stores a preferred 25-second starting point seeded from current Shazam Popular Segments. The pipeline also records the chosen audio in `generated.csv` and `metrics.csv`, so `Analyze ZOOP Strategy` can compare audio performance along with theme, overlay, and caption.
 
-## How the montage works
-
-For a 15-second video with 10 clips at 120 BPM, the renderer creates roughly 1-2 second cuts. It downloads longer stock videos and randomly chooses a short section from each source instead of always taking the opening seconds. Each section is resized/cropped to 1080x1920 at 30 fps and joined with hard cuts.
-
-The BPM is used as a rhythmic guide. The system draws cut durations from 2, 3 or 4 beats and then rescales the sequence to land exactly on the requested final duration.
-
-## Content sourcing
-
-`sources.json` records provider, source ID and source page for every clip used. Review the current Pexels/Pixabay licenses and any applicable model/property restrictions for your intended use before publishing commercially.
+Commercial audio files are intentionally not included or downloaded. If you are authorized to use a track, see `assets/music/README.md` for the expected filename. If the selected file is absent, the video still renders and `output/audio_plan.json` tells you which audio was selected and which segment to use.

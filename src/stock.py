@@ -1,10 +1,12 @@
+import csv
 import os
 import random
 import requests
+from datetime import datetime, timezone
 from pathlib import Path
 from .config import CATEGORIES, DARK_QUERIES
 
-UA = "ZoopLuxuryFactory/1.0"
+UA = "ZoopLuxuryFactory/2.0"
 
 
 def pexels_search(query, per_page=12):
@@ -26,6 +28,7 @@ def pexels_search(query, per_page=12):
             continue
         portrait = [f for f in files if (f.get("height") or 0) >= (f.get("width") or 0)]
         f = (portrait or files)[0]
+        user = video.get("user") or {}
         out.append({
             "provider": "pexels",
             "id": str(video.get("id")),
@@ -34,6 +37,9 @@ def pexels_search(query, per_page=12):
             "height": f.get("height", 0),
             "duration": float(video.get("duration") or 0),
             "page_url": video.get("url", ""),
+            "author": user.get("name", ""),
+            "author_url": user.get("url", ""),
+            "license_reference": "https://www.pexels.com/license/"
         })
     return out
 
@@ -65,6 +71,9 @@ def pixabay_search(query, per_page=20):
             "height": f.get("height", 0),
             "duration": float(hit.get("duration") or 0),
             "page_url": hit.get("pageURL", ""),
+            "author": hit.get("user", ""),
+            "author_url": "",
+            "license_reference": "https://pixabay.com/service/license-summary/"
         })
     return out
 
@@ -88,18 +97,56 @@ def find_clip(category, used_ids, style="mixed"):
     pool = []
     for query in queries[:2]:
         try:
-            pool.extend(pexels_search(query))
+            items = pexels_search(query)
+            for item in items:
+                item["search_query"] = query
+            pool.extend(items)
         except Exception as e:
             print(f"Pexels search failed for {query}: {e}")
         try:
-            pool.extend(pixabay_search(query))
+            items = pixabay_search(query)
+            for item in items:
+                item["search_query"] = query
+            pool.extend(items)
         except Exception as e:
             print(f"Pixabay search failed for {query}: {e}")
     pool = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in used_ids]
     if not pool:
         raise RuntimeError(f"No stock video found for category: {category}")
     pool.sort(key=score, reverse=True)
-    return random.choice(pool[: min(5, len(pool))])
+    chosen = random.choice(pool[: min(5, len(pool))])
+    chosen["retrieved_at"] = datetime.now(timezone.utc).isoformat()
+    return chosen
+
+
+def load_recent_used(path="data/used_stock.csv", limit=400):
+    p = Path(path)
+    if not p.exists():
+        return set()
+    with p.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))[-limit:]
+    return {f'{r["provider"]}:{r["stock_id"]}' for r in rows if r.get("provider") and r.get("stock_id")}
+
+
+def append_used(items, experiment_id, path="data/used_stock.csv"):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    exists = p.exists() and p.stat().st_size > 0
+    fields = ["experiment_id", "provider", "stock_id", "category", "search_query", "page_url", "used_at"]
+    with p.open("a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        if not exists:
+            writer.writeheader()
+        for item in items:
+            writer.writerow({
+                "experiment_id": experiment_id,
+                "provider": item.get("provider", ""),
+                "stock_id": item.get("id", ""),
+                "category": item.get("category", ""),
+                "search_query": item.get("search_query", ""),
+                "page_url": item.get("page_url", ""),
+                "used_at": datetime.now(timezone.utc).isoformat()
+            })
 
 
 def download(url, destination):
@@ -110,4 +157,3 @@ def download(url, destination):
             for chunk in r.iter_content(chunk_size=1024 * 1024):
                 if chunk:
                     f.write(chunk)
-    return destination

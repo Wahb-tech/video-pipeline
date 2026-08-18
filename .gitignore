@@ -6,3 +6,8 @@ output/*
 assets/music/*
 !assets/music/.gitkeep
 .env
+
+!assets/music/README.md
+
+.zoop-venv/
+zoop_state.json

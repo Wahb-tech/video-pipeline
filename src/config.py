@@ -25,7 +25,7 @@ DARK_QUERIES = {
     "beach": ["luxury beach night resort", "night beach club luxury", "dark tropical resort night"],
     "nightlife": ["dark luxury nightlife", "luxury rooftop night adults", "exclusive club dark cinematic"],
     "watch": ["luxury watch dark aesthetic", "expensive watch low light", "watch wrist dark luxury"],
-    "cash": ["counting money dark aesthetic", "cash machine dark", "money luxury low light"],
+    "cash": ["counting money dark aesthetic", "cash money dark luxury", "money luxury low light"],
     "business": ["wealthy man dark luxury", "man suit black luxury", "businessman night cinematic"],
     "hotel": ["dark luxury hotel", "five star hotel night", "luxury lobby low light"],
     "monaco": ["monaco supercar night", "monaco luxury night", "monaco yacht night"],
@@ -40,12 +40,46 @@ STYLE_PRESETS = {
     "mixed": list(CATEGORIES.keys())
 }
 
-FALLBACK_TEXTS = [
-    "One day.",
-    "Soon.",
-    "Make it real.",
-    "Different standards.",
-    "This is the plan.",
-    "See you at the top.",
-    "Built for more."
-]
+THEME_PRESETS = {
+    "dark_cars": ["supercar", "supercar", "dubai", "watch", "business", "nightlife", "hotel"],
+    "money": ["cash", "cash", "watch", "business", "supercar", "restaurant", "hotel"],
+    "dark_life": ["business", "nightlife", "restaurant", "hotel", "dubai", "private_jet", "watch"],
+    "mixed_dark": STYLE_PRESETS["dark_luxury"]
+}
+
+COPY_VARIANTS = {
+    "one_day": "One day.",
+    "soon": "Soon.",
+    "none": ""
+}
+
+CAPTION_TEMPLATES = {
+    "choice": {
+        "dark_cars": ["Ferrari or Lamborghini?", "Night drive or showroom?", "Black or red?"],
+        "money": ["The watch or the car first?", "Freedom or status?", "Cash or assets?"],
+        "dark_life": ["Dubai or Monaco?", "Rooftop or private jet?", "Nightlife or silence?"],
+        "mixed_dark": ["Dubai or Monaco?", "Car or watch first?", "Freedom or status?"]
+    },
+    "aspiration": {
+        "dark_cars": ["What is the first car on your list?", "How close are you?", "What are you building toward?"],
+        "money": ["What does made it look like to you?", "How close are you?", "What are you building toward?"],
+        "dark_life": ["What does freedom look like to you?", "Where would you wake up first?", "What are you building toward?"],
+        "mixed_dark": ["What does made it look like to you?", "How close are you?", "What are you building toward?"]
+    },
+    "minimal": {
+        "dark_cars": ["Built in silence.", "One day.", "Soon."],
+        "money": ["Different standards.", "One day.", "Soon."],
+        "dark_life": ["Built for more.", "One day.", "Soon."],
+        "mixed_dark": ["Built in silence.", "One day.", "Soon."]
+    }
+}
+
+FALLBACK_TEXTS = list(COPY_VARIANTS.values())
+
+BASELINE = {
+    "style": "dark_luxury",
+    "duration": 25.0,
+    "clips": 17,
+    "bpm": 100.0,
+    "text_position": "center"
+}

@@ -2,18 +2,23 @@ import json
 import os
 import random
 import re
+import time
 import requests
-from .config import STYLE_PRESETS, FALLBACK_TEXTS
+from .config import STYLE_PRESETS, THEME_PRESETS, COPY_VARIANTS
 
 
-def fallback_plan(style, duration, clip_count, text_mode):
-    categories = STYLE_PRESETS.get(style, STYLE_PRESETS["mixed"])
-    chosen = [random.choice(categories) for _ in range(clip_count)]
-    phrase = "" if text_mode == "none" else random.choice(FALLBACK_TEXTS)
+def fallback_plan(style, duration, clip_count, text_mode, theme="mixed_dark", copy_variant="one_day"):
+    categories = THEME_PRESETS.get(theme) or STYLE_PRESETS.get(style, STYLE_PRESETS["mixed"])
+    chosen = []
+    while len(chosen) < clip_count:
+        candidate = random.choice(categories)
+        if chosen and chosen[-1] == candidate and len(set(categories)) > 1:
+            continue
+        chosen.append(candidate)
+    phrase = "" if text_mode == "none" else COPY_VARIANTS.get(copy_variant, "One day.")
     return {
-        "concept": style.replace("_", " ").title(),
+        "concept": theme.replace("_", " ").title(),
         "overlay_text": phrase,
-        "caption": phrase or "Luxury lifestyle edit.",
         "categories": chosen,
         "music_mood": style,
         "duration": duration
@@ -31,67 +36,67 @@ def extract_json(text):
     return json.loads(text[start:end + 1])
 
 
-def generate_plan(style, duration, clip_count, text_mode):
+def generate_plan(style, duration, clip_count, text_mode, theme="mixed_dark", copy_variant="one_day"):
     key = os.getenv("GEMINI_API_KEY", "").strip()
     if not key:
-        return fallback_plan(style, duration, clip_count, text_mode)
+        return fallback_plan(style, duration, clip_count, text_mode, theme, copy_variant)
 
-    model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    allowed = sorted(set(THEME_PRESETS.get(theme, STYLE_PRESETS.get(style, STYLE_PRESETS["mixed"]))))
     prompt = f"""
-You are the creative director for a short vertical luxury-lifestyle edit intended for an adult audience.
+You are the creative director for a short vertical dark-luxury lifestyle edit for an adult audience.
 Style: {style}
+Theme: {theme}
 Duration: {duration} seconds
 Number of visual cuts: {clip_count}
 Text mode: {text_mode}
 
-The visual universe is aspirational luxury: yachts, Dubai rooftops, supercars, five-star hotels, private jets, villas, beaches, pools, nightlife, watches and stylish adult models. Any people referenced must clearly be adults. Keep it tasteful and non-explicit.
+The edit should feel dark, expensive, cinematic and restrained. Favor black supercars at night, cash, watches, suits, luxury restaurants, hotel interiors, Dubai at night, private jets and premium nightlife. People must clearly be adults. Keep it tasteful and non-explicit.
 
-Return ONLY valid JSON with this schema:
+Return ONLY valid JSON:
 {{
   "concept": "short concept name",
-  "overlay_text": "0-7 words, or empty string",
-  "caption": "one short social caption",
   "categories": ["exactly {clip_count} category names"],
   "music_mood": "short mood"
 }}
 
-Allowed category names only:
-yacht, pool, dubai, supercar, private_jet, villa, beach, nightlife, watch, cash, business, hotel, monaco, restaurant
+Allowed categories for this theme only:
+{', '.join(allowed)}
 
 Rules:
-- categories must contain exactly {clip_count} entries
-- avoid using the same category twice in a row
-- create visual variety
-- if text_mode is none, overlay_text must be empty
-- if text_mode is minimal, overlay_text must be extremely short
-- for dark_luxury, strongly favor supercar, cash, watch, business, dubai, nightlife and dark interiors
-- no narration and no educational script
+- exactly {clip_count} category entries
+- avoid the same category twice in a row
+- visual variety while staying within the selected theme
+- no narration
+- no educational script
 """.strip()
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 1.0, "responseMimeType": "application/json"}
+        "generationConfig": {"temperature": 0.9, "responseMimeType": "application/json"}
     }
-    response = requests.post(
-        endpoint,
-        headers={
-            "x-goog-api-key": key,
-            "Content-Type": "application/json"
-        },
-        json=payload,
-        timeout=60
-    )
-    
-    if not response.ok:
-        raise RuntimeError(
-            f"Gemini API error {response.status_code}: {response.text}"
-        )
-    
-    data = response.json()
-    text = data["candidates"][0]["content"]["parts"][0]["text"]
-    plan = extract_json(text)
-    cats = plan.get("categories", [])
-    if len(cats) != clip_count:
-        return fallback_plan(style, duration, clip_count, text_mode)
-    plan["duration"] = duration
-    return plan
+    headers = {"x-goog-api-key": key, "Content-Type": "application/json"}
+    last_error = None
+    for attempt in range(3):
+        try:
+            response = requests.post(endpoint, headers=headers, json=payload, timeout=60)
+            if response.status_code in (429, 500, 502, 503, 504):
+                last_error = RuntimeError(f"Gemini temporary error {response.status_code}: {response.text[:300]}")
+                time.sleep(2 ** attempt)
+                continue
+            response.raise_for_status()
+            data = response.json()
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            plan = extract_json(text)
+            cats = plan.get("categories", [])
+            if len(cats) != clip_count or any(c not in allowed for c in cats):
+                raise ValueError("Gemini returned invalid categories")
+            plan["duration"] = duration
+            plan["overlay_text"] = "" if text_mode == "none" else COPY_VARIANTS.get(copy_variant, "One day.")
+            return plan
+        except Exception as e:
+            last_error = e
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+    print(f"Gemini unavailable, using fallback plan: {last_error}")
+    return fallback_plan(style, duration, clip_count, text_mode, theme, copy_variant)

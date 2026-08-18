@@ -1,0 +1,83 @@
+{
+  "updated_at": "2026-08-18",
+  "segment_method": "Preferred starts are seeded from current Shazam Popular Segments. They are starting points for 25-second dark-luxury edits, not a claim about ZOOP's algorithm.",
+  "tracks": {
+    "te_conoci_super_slowed": {
+      "title": "TE CONOCÍ",
+      "artist": "bxkq & PXLWYSE",
+      "version": "Super Slowed",
+      "expected_file_stem": "te_conoci_super_slowed",
+      "preferred_start_sec": 8.0,
+      "popular_window": "00:10-00:15",
+      "alternate_start_sec": [0.0, 20.0, 35.0],
+      "theme_weights": {"dark_cars": 1.6, "money": 1.55, "dark_life": 1.15, "mixed_dark": 1.5},
+      "source": "Shazam Popular Segments"
+    },
+    "gozalo_super_slowed": {
+      "title": "GOZALO",
+      "artist": "Ariis",
+      "version": "Super Slowed",
+      "expected_file_stem": "gozalo_super_slowed",
+      "preferred_start_sec": 0.0,
+      "popular_window": "00:00-00:05",
+      "alternate_start_sec": [25.0, 35.0, 55.0],
+      "theme_weights": {"dark_cars": 0.95, "money": 0.9, "dark_life": 1.65, "mixed_dark": 1.5},
+      "source": "Shazam Popular Segments"
+    },
+    "no_era_amor_super_slowed": {
+      "title": "NO ERA AMOR",
+      "artist": "DJ Asul",
+      "version": "Super Slowed",
+      "expected_file_stem": "no_era_amor_super_slowed",
+      "preferred_start_sec": 0.0,
+      "popular_window": "00:00-00:05",
+      "alternate_start_sec": [10.0, 30.0, 50.0],
+      "theme_weights": {"dark_cars": 1.5, "money": 1.3, "dark_life": 1.05, "mixed_dark": 1.25},
+      "source": "Shazam Popular Segments"
+    },
+    "luz_roja_slowed": {
+      "title": "LUZ ROJA",
+      "artist": "bxkq",
+      "version": "Slowed",
+      "expected_file_stem": "luz_roja_slowed",
+      "preferred_start_sec": 10.0,
+      "popular_window": "roughly 00:10-00:20 across recent Shazam snapshots",
+      "alternate_start_sec": [0.0, 25.0, 40.0],
+      "theme_weights": {"dark_cars": 1.45, "money": 1.2, "dark_life": 1.15, "mixed_dark": 1.2},
+      "source": "Shazam Popular Segments"
+    },
+    "luna_bala_slowed": {
+      "title": "LUNA BALA",
+      "artist": "Yb Wasg'ood & Ariis",
+      "version": "Slowed",
+      "expected_file_stem": "luna_bala_slowed",
+      "preferred_start_sec": 0.0,
+      "popular_window": "00:00-00:05",
+      "alternate_start_sec": [10.0, 25.0, 35.0],
+      "theme_weights": {"dark_cars": 1.0, "money": 0.85, "dark_life": 1.5, "mixed_dark": 1.3},
+      "source": "Shazam Popular Segments"
+    },
+    "sempero_super_slowed": {
+      "title": "SEMPERO",
+      "artist": "QMIIR",
+      "version": "Super Slowed",
+      "expected_file_stem": "sempero_super_slowed",
+      "preferred_start_sec": 0.0,
+      "popular_window": "00:00-00:05",
+      "alternate_start_sec": [15.0, 25.0, 35.0],
+      "theme_weights": {"dark_cars": 1.3, "money": 1.45, "dark_life": 0.9, "mixed_dark": 1.15},
+      "source": "Shazam Popular Segments"
+    },
+    "passo_bem_solto_slowed": {
+      "title": "PASSO BEM SOLTO",
+      "artist": "ATLXS",
+      "version": "Slowed",
+      "expected_file_stem": "passo_bem_solto_slowed",
+      "preferred_start_sec": 0.0,
+      "popular_window": "00:00-00:05",
+      "alternate_start_sec": [30.0, 40.0, 65.0],
+      "theme_weights": {"dark_cars": 1.1, "money": 0.95, "dark_life": 1.3, "mixed_dark": 1.15},
+      "source": "Shazam Popular Segments"
+    }
+  }
+}
