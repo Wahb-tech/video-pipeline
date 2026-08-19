@@ -28,18 +28,13 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install FFmpeg and fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation fonts-urw-base35
-
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
       - name: Install Playwright
         run: |
           python -m pip install playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install chromium
 
       - name: Generate optimized dark-luxury video
         env:
