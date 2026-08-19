@@ -109,126 +109,250 @@ def upload_video(page):
 
 
 def schedule_post(page):
+    from datetime import datetime
+
     if not SCHEDULE_DATE or not SCHEDULE_TIME:
         raise RuntimeError("Schedule date/time missing")
 
-    button = page.get_by_role(
+    schedule_post_button = page.get_by_role(
         "button",
-        name=re.compile(r"schedule post", re.I),
+        name=re.compile(r"^schedule post$", re.I),
     )
 
-    button.first.wait_for(state="visible", timeout=15000)
-    button.first.click()
+    schedule_post_button.first.wait_for(
+        state="visible",
+        timeout=15000,
+    )
+    schedule_post_button.first.click()
 
-    page.wait_for_timeout(1200)
+    page.wait_for_timeout(800)
 
-    Path("zoop_schedule_modal.html").write_text(
-        page.content(),
-        encoding="utf-8",
+    modal = page.get_by_role("presentation").filter(
+        has_text=re.compile(r"Schedule post", re.I)
+    ).last
+
+    modal.wait_for(state="visible", timeout=10000)
+
+    date_display = modal.get_by_text(
+        re.compile(r"^\d{1,2} [A-Za-z]{3} \d{4}$")
+    ).first
+
+    date_display.wait_for(state="visible", timeout=10000)
+
+    current_text = date_display.inner_text().strip()
+
+    current_date = datetime.strptime(
+        current_text,
+        "%d %b %Y",
+    ).date()
+
+    target_date = datetime.strptime(
+        SCHEDULE_DATE,
+        "%Y-%m-%d",
+    ).date()
+
+    print(
+        "ZOOP_CURRENT_DATE",
+        current_date.isoformat(),
+        flush=True,
     )
 
-    print("=== SCHEDULE MODAL ELEMENTS ===", flush=True)
-
-    elements = page.locator(
-        'button, input, [role], [tabindex], [contenteditable="true"]'
+    print(
+        "ZOOP_TARGET_DATE",
+        target_date.isoformat(),
+        flush=True,
     )
 
-    for i in range(elements.count()):
-        el = elements.nth(i)
+    date_display.click()
 
-        try:
-            if not el.is_visible():
-                continue
+    page.wait_for_timeout(500)
 
-            print(
-                "ELEMENT",
-                i,
-                "tag=", el.evaluate("(e) => e.tagName"),
-                "role=", el.get_attribute("role"),
-                "type=", el.get_attribute("type"),
-                "tabindex=", el.get_attribute("tabindex"),
-                "aria-label=", el.get_attribute("aria-label"),
-                "placeholder=", el.get_attribute("placeholder"),
-                "text=", repr(el.inner_text().strip()[:200]),
-                flush=True,
-            )
-        except Exception:
-            pass
-
-    page.screenshot(
-        path="zoop_schedule_modal.png",
-        full_page=True,
+    month_delta = (
+        (target_date.year - current_date.year) * 12
+        + target_date.month
+        - current_date.month
     )
 
-    raise RuntimeError("Schedule modal DOM captured")
+    if month_delta != 0:
+        direction = "next" if month_delta > 0 else "previous"
 
-    def fill_field(kind, value):
-        labels = page.get_by_label(re.compile(kind, re.I))
+        for _ in range(abs(month_delta)):
+            candidates = [
+                page.get_by_role(
+                    "button",
+                    name=re.compile(
+                        rf"{direction} month",
+                        re.I,
+                    ),
+                ),
+                page.locator(
+                    f'button[aria-label*="{direction}" i]'
+                ),
+            ]
 
-        for i in range(labels.count()):
-            field = labels.nth(i)
-            try:
-                if field.is_visible():
-                    field.fill(value)
-                    return True
-            except Exception:
-                pass
+            clicked = False
 
-        selectors = [
-            f'input[type="{kind}"]',
-            f'input[placeholder*="{kind}" i]',
-            f'input[aria-label*="{kind}" i]',
-            f'[role="textbox"][aria-label*="{kind}" i]',
-        ]
+            for candidate in candidates:
+                for i in range(candidate.count()):
+                    item = candidate.nth(i)
 
-        for selector in selectors:
-            fields = page.locator(selector)
-
-            for i in range(fields.count()):
-                field = fields.nth(i)
-
-                try:
-                    if not field.is_visible():
-                        continue
-
-                    field.fill(value)
-                    return True
-                except Exception:
                     try:
-                        field.click()
-                        page.keyboard.press("Control+A")
-                        page.keyboard.type(value)
-                        return True
+                        if item.is_visible():
+                            item.click()
+                            clicked = True
+                            page.wait_for_timeout(250)
+                            break
                     except Exception:
                         pass
 
-        return False
+                if clicked:
+                    break
 
-    if not fill_field("date", SCHEDULE_DATE):
+            if not clicked:
+                raise RuntimeError(
+                    f"Calendar {direction} month button not found"
+                )
+
+    day = str(target_date.day)
+    month_full = target_date.strftime("%B")
+    month_short = target_date.strftime("%b")
+    year = str(target_date.year)
+
+    date_candidates = [
+        page.get_by_role(
+            "button",
+            name=re.compile(
+                rf".*\b{day}\b.*\b{month_full}\b.*\b{year}\b.*",
+                re.I,
+            ),
+        ),
+        page.get_by_role(
+            "button",
+            name=re.compile(
+                rf".*\b{month_full}\b.*\b{day}\b.*\b{year}\b.*",
+                re.I,
+            ),
+        ),
+        page.get_by_role(
+            "button",
+            name=re.compile(
+                rf".*\b{day}\b.*\b{month_short}\b.*\b{year}\b.*",
+                re.I,
+            ),
+        ),
+        page.get_by_role(
+            "button",
+            name=day,
+            exact=True,
+        ),
+        page.get_by_text(
+            day,
+            exact=True,
+        ),
+    ]
+
+    date_clicked = False
+
+    for candidate in date_candidates:
+        for i in range(candidate.count()):
+            item = candidate.nth(i)
+
+            try:
+                if item.is_visible():
+                    item.click()
+                    date_clicked = True
+                    break
+            except Exception:
+                pass
+
+        if date_clicked:
+            break
+
+    if not date_clicked:
         page.screenshot(
             path="zoop_schedule_field_error.png",
             full_page=True,
         )
-        raise RuntimeError("Schedule date field not found")
+        raise RuntimeError(
+            f"Target calendar day not found: {SCHEDULE_DATE}"
+        )
 
-    if not fill_field("time", SCHEDULE_TIME):
+    page.wait_for_timeout(500)
+
+    time_box = modal.get_by_role("combobox").first
+
+    time_box.wait_for(
+        state="visible",
+        timeout=10000,
+    )
+
+    time_box.click()
+
+    page.wait_for_timeout(400)
+
+    time_clicked = False
+
+    options = page.get_by_role(
+        "option",
+        name=SCHEDULE_TIME,
+        exact=True,
+    )
+
+    for i in range(options.count()):
+        option = options.nth(i)
+
+        try:
+            if option.is_visible():
+                option.click()
+                time_clicked = True
+                break
+        except Exception:
+            pass
+
+    if not time_clicked:
+        matches = page.get_by_text(
+            SCHEDULE_TIME,
+            exact=True,
+        )
+
+        visible = []
+
+        for i in range(matches.count()):
+            item = matches.nth(i)
+
+            try:
+                if item.is_visible():
+                    visible.append(item)
+            except Exception:
+                pass
+
+        if len(visible) >= 2:
+            visible[-1].click()
+            time_clicked = True
+
+    if not time_clicked:
         page.screenshot(
             path="zoop_schedule_field_error.png",
             full_page=True,
         )
-        raise RuntimeError("Schedule time field not found")
+        raise RuntimeError(
+            f"Schedule time option not found: {SCHEDULE_TIME}"
+        )
+
+    page.wait_for_timeout(500)
 
     page.screenshot(
         path="zoop_schedule_ready.png",
         full_page=True,
     )
 
-    final_button = page.get_by_role(
+    final_button = modal.get_by_role(
         "button",
-        name=re.compile(r"^schedule$", re.I),
+        name="Schedule",
+        exact=True,
     )
 
-    final_button.first.wait_for(
+    final_button.wait_for(
         state="visible",
         timeout=10000,
     )
@@ -239,11 +363,14 @@ def schedule_post(page):
         print(f"TIME={SCHEDULE_TIME}", flush=True)
         return
 
-    final_button.first.click()
+    final_button.click()
+
     page.wait_for_timeout(3000)
 
     if "/connection-error" in page.url:
-        raise RuntimeError("ZOOP connection error while scheduling")
+        raise RuntimeError(
+            "ZOOP connection error while scheduling"
+        )
 
     print("ZOOP_SCHEDULE_SUBMITTED", flush=True)
 
