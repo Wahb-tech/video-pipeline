@@ -70,21 +70,6 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation fonts-urw-base35
       - name: Install Python dependencies
         run: pip install -r requirements.txt
-      - name: Download authorized music
-        env:
-          ZOOP_MUSIC_URL: ${{ secrets.ZOOP_MUSIC_URL }}
-        run: |
-          test -n "$ZOOP_MUSIC_URL"
-          curl --fail --location --silent --show-error \
-            "$ZOOP_MUSIC_URL" \
-            --output /tmp/zoop_music.mp3
-          test -s /tmp/zoop_music.mp3
-          ffprobe \
-            -v error \
-            -select_streams a:0 \
-            -show_entries stream=codec_name,duration \
-            -of default=noprint_wrappers=1 \
-            /tmp/zoop_music.mp3
       - name: Generate video
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -98,7 +83,6 @@ jobs:
             --copy-variant "${{ inputs.copy_variant }}" \
             --caption-variant "${{ inputs.caption_variant }}" \
             --audio "${{ inputs.audio }}" \
-            --music /tmp/zoop_music.mp3 \
             --duration "${{ inputs.duration }}" \
             --clips "${{ inputs.clips }}" \
             --bpm "${{ inputs.bpm }}"
