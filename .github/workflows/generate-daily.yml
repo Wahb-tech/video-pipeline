@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: zoop-content-factory
@@ -34,6 +35,11 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
 
       - name: Generate optimized dark-luxury video
         env:
@@ -77,3 +83,44 @@ jobs:
             output/sources.json
             output/rights_manifest.json
           retention-days: 30
+
+      - name: Restore ZOOP session
+        env:
+          ZOOP_STORAGE_STATE_B64: ${{ secrets.ZOOP_STORAGE_STATE_B64 }}
+        run: |
+          test -n "$ZOOP_STORAGE_STATE_B64"
+          printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
+          chmod 600 zoop_state.json
+
+      - name: Load generated caption
+        run: |
+          {
+            echo 'ZOOP_CAPTION<<ZOOP_CAPTION_EOF'
+            cat output/caption.txt
+            echo
+            echo 'ZOOP_CAPTION_EOF'
+          } >> "$GITHUB_ENV"
+
+      - name: Publish generated video to ZOOP
+        env:
+          ZOOP_VIDEO: output/ZOOP_READY.mp4
+          ZOOP_STATE: zoop_state.json
+          ZOOP_SCHEDULE_COMMIT: "1"
+        run: python src/zoop_publish.py
+
+      - name: Upload publish diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zoop-auto-publish-${{ github.run_id }}
+          path: |
+            zoop_schedule_ready.png
+            zoop_after_submit.png
+            zoop_schedule_field_error.png
+            zoop_connection_error.png
+            zoop_debug.html
+          if-no-files-found: ignore
+
+      - name: Delete ZOOP session
+        if: always()
+        run: rm -f zoop_state.json

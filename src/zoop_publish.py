@@ -1,14 +1,30 @@
 import os
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright
 
 VIDEO = Path(os.environ.get("ZOOP_VIDEO", "/tmp/zoop_test.mp4"))
 CAPTION = os.environ.get("ZOOP_CAPTION", "ONE DAY.")
 STATE = os.environ.get("ZOOP_STATE", "zoop_state.json")
-SCHEDULE_DATE = os.environ.get("ZOOP_SCHEDULE_DATE", "")
-SCHEDULE_TIME = os.environ.get("ZOOP_SCHEDULE_TIME", "")
+SCHEDULE_DATE = os.environ.get("ZOOP_SCHEDULE_DATE", "").strip()
+SCHEDULE_TIME = os.environ.get("ZOOP_SCHEDULE_TIME", "").strip()
 SCHEDULE_COMMIT = os.environ.get("ZOOP_SCHEDULE_COMMIT", "0") == "1"
+
+
+def resolve_schedule(date_value, time_value):
+    if date_value and time_value:
+        return date_value, time_value
+    target = datetime.now(ZoneInfo("Europe/Zurich")) + timedelta(minutes=20)
+    minute = 30 if target.minute < 30 else 0
+    if minute == 0:
+        target += timedelta(hours=1)
+    target = target.replace(minute=minute, second=0, microsecond=0)
+    return target.strftime("%Y-%m-%d"), target.strftime("%H:%M")
+
+
+SCHEDULE_DATE, SCHEDULE_TIME = resolve_schedule(SCHEDULE_DATE, SCHEDULE_TIME)
 
 def click_if_visible(locator):
     try:
@@ -109,10 +125,7 @@ def upload_video(page):
 
 
 def schedule_post(page):
-    from datetime import datetime
-
-    if not SCHEDULE_DATE or not SCHEDULE_TIME:
-        raise RuntimeError("Schedule date/time missing")
+    print(f"ZOOP_AUTO_SCHEDULE {SCHEDULE_DATE} {SCHEDULE_TIME}", flush=True)
 
     schedule_post_button = page.get_by_role(
         "button",
