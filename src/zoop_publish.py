@@ -122,6 +122,46 @@ def schedule_post(page):
 
     page.wait_for_timeout(1200)
 
+    Path("zoop_schedule_modal.html").write_text(
+        page.content(),
+        encoding="utf-8",
+    )
+
+    print("=== SCHEDULE MODAL ELEMENTS ===", flush=True)
+
+    elements = page.locator(
+        'button, input, [role], [tabindex], [contenteditable="true"]'
+    )
+
+    for i in range(elements.count()):
+        el = elements.nth(i)
+
+        try:
+            if not el.is_visible():
+                continue
+
+            print(
+                "ELEMENT",
+                i,
+                "tag=", el.evaluate("(e) => e.tagName"),
+                "role=", el.get_attribute("role"),
+                "type=", el.get_attribute("type"),
+                "tabindex=", el.get_attribute("tabindex"),
+                "aria-label=", el.get_attribute("aria-label"),
+                "placeholder=", el.get_attribute("placeholder"),
+                "text=", repr(el.inner_text().strip()[:200]),
+                flush=True,
+            )
+        except Exception:
+            pass
+
+    page.screenshot(
+        path="zoop_schedule_modal.png",
+        full_page=True,
+    )
+
+    raise RuntimeError("Schedule modal DOM captured")
+
     def fill_field(kind, value):
         labels = page.get_by_label(re.compile(kind, re.I))
 
