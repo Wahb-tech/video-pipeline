@@ -12,7 +12,8 @@ CATEGORIES = {
     "business": ["businessman luxury dark", "man suit luxury night", "wealth lifestyle man dark"],
     "hotel": ["luxury hotel lobby", "five star hotel room", "luxury resort"],
     "monaco": ["monaco luxury yacht", "monaco supercar", "french riviera luxury"],
-    "restaurant": ["luxury restaurant rooftop", "fine dining luxury", "rooftop dinner city"]
+    "restaurant": ["luxury restaurant rooftop", "fine dining luxury", "rooftop dinner city"],
+    "dark_feminine": ["adult woman luxury nightlife", "adult woman elegant resort", "adult woman yacht party"]
 }
 
 DARK_QUERIES = {
@@ -29,11 +30,18 @@ DARK_QUERIES = {
     "business": ["wealthy man dark luxury", "man suit black luxury", "businessman night cinematic"],
     "hotel": ["dark luxury hotel", "five star hotel night", "luxury lobby low light"],
     "monaco": ["monaco supercar night", "monaco luxury night", "monaco yacht night"],
-    "restaurant": ["dark luxury restaurant", "rooftop restaurant night luxury", "fine dining low light cinematic"]
+    "restaurant": ["dark luxury restaurant", "rooftop restaurant night luxury", "fine dining low light cinematic"],
+    "dark_feminine": [
+        "adult woman black dress luxury night",
+        "adult woman elegant bikini luxury pool night",
+        "adult woman yacht party night cinematic",
+        "adult woman short evening dress supercar night",
+        "adult woman luxury rooftop night"
+    ]
 }
 
 STYLE_PRESETS = {
-    "dark_luxury": ["supercar", "cash", "watch", "business", "dubai", "nightlife", "restaurant", "private_jet", "hotel"],
+    "dark_luxury": ["supercar", "cash", "watch", "business", "dubai", "nightlife", "restaurant", "private_jet", "hotel", "dark_feminine"],
     "summer_luxury": ["pool", "beach", "yacht", "monaco", "villa", "restaurant"],
     "dubai": ["dubai", "supercar", "pool", "restaurant", "hotel", "private_jet", "nightlife"],
     "yacht_life": ["yacht", "beach", "pool", "monaco", "nightlife", "villa"],
@@ -41,9 +49,9 @@ STYLE_PRESETS = {
 }
 
 THEME_PRESETS = {
-    "dark_cars": ["supercar", "supercar", "dubai", "watch", "business", "nightlife", "hotel"],
-    "money": ["cash", "cash", "watch", "business", "supercar", "restaurant", "hotel"],
-    "dark_life": ["business", "nightlife", "restaurant", "hotel", "dubai", "private_jet", "watch"],
+    "dark_cars": ["supercar", "supercar", "dubai", "watch", "business", "nightlife", "hotel", "dark_feminine"],
+    "money": ["cash", "cash", "watch", "business", "supercar", "restaurant", "hotel", "dark_feminine"],
+    "dark_life": ["business", "nightlife", "restaurant", "hotel", "dubai", "private_jet", "watch", "dark_feminine"],
     "mixed_dark": STYLE_PRESETS["dark_luxury"]
 }
 

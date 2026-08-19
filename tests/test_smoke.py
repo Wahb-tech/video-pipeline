@@ -1,6 +1,6 @@
 import csv
 from pathlib import Path
-from src.gemini import fallback_plan
+from src.gemini import fallback_plan, balance_dark_feminine
 from src.render import choose_cut_lengths
 from src.strategy import choose_variant, performance_score
 
@@ -9,6 +9,12 @@ def test_fallback_plan_count():
     plan = fallback_plan("dark_luxury", 25, 17, "minimal", "dark_cars", "one_day")
     assert len(plan["categories"]) == 17
     assert plan["overlay_text"] == "One day."
+
+
+def test_dark_feminine_balance():
+    categories = balance_dark_feminine(["supercar"] * 17, 17)
+    assert len(categories) == 17
+    assert categories.count("dark_feminine") == 3
 
 
 def test_cut_lengths_sum():
