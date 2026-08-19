@@ -6,7 +6,7 @@ from pathlib import Path
 from .config import THEME_PRESETS, COPY_VARIANTS, CAPTION_TEMPLATES
 
 THEMES = list(THEME_PRESETS.keys())
-COPIES = list(COPY_VARIANTS.keys())
+COPIES = [value for value in COPY_VARIANTS if value != "none"]
 CAPTIONS = list(CAPTION_TEMPLATES.keys())
 
 

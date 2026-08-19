@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 from src.gemini import fallback_plan, balance_dark_feminine
 from src.render import choose_cut_lengths
-from src.strategy import choose_variant, performance_score
+from src.strategy import COPIES, choose_variant, performance_score
 
 
 def test_fallback_plan_count():
@@ -38,5 +38,11 @@ def test_strategy_works_without_metrics(tmp_path):
     path = tmp_path / "missing.csv"
     variant = choose_variant(str(path))
     assert variant["theme"] in {"dark_cars", "money", "dark_life", "mixed_dark"}
-    assert variant["copy_variant"] in {"one_day", "soon", "none"}
+    assert variant["copy_variant"] in {"one_day", "soon"}
     assert variant["caption_variant"] in {"choice", "aspiration", "minimal"}
+
+
+def test_automatic_strategy_never_disables_overlay():
+    assert "none" not in COPIES
+    for _ in range(30):
+        assert choose_variant()["copy_variant"] in {"one_day", "soon"}

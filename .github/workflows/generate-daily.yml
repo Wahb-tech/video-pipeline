@@ -55,10 +55,24 @@ jobs:
             --theme auto \
             --copy-variant auto \
             --caption-variant auto \
+            --text-mode minimal \
             --duration 25 \
             --clips 17 \
             --bpm 100 \
             --audio auto
+
+      - name: Verify burned-in overlay
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          plan = json.loads(Path("output/creative_plan.json").read_text())
+          overlay = plan.get("overlay_text", "").strip()
+          if not overlay:
+              raise SystemExit("Missing burned-in overlay text; refusing to publish")
+          print(f"Overlay verified: {overlay}")
+          PY
 
       - name: Save experiment history
         run: |
