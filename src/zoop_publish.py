@@ -363,16 +363,82 @@ def schedule_post(page):
         print(f"TIME={SCHEDULE_TIME}", flush=True)
         return
 
+    mutation_requests = []
+    mutation_responses = []
+
+    def capture_request(request):
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            mutation_requests.append((request.method, request.url))
+            print("ZOOP_SUBMIT_REQUEST", request.method, request.url, flush=True)
+
+    def capture_response(response):
+        if response.request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            mutation_responses.append(
+                (response.status, response.request.method, response.url)
+            )
+            print(
+                "ZOOP_SUBMIT_RESPONSE",
+                response.status,
+                response.request.method,
+                response.url,
+                flush=True,
+            )
+
+    page.on("request", capture_request)
+    page.on("response", capture_response)
+
+    print(
+        "ZOOP_FINAL_BUTTON_DISABLED",
+        final_button.is_disabled(),
+        flush=True,
+    )
+
     final_button.click()
 
-    page.wait_for_timeout(3000)
+    try:
+        page.wait_for_function(
+            """() => {
+                const text = document.body.innerText.toLowerCase();
+                return !text.includes('choose the day and time to automatically publish the post')
+                    || text.includes('scheduled successfully')
+                    || text.includes('post scheduled');
+            }""",
+            timeout=30000,
+        )
+    except Exception:
+        pass
+
+    page.wait_for_timeout(2000)
+
+    page.screenshot(
+        path="zoop_after_submit.png",
+        full_page=True,
+    )
 
     if "/connection-error" in page.url:
         raise RuntimeError(
             "ZOOP connection error while scheduling"
         )
 
-    print("ZOOP_SCHEDULE_SUBMITTED", flush=True)
+    successful_mutation = any(
+        200 <= status < 300
+        and "influencerindex.com" in url
+        and not url.endswith("/pusher/authenticate")
+        and not url.endswith("/app-users/profile")
+        for status, _, url in mutation_responses
+    )
+
+    if not successful_mutation:
+        try:
+            body_text = page.locator("body").inner_text()
+            print("ZOOP_AFTER_SUBMIT_BODY", body_text[-4000:], flush=True)
+        except Exception:
+            pass
+        raise RuntimeError(
+            "ZOOP did not confirm post creation after Schedule click"
+        )
+
+    print("ZOOP_SCHEDULE_CONFIRMED", flush=True)
 
 
 with sync_playwright() as p:
@@ -568,7 +634,7 @@ with sync_playwright() as p:
         full_page=True,
     )
 
-    print("ZOOP_DRY_RUN_OK")
+    print("ZOOP_PUBLISH_FLOW_OK")
     print(f"URL={page.url}")
     print(f"CAPTION={CAPTION}")
 

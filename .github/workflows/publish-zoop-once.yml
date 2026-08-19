@@ -89,6 +89,7 @@ jobs:
           name: zoop-real-publish
           path: |
             zoop_schedule_ready.png
+            zoop_after_submit.png
             zoop_schedule_field_error.png
             zoop_connection_error.png
             zoop_debug.html
