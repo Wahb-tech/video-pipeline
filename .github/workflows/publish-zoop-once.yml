@@ -1,0 +1,100 @@
+name: Publish ZOOP Once
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Download latest luxury video
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN_ID="$(gh run list \
+            --workflow generate-luxury.yml \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')"
+
+          test -n "$RUN_ID"
+
+          echo "Using generation run: $RUN_ID"
+
+          mkdir -p /tmp/luxury
+          gh run download "$RUN_ID" -D /tmp/luxury
+
+          VIDEO="$(find /tmp/luxury -type f -name 'ZOOP_READY.mp4' | head -n 1)"
+          CAPTION_FILE="$(find /tmp/luxury -type f -name 'caption.txt' | head -n 1)"
+
+          test -f "$VIDEO"
+          test -f "$CAPTION_FILE"
+
+          cp "$VIDEO" /tmp/ZOOP_READY.mp4
+
+          echo "ZOOP_VIDEO=/tmp/ZOOP_READY.mp4" >> "$GITHUB_ENV"
+
+          {
+            echo 'ZOOP_CAPTION<<ZOOP_CAPTION_EOF'
+            cat "$CAPTION_FILE"
+            echo
+            echo 'ZOOP_CAPTION_EOF'
+          } >> "$GITHUB_ENV"
+
+          echo "Video:"
+          ls -lh /tmp/ZOOP_READY.mp4
+
+          echo "Caption loaded."
+
+      - name: Restore ZOOP session
+        env:
+          ZOOP_STORAGE_STATE_B64: ${{ secrets.ZOOP_STORAGE_STATE_B64 }}
+        run: |
+          test -n "$ZOOP_STORAGE_STATE_B64"
+          printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
+          chmod 600 zoop_state.json
+
+      - name: Schedule real ZOOP post
+        env:
+          ZOOP_STATE: zoop_state.json
+          ZOOP_SCHEDULE_DATE: "2026-08-19"
+          ZOOP_SCHEDULE_TIME: "03:00"
+          ZOOP_SCHEDULE_COMMIT: "1"
+        run: |
+          python src/zoop_publish.py
+
+      - name: Upload publish diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zoop-real-publish
+          path: |
+            zoop_schedule_ready.png
+            zoop_schedule_field_error.png
+            zoop_connection_error.png
+            zoop_debug.html
+          if-no-files-found: ignore
+
+      - name: Delete session
+        if: always()
+        run: |
+          rm -f zoop_state.json
