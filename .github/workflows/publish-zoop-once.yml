@@ -77,7 +77,7 @@ jobs:
         env:
           ZOOP_STATE: zoop_state.json
           ZOOP_SCHEDULE_DATE: "2026-08-19"
-          ZOOP_SCHEDULE_TIME: "03:30"
+          ZOOP_SCHEDULE_TIME: "04:00"
           ZOOP_SCHEDULE_COMMIT: "1"
         run: |
           python src/zoop_publish.py
