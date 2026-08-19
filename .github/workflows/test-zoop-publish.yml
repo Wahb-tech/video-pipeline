@@ -72,6 +72,8 @@ jobs:
             zoop_connection_error.png
             zoop_schedule_ready.png
             zoop_schedule_field_error.png
+            zoop_schedule_modal.png
+            zoop_schedule_modal.html
             zoop_debug.html
           if-no-files-found: ignore
 
