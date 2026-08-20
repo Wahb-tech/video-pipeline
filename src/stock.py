@@ -8,6 +8,23 @@ from .config import CATEGORIES, DARK_QUERIES
 
 UA = "ZoopLuxuryFactory/2.0"
 
+STRICT_TERMS = {
+    "yacht": {"yacht", "superyacht", "marina"},
+    "dubai": {"dubai", "burj", "emirates"},
+    "supercar": {"supercar", "lamborghini", "ferrari", "mclaren", "porsche"},
+    "private_jet": {"private-jet", "private jet", "business-jet", "aircraft", "jet"},
+    "villa": {"mansion", "villa", "penthouse", "luxury-home", "luxury house"},
+    "watch": {"watch", "rolex", "timepiece"},
+    "cash": {"cash", "money", "dollar", "banknote"},
+    "hotel": {"hotel", "suite", "lobby", "five-star", "five star"}
+}
+
+FORBIDDEN_TERMS = {
+    "bikini", "swimsuit", "girl", "woman", "women", "model", "fashion",
+    "cosplay", "costume", "jester", "anime", "dj", "concert", "festival",
+    "party", "dancing", "beach", "wedding", "portrait"
+}
+
 
 def pexels_search(query, per_page=12):
     key = os.getenv("PEXELS_API_KEY", "").strip()
@@ -73,7 +90,8 @@ def pixabay_search(query, per_page=20):
             "page_url": hit.get("pageURL", ""),
             "author": hit.get("user", ""),
             "author_url": "",
-            "license_reference": "https://pixabay.com/service/license-summary/"
+            "license_reference": "https://pixabay.com/service/license-summary/",
+            "tags": hit.get("tags", "")
         })
     return out
 
@@ -90,12 +108,22 @@ def score(item):
     return s + random.random() * 2
 
 
+def is_strict_dark_luxury(item, category):
+    text = " ".join([
+        str(item.get("page_url", "")),
+        str(item.get("tags", "")),
+    ]).lower().replace("_", " ")
+    if any(term in text for term in FORBIDDEN_TERMS):
+        return False
+    return any(term in text for term in STRICT_TERMS.get(category, set()))
+
+
 def find_clip(category, used_ids, style="mixed"):
     query_map = DARK_QUERIES if style == "dark_luxury" else CATEGORIES
     queries = query_map[category][:]
     random.shuffle(queries)
     pool = []
-    for query in queries[:2]:
+    for query in queries:
         try:
             items = pexels_search(query)
             for item in items:
@@ -111,10 +139,12 @@ def find_clip(category, used_ids, style="mixed"):
         except Exception as e:
             print(f"Pixabay search failed for {query}: {e}")
     pool = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in used_ids]
+    if style == "dark_luxury":
+        pool = [x for x in pool if is_strict_dark_luxury(x, category)]
     if not pool:
         raise RuntimeError(f"No stock video found for category: {category}")
     pool.sort(key=score, reverse=True)
-    chosen = random.choice(pool[: min(5, len(pool))])
+    chosen = random.choice(pool[: min(3, len(pool))])
     chosen["retrieved_at"] = datetime.now(timezone.utc).isoformat()
     return chosen
 

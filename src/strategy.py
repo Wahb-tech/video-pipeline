@@ -79,9 +79,17 @@ def choose_variant(metrics_path="data/metrics.csv", exploration=0.30):
     theme_stats = factor_stats(rows, "theme", THEMES)
     copy_stats = factor_stats(rows, "copy_variant", COPIES)
     caption_stats = factor_stats(rows, "caption_variant", CAPTIONS)
+    copy_values = COPIES[:]
+    generated_path = Path("data/generated.csv")
+    if generated_path.exists() and generated_path.stat().st_size:
+        with generated_path.open(newline="", encoding="utf-8") as f:
+            generated = list(csv.DictReader(f))
+        if generated:
+            last_copy = generated[-1].get("copy_variant")
+            copy_values = [value for value in COPIES if value != last_copy] or COPIES
     return {
         "theme": _pick(theme_stats, THEMES, exploration),
-        "copy_variant": _pick(copy_stats, COPIES, exploration),
+        "copy_variant": _pick(copy_stats, copy_values, exploration),
         "caption_variant": _pick(caption_stats, CAPTIONS, exploration),
         "sample_count": len(rows)
     }

@@ -25,7 +25,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--style", default=BASELINE["style"], choices=["dark_luxury", "summer_luxury", "dubai", "yacht_life", "mixed"])
     p.add_argument("--theme", default="auto", choices=["auto", "dark_cars", "money", "dark_life", "mixed_dark"])
-    p.add_argument("--copy-variant", default="auto", choices=["auto", "one_day", "soon", "none"])
+    p.add_argument("--copy-variant", default="auto", choices=["auto", "one_day", "soon", "built_silence", "different_standard", "no_plan_b", "earned_not_given", "none"])
     p.add_argument("--caption-variant", default="auto", choices=["auto", "choice", "aspiration", "minimal"])
     p.add_argument("--duration", type=float, default=BASELINE["duration"])
     p.add_argument("--clips", type=int, default=BASELINE["clips"])

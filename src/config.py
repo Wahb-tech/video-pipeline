@@ -17,31 +17,18 @@ CATEGORIES = {
 }
 
 DARK_QUERIES = {
-    "yacht": ["luxury yacht night dark", "super yacht night cinematic", "yacht party night luxury"],
-    "pool": ["luxury pool night dark", "rooftop pool night luxury", "infinity pool night adult woman"],
-    "dubai": ["dubai night luxury dark", "dubai rooftop night cinematic", "dubai supercar night"],
-    "supercar": ["black supercar night", "luxury car dark parking", "supercar tunnel night cinematic"],
-    "private_jet": ["private jet night luxury", "private jet interior dark", "luxury aviation night"],
-    "villa": ["luxury villa night dark", "mansion night cinematic", "penthouse night luxury"],
-    "beach": ["luxury beach night resort", "night beach club luxury", "dark tropical resort night"],
-    "nightlife": ["dark luxury nightlife", "luxury rooftop night adults", "exclusive club dark cinematic"],
-    "watch": ["luxury watch dark aesthetic", "expensive watch low light", "watch wrist dark luxury"],
-    "cash": ["counting money dark aesthetic", "cash money dark luxury", "money luxury low light"],
-    "business": ["wealthy man dark luxury", "man suit black luxury", "businessman night cinematic"],
-    "hotel": ["dark luxury hotel", "five star hotel night", "luxury lobby low light"],
-    "monaco": ["monaco supercar night", "monaco luxury night", "monaco yacht night"],
-    "restaurant": ["dark luxury restaurant", "rooftop restaurant night luxury", "fine dining low light cinematic"],
-    "dark_feminine": [
-        "adult woman black dress luxury night",
-        "adult woman elegant bikini luxury pool night",
-        "adult woman yacht party night cinematic",
-        "adult woman short evening dress supercar night",
-        "adult woman luxury rooftop night"
-    ]
+    "yacht": ["superyacht at night cinematic", "luxury yacht marina night", "black yacht night"],
+    "dubai": ["Dubai skyline night luxury", "Burj Khalifa night cinematic", "Dubai supercar night"],
+    "supercar": ["black Lamborghini night cinematic", "black Ferrari night luxury", "supercar tunnel night"],
+    "private_jet": ["private jet cabin dark luxury", "private jet runway night", "luxury jet interior cinematic"],
+    "villa": ["luxury mansion night cinematic", "modern villa night luxury", "dark penthouse interior"],
+    "watch": ["Rolex watch dark cinematic", "luxury watch macro black", "expensive watch low light"],
+    "cash": ["counting hundred dollar bills dark", "cash stacks black background", "money safe dark cinematic"],
+    "hotel": ["five star hotel lobby dark", "luxury hotel suite night", "dark marble hotel interior"]
 }
 
 STYLE_PRESETS = {
-    "dark_luxury": ["supercar", "cash", "watch", "business", "dubai", "nightlife", "restaurant", "private_jet", "hotel", "dark_feminine"],
+    "dark_luxury": ["supercar", "cash", "watch", "dubai", "private_jet", "villa", "hotel", "yacht"],
     "summer_luxury": ["pool", "beach", "yacht", "monaco", "villa", "restaurant"],
     "dubai": ["dubai", "supercar", "pool", "restaurant", "hotel", "private_jet", "nightlife"],
     "yacht_life": ["yacht", "beach", "pool", "monaco", "nightlife", "villa"],
@@ -49,15 +36,19 @@ STYLE_PRESETS = {
 }
 
 THEME_PRESETS = {
-    "dark_cars": ["supercar", "supercar", "dubai", "watch", "business", "nightlife", "hotel", "dark_feminine"],
-    "money": ["cash", "cash", "watch", "business", "supercar", "restaurant", "hotel", "dark_feminine"],
-    "dark_life": ["business", "nightlife", "restaurant", "hotel", "dubai", "private_jet", "watch", "dark_feminine"],
+    "dark_cars": ["supercar", "supercar", "dubai", "watch", "private_jet", "hotel", "villa"],
+    "money": ["cash", "cash", "watch", "supercar", "private_jet", "hotel", "villa"],
+    "dark_life": ["hotel", "villa", "dubai", "private_jet", "watch", "yacht", "supercar"],
     "mixed_dark": STYLE_PRESETS["dark_luxury"]
 }
 
 COPY_VARIANTS = {
     "one_day": "One day.",
     "soon": "Soon.",
+    "built_silence": "Built in silence.",
+    "different_standard": "Different standards.",
+    "no_plan_b": "No plan B.",
+    "earned_not_given": "Earned. Not given.",
     "none": ""
 }
 

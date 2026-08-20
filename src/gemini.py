@@ -6,27 +6,6 @@ import time
 import requests
 from .config import STYLE_PRESETS, THEME_PRESETS, COPY_VARIANTS
 
-DARK_FEMININE_CATEGORY = "dark_feminine"
-DARK_FEMININE_RATIO = 0.18
-
-
-def balance_dark_feminine(categories, clip_count):
-    target = max(1, round(clip_count * DARK_FEMININE_RATIO))
-    base = [category for category in categories if category != DARK_FEMININE_CATEGORY]
-    if not base:
-        base = ["supercar", "watch", "nightlife"]
-    while len(base) < clip_count - target:
-        candidate = random.choice(base)
-        if base and base[-1] == candidate and len(set(base)) > 1:
-            continue
-        base.append(candidate)
-    base = base[:clip_count - target]
-    positions = [round((i + 1) * clip_count / (target + 1)) for i in range(target)]
-    for offset, position in enumerate(positions):
-        base.insert(min(position + offset, len(base)), DARK_FEMININE_CATEGORY)
-    return base[:clip_count]
-
-
 def fallback_plan(style, duration, clip_count, text_mode, theme="mixed_dark", copy_variant="one_day"):
     categories = THEME_PRESETS.get(theme) or STYLE_PRESETS.get(style, STYLE_PRESETS["mixed"])
     chosen = []
@@ -35,8 +14,6 @@ def fallback_plan(style, duration, clip_count, text_mode, theme="mixed_dark", co
         if chosen and chosen[-1] == candidate and len(set(categories)) > 1:
             continue
         chosen.append(candidate)
-    if style == "dark_luxury":
-        chosen = balance_dark_feminine(chosen, clip_count)
     phrase = "" if text_mode == "none" else COPY_VARIANTS.get(copy_variant, "One day.")
     return {
         "concept": theme.replace("_", " ").title(),
@@ -74,7 +51,7 @@ Duration: {duration} seconds
 Number of visual cuts: {clip_count}
 Text mode: {text_mode}
 
-The edit should feel dark, expensive, cinematic and restrained. Favor black supercars at night, cash, watches, suits, luxury restaurants, hotel interiors, Dubai at night, private jets and premium nightlife. People must clearly be adults. Keep it tasteful and non-explicit.
+The edit must show unmistakable wealth in every shot: black supercars at night, private jets, superyachts, cash, luxury watches, mansions, penthouses, five-star hotels or Dubai at night. Every visual must remain dark, expensive, cinematic and restrained. Do not select generic people, parties, DJs, beaches, swimwear, costumes or ordinary lifestyle footage.
 
 Return ONLY valid JSON:
 {{
@@ -113,9 +90,7 @@ Rules:
             cats = plan.get("categories", [])
             if len(cats) != clip_count or any(c not in allowed for c in cats):
                 raise ValueError("Gemini returned invalid categories")
-            if style == "dark_luxury":
-                cats = balance_dark_feminine(cats, clip_count)
-                plan["categories"] = cats
+            plan["categories"] = cats
             plan["duration"] = duration
             plan["overlay_text"] = "" if text_mode == "none" else COPY_VARIANTS.get(copy_variant, "One day.")
             return plan
