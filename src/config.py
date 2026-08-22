@@ -24,11 +24,20 @@ DARK_QUERIES = {
     "villa": ["luxury mansion night cinematic", "modern villa night luxury", "dark penthouse interior"],
     "watch": ["Rolex watch dark cinematic", "luxury watch macro black", "expensive watch low light"],
     "cash": ["counting hundred dollar bills dark", "cash stacks black background", "money safe dark cinematic"],
-    "hotel": ["five star hotel lobby dark", "luxury hotel suite night", "dark marble hotel interior"]
+    "hotel": ["five star hotel lobby dark", "luxury hotel suite night", "dark marble hotel interior"],
+    "dark_feminine": [
+        "elegant woman black dress luxury car night",
+        "woman private jet dark luxury",
+        "woman penthouse night cinematic",
+        "elegant woman luxury hotel night",
+        "woman bikini superyacht night luxury",
+        "woman luxury villa pool night dark",
+        "woman short evening dress supercar night"
+    ]
 }
 
 STYLE_PRESETS = {
-    "dark_luxury": ["supercar", "cash", "watch", "dubai", "private_jet", "villa", "hotel", "yacht"],
+    "dark_luxury": ["supercar", "cash", "watch", "dubai", "private_jet", "villa", "hotel", "yacht", "dark_feminine"],
     "summer_luxury": ["pool", "beach", "yacht", "monaco", "villa", "restaurant"],
     "dubai": ["dubai", "supercar", "pool", "restaurant", "hotel", "private_jet", "nightlife"],
     "yacht_life": ["yacht", "beach", "pool", "monaco", "nightlife", "villa"],
@@ -36,9 +45,9 @@ STYLE_PRESETS = {
 }
 
 THEME_PRESETS = {
-    "dark_cars": ["supercar", "supercar", "dubai", "watch", "private_jet", "hotel", "villa"],
-    "money": ["cash", "cash", "watch", "supercar", "private_jet", "hotel", "villa"],
-    "dark_life": ["hotel", "villa", "dubai", "private_jet", "watch", "yacht", "supercar"],
+    "dark_cars": ["supercar", "supercar", "dubai", "watch", "private_jet", "hotel", "villa", "dark_feminine"],
+    "money": ["cash", "cash", "watch", "supercar", "private_jet", "hotel", "villa", "dark_feminine"],
+    "dark_life": ["hotel", "villa", "dubai", "private_jet", "watch", "yacht", "supercar", "dark_feminine"],
     "mixed_dark": STYLE_PRESETS["dark_luxury"]
 }
 

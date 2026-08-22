@@ -4,6 +4,7 @@ from src.gemini import fallback_plan
 from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
+from src.stock import FORBIDDEN_TERMS
 
 
 def test_fallback_plan_count():
@@ -12,9 +13,15 @@ def test_fallback_plan_count():
     assert plan["overlay_text"] == "One day."
 
 
-def test_dark_luxury_contains_no_generic_people_categories():
+def test_dark_luxury_limits_feminine_clips():
     plan = fallback_plan("dark_luxury", 25, 17, "minimal", "mixed_dark", "soon")
-    assert not ({"dark_feminine", "business", "nightlife", "restaurant", "beach", "pool"} & set(plan["categories"]))
+    assert plan["categories"].count("dark_feminine") <= 2
+    assert not ({"business", "nightlife", "restaurant", "beach", "pool"} & set(plan["categories"]))
+
+
+def test_swimwear_is_context_checked_not_globally_forbidden():
+    assert "bikini" not in FORBIDDEN_TERMS
+    assert "swimsuit" not in FORBIDDEN_TERMS
 
 
 def test_cut_lengths_sum():

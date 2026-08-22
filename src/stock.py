@@ -16,13 +16,24 @@ STRICT_TERMS = {
     "villa": {"mansion", "villa", "penthouse", "luxury-home", "luxury house"},
     "watch": {"watch", "rolex", "timepiece"},
     "cash": {"cash", "money", "dollar", "banknote"},
-    "hotel": {"hotel", "suite", "lobby", "five-star", "five star"}
+    "hotel": {"hotel", "suite", "lobby", "five-star", "five star"},
+    "dark_feminine": {
+        "woman", "women", "lady", "female", "black dress", "evening dress",
+        "short dress", "bikini", "swimsuit"
+    }
 }
 
 FORBIDDEN_TERMS = {
-    "bikini", "swimsuit", "girl", "woman", "women", "model", "fashion",
+    "girl",
     "cosplay", "costume", "jester", "anime", "dj", "concert", "festival",
-    "party", "dancing", "beach", "wedding", "portrait"
+    "party", "dancing", "beach", "wedding"
+}
+
+FEMININE_LUXURY_TERMS = {
+    "luxury", "supercar", "lamborghini", "ferrari", "private jet", "aircraft",
+    "penthouse", "mansion", "villa", "five star", "hotel", "jewelry", "diamond",
+    "black dress", "evening dress", "short dress", "rooftop", "yacht",
+    "marina", "infinity pool", "pool night"
 }
 
 
@@ -117,6 +128,10 @@ def is_strict_dark_luxury(item, category):
     ]).lower().replace("_", " ")
     if any(term in text for term in FORBIDDEN_TERMS):
         return False
+    if category == "dark_feminine":
+        has_woman = any(term in text for term in STRICT_TERMS["dark_feminine"])
+        has_luxury = any(term in text for term in FEMININE_LUXURY_TERMS)
+        return has_woman and has_luxury
     return any(term in text for term in STRICT_TERMS.get(category, set()))
 
 
