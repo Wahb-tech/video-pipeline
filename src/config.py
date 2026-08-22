@@ -49,6 +49,9 @@ COPY_VARIANTS = {
     "different_standard": "Different standards.",
     "no_plan_b": "No plan B.",
     "earned_not_given": "Earned. Not given.",
+    "one_goal": "One goal.",
+    "destiny": "Destiny.",
+    "end_goal": "The end goal.",
     "none": ""
 }
 

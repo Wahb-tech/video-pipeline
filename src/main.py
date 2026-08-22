@@ -6,7 +6,7 @@ import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from .config import BASELINE, CAPTION_TEMPLATES
+from .config import BASELINE, CAPTION_TEMPLATES, THEME_PRESETS
 from .gemini import generate_plan
 from .stock import find_clip, download, load_recent_used, append_used
 from .render import choose_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
@@ -21,11 +21,25 @@ GENERATED_FIELDS = [
 ]
 
 
+def shuffled_categories(categories):
+    categories = list(categories)
+    if len(categories) < 2:
+        return categories
+    best = categories[:]
+    for _ in range(50):
+        candidate = categories[:]
+        random.shuffle(candidate)
+        best = candidate
+        if all(a != b for a, b in zip(candidate, candidate[1:])):
+            return candidate
+    return best
+
+
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--style", default=BASELINE["style"], choices=["dark_luxury", "summer_luxury", "dubai", "yacht_life", "mixed"])
     p.add_argument("--theme", default="auto", choices=["auto", "dark_cars", "money", "dark_life", "mixed_dark"])
-    p.add_argument("--copy-variant", default="auto", choices=["auto", "one_day", "soon", "built_silence", "different_standard", "no_plan_b", "earned_not_given", "none"])
+    p.add_argument("--copy-variant", default="auto", choices=["auto", "one_day", "soon", "built_silence", "different_standard", "no_plan_b", "earned_not_given", "one_goal", "destiny", "end_goal", "none"])
     p.add_argument("--caption-variant", default="auto", choices=["auto", "choice", "aspiration", "minimal"])
     p.add_argument("--duration", type=float, default=BASELINE["duration"])
     p.add_argument("--clips", type=int, default=BASELINE["clips"])
@@ -84,6 +98,7 @@ def main():
 
     text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)
+    plan["categories"] = shuffled_categories(plan["categories"])
     caption = random.choice(CAPTION_TEMPLATES[caption_variant][theme])
     plan.update({
         "experiment_id": experiment_id,
@@ -122,8 +137,23 @@ def main():
     normalized = []
     sources = []
 
+    category_pool = list(dict.fromkeys(THEME_PRESETS.get(theme, plan["categories"])))
     for i, category in enumerate(plan["categories"]):
-        item = find_clip(category, used, args.style)
+        attempts = [category]
+        alternatives = [value for value in category_pool if value != category]
+        random.shuffle(alternatives)
+        attempts.extend(alternatives)
+        item = None
+        errors = []
+        for attempted_category in attempts:
+            try:
+                item = find_clip(attempted_category, used, args.style)
+                category = attempted_category
+                break
+            except RuntimeError as exc:
+                errors.append(str(exc))
+        if item is None:
+            raise RuntimeError("; ".join(errors))
         used.add(f'{item["provider"]}:{item["id"]}')
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"

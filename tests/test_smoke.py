@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
 from src.gemini import fallback_plan
+from src.main import shuffled_categories
 from src.render import choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 
@@ -54,3 +55,10 @@ def test_automatic_strategy_does_not_repeat_last_copy(tmp_path, monkeypatch):
     (data / "generated.csv").write_text("copy_variant\none_day\n", encoding="utf-8")
     for _ in range(30):
         assert choose_variant()["copy_variant"] != "one_day"
+
+
+def test_shuffled_categories_preserves_content():
+    original = ["supercar", "cash", "watch", "villa", "supercar"]
+    shuffled = shuffled_categories(original)
+    assert sorted(shuffled) == sorted(original)
+    assert all(a != b for a, b in zip(shuffled, shuffled[1:]))

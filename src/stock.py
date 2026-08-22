@@ -118,6 +118,14 @@ def is_strict_dark_luxury(item, category):
     return any(term in text for term in STRICT_TERMS.get(category, set()))
 
 
+def is_safe_dark_luxury(item):
+    text = " ".join([
+        str(item.get("page_url", "")),
+        str(item.get("tags", "")),
+    ]).lower().replace("_", " ")
+    return not any(term in text for term in FORBIDDEN_TERMS)
+
+
 def find_clip(category, used_ids, style="mixed"):
     query_map = DARK_QUERIES if style == "dark_luxury" else CATEGORIES
     queries = query_map[category][:]
@@ -138,13 +146,31 @@ def find_clip(category, used_ids, style="mixed"):
             pool.extend(items)
         except Exception as e:
             print(f"Pixabay search failed for {query}: {e}")
-    pool = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in used_ids]
+    unique = {}
+    for item in pool:
+        unique[f'{item["provider"]}:{item["id"]}'] = item
+    pool = list(unique.values())
+    unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in used_ids]
     if style == "dark_luxury":
-        pool = [x for x in pool if is_strict_dark_luxury(x, category)]
-    if not pool:
+        candidates = [x for x in unused if is_strict_dark_luxury(x, category)]
+        fallback_reason = ""
+        if not candidates:
+            candidates = [x for x in pool if is_strict_dark_luxury(x, category)]
+            fallback_reason = "reusing strict stock"
+        if not candidates:
+            candidates = [x for x in unused if is_safe_dark_luxury(x)]
+            fallback_reason = "using safe query-matched stock"
+        if not candidates:
+            candidates = [x for x in pool if is_safe_dark_luxury(x)]
+            fallback_reason = "reusing safe query-matched stock"
+        if fallback_reason:
+            print(f"Stock fallback for {category}: {fallback_reason}")
+    else:
+        candidates = unused or pool
+    if not candidates:
         raise RuntimeError(f"No stock video found for category: {category}")
-    pool.sort(key=score, reverse=True)
-    chosen = random.choice(pool[: min(3, len(pool))])
+    candidates.sort(key=score, reverse=True)
+    chosen = random.choice(candidates[: min(8, len(candidates))])
     chosen["retrieved_at"] = datetime.now(timezone.utc).isoformat()
     return chosen
 
