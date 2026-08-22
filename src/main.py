@@ -1,4 +1,5 @@
 import argparse
+import csv
 import json
 import os
 import random
@@ -8,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from .config import BASELINE, CAPTION_TEMPLATES, THEME_PRESETS
 from .gemini import generate_plan
-from .stock import find_clip, download, load_recent_used, append_used
+from .stock import find_clip, download, load_usage_history, append_used
 from .render import choose_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
 from .strategy import choose_variant
 from .audio import choose_audio
@@ -17,11 +18,12 @@ from .csvutil import append_row
 GENERATED_FIELDS = [
     "experiment_id", "created_at", "style", "theme", "copy_variant", "caption_variant",
     "duration", "clips", "bpm", "overlay_text", "caption", "audio_id", "audio_title",
-    "audio_artist", "audio_version", "audio_start_sec", "audio_segment", "audio_available", "music_file"
+    "audio_artist", "audio_version", "audio_start_sec", "audio_segment", "audio_available", "music_file",
+    "sequence_signature"
 ]
 
 
-def shuffled_categories(categories):
+def shuffled_categories(categories, recent_signatures=()):
     categories = list(categories)
     if len(categories) < 2:
         return categories
@@ -30,9 +32,19 @@ def shuffled_categories(categories):
         candidate = categories[:]
         random.shuffle(candidate)
         best = candidate
-        if all(a != b for a, b in zip(candidate, candidate[1:])):
+        signature = ">".join(candidate)
+        if all(a != b for a, b in zip(candidate, candidate[1:])) and signature not in recent_signatures:
             return candidate
     return best
+
+
+def load_recent_sequences(path="data/generated.csv", limit=12):
+    p = Path(path)
+    if not p.exists() or p.stat().st_size == 0:
+        return set()
+    with p.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))[-limit:]
+    return {row.get("sequence_signature", "") for row in rows if row.get("sequence_signature")}
 
 
 def parse_args():
@@ -98,7 +110,7 @@ def main():
 
     text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)
-    plan["categories"] = shuffled_categories(plan["categories"])
+    plan["categories"] = shuffled_categories(plan["categories"], load_recent_sequences())
     caption = random.choice(CAPTION_TEMPLATES[caption_variant][theme])
     plan.update({
         "experiment_id": experiment_id,
@@ -133,7 +145,8 @@ def main():
     (out.parent / "EXPERIMENT_ID.txt").write_text(experiment_id, encoding="utf-8")
 
     lengths = choose_cut_lengths(args.duration, args.clips, args.bpm)
-    used = load_recent_used()
+    usage_history = load_usage_history()
+    current_video_ids = set()
     normalized = []
     sources = []
 
@@ -147,21 +160,25 @@ def main():
         errors = []
         for attempted_category in attempts:
             try:
-                item = find_clip(attempted_category, used, args.style)
+                item = find_clip(attempted_category, usage_history, args.style, current_video_ids)
                 category = attempted_category
                 break
             except RuntimeError as exc:
                 errors.append(str(exc))
         if item is None:
             raise RuntimeError("; ".join(errors))
-        used.add(f'{item["provider"]}:{item["id"]}')
+        item_key = f'{item["provider"]}:{item["id"]}'
+        current_video_ids.add(item_key)
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"
         download(item["url"], raw)
-        normalize_clip(raw, norm, lengths[i], args.style)
+        previous_starts = usage_history.get(item_key, {}).get("starts", [])
+        start_sec = normalize_clip(raw, norm, lengths[i], args.style, previous_starts)
         normalized.append(norm)
         item["category"] = category
+        item["start_sec"] = round(start_sec, 3)
         item["cut_seconds"] = lengths[i]
+        item["sequence_index"] = i
         sources.append(item)
 
     (out.parent / "sources.json").write_text(json.dumps(sources, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -195,7 +212,8 @@ def main():
         "audio_start_sec": audio_plan["selected_start_sec"],
         "audio_segment": f"{audio_plan['audio_id']}@{audio_plan['selected_start_sec']}" if audio_plan["audio_id"] else "",
         "audio_available": int(bool(music)),
-        "music_file": str(music) if music else ""
+        "music_file": str(music) if music else "",
+        "sequence_signature": ">".join(plan["categories"])
     }
     append_row("data/generated.csv", GENERATED_FIELDS, generated)
     append_used(sources, experiment_id)

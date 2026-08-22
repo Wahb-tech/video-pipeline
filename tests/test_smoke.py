@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 from src.gemini import fallback_plan
 from src.main import shuffled_categories
-from src.render import choose_cut_lengths
+from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 
 
@@ -62,3 +62,9 @@ def test_shuffled_categories_preserves_content():
     shuffled = shuffled_categories(original)
     assert sorted(shuffled) == sorted(original)
     assert all(a != b for a, b in zip(shuffled, shuffled[1:]))
+
+
+def test_reused_clip_moves_to_a_different_segment():
+    for _ in range(30):
+        start = choose_clip_start(30.0, 2.0, [3.0, 10.0, 17.0])
+        assert min(abs(start - old) for old in [3.0, 10.0, 17.0]) > 2.0

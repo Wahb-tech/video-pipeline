@@ -28,10 +28,22 @@ def choose_cut_lengths(duration, count, bpm):
     return [x * scale for x in lengths]
 
 
-def normalize_clip(src, dst, seconds, style="mixed"):
-    total = probe_duration(src)
+def choose_clip_start(total, seconds, prior_starts=()):
     max_start = max(0.0, total - seconds - 0.1)
-    start = random.uniform(0, max_start) if max_start > 0 else 0
+    if max_start <= 0:
+        return 0.0
+    prior = [float(value) for value in prior_starts if value not in (None, "")]
+    if not prior:
+        return random.uniform(0, max_start)
+    candidates = [max_start * i / 23 for i in range(24)]
+    random.shuffle(candidates)
+    candidates.sort(key=lambda value: min(abs(value - old) for old in prior), reverse=True)
+    return random.choice(candidates[: min(4, len(candidates))])
+
+
+def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
+    total = probe_duration(src)
+    start = choose_clip_start(total, seconds, prior_starts)
     filters = [
         "scale=1080:1920:force_original_aspect_ratio=increase",
         "crop=1080:1920",
@@ -46,9 +58,10 @@ def normalize_clip(src, dst, seconds, style="mixed"):
     vf = ",".join(filters)
     run([
         "ffmpeg", "-y", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{seconds:.3f}",
-        "-an", "-vf", vf, "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+        "-an", "-vf", vf, "-c:v", "libx264", "-preset", "fast", "-crf", "18",
         "-pix_fmt", "yuv420p", str(dst)
     ])
+    return start
 
 
 def concat_clips(clips, output):
@@ -110,7 +123,7 @@ def add_overlay(video, overlay, output):
     run([
         "ffmpeg", "-y", "-i", str(video), "-i", str(overlay),
         "-filter_complex", "[0:v][1:v]overlay=0:0:format=auto[v]",
-        "-map", "[v]", "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+        "-map", "[v]", "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18",
         "-pix_fmt", "yuv420p", str(output)
     ])
 

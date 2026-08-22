@@ -96,7 +96,7 @@ def pixabay_search(query, per_page=20):
     return out
 
 
-def score(item):
+def score(item, usage=None):
     s = 0
     w, h = item.get("width", 0), item.get("height", 0)
     if h > w:
@@ -105,7 +105,9 @@ def score(item):
         s += 2
     if item.get("duration", 0) >= 5:
         s += 2
-    return s + random.random() * 2
+    usage = usage or {}
+    reuse_penalty = min(6.0, float(usage.get("count", 0)) * 0.8)
+    return s - reuse_penalty + random.random() * 2
 
 
 def is_strict_dark_luxury(item, category):
@@ -126,7 +128,7 @@ def is_safe_dark_luxury(item):
     return not any(term in text for term in FORBIDDEN_TERMS)
 
 
-def find_clip(category, used_ids, style="mixed"):
+def find_clip(category, usage_history, style="mixed", exclude_ids=None):
     query_map = DARK_QUERIES if style == "dark_luxury" else CATEGORIES
     queries = query_map[category][:]
     random.shuffle(queries)
@@ -150,7 +152,13 @@ def find_clip(category, used_ids, style="mixed"):
     for item in pool:
         unique[f'{item["provider"]}:{item["id"]}'] = item
     pool = list(unique.values())
-    unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in used_ids]
+    exclude_ids = exclude_ids or set()
+    pool = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in exclude_ids]
+    if isinstance(usage_history, set):
+        history = {key: {"count": 1, "starts": []} for key in usage_history}
+    else:
+        history = usage_history
+    unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in history]
     if style == "dark_luxury":
         candidates = [x for x in unused if is_strict_dark_luxury(x, category)]
         fallback_reason = ""
@@ -169,8 +177,11 @@ def find_clip(category, used_ids, style="mixed"):
         candidates = unused or pool
     if not candidates:
         raise RuntimeError(f"No stock video found for category: {category}")
-    candidates.sort(key=score, reverse=True)
-    chosen = random.choice(candidates[: min(8, len(candidates))])
+    candidates.sort(
+        key=lambda item: score(item, history.get(f'{item["provider"]}:{item["id"]}', {})),
+        reverse=True,
+    )
+    chosen = random.choice(candidates[: min(6, len(candidates))])
     chosen["retrieved_at"] = datetime.now(timezone.utc).isoformat()
     return chosen
 
@@ -184,11 +195,47 @@ def load_recent_used(path="data/used_stock.csv", limit=400):
     return {f'{r["provider"]}:{r["stock_id"]}' for r in rows if r.get("provider") and r.get("stock_id")}
 
 
+def load_usage_history(path="data/used_stock.csv", limit=1200):
+    p = Path(path)
+    if not p.exists() or p.stat().st_size == 0:
+        return {}
+    with p.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))[-limit:]
+    history = {}
+    for row in rows:
+        if not row.get("provider") or not row.get("stock_id"):
+            continue
+        key = f'{row["provider"]}:{row["stock_id"]}'
+        entry = history.setdefault(key, {"count": 0, "starts": [], "positions": []})
+        entry["count"] += 1
+        try:
+            entry["starts"].append(float(row["start_sec"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+        try:
+            entry["positions"].append(int(row["sequence_index"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+    return history
+
+
 def append_used(items, experiment_id, path="data/used_stock.csv"):
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
+    fields = ["experiment_id", "provider", "stock_id", "category", "search_query", "page_url", "start_sec", "cut_seconds", "sequence_index", "used_at"]
+    existing = []
+    if p.exists() and p.stat().st_size > 0:
+        with p.open(newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            existing = list(reader)
+            old_fields = reader.fieldnames or []
+        if old_fields != fields:
+            with p.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fields)
+                writer.writeheader()
+                for old in existing:
+                    writer.writerow({key: old.get(key, "") for key in fields})
     exists = p.exists() and p.stat().st_size > 0
-    fields = ["experiment_id", "provider", "stock_id", "category", "search_query", "page_url", "used_at"]
     with p.open("a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         if not exists:
@@ -201,6 +248,9 @@ def append_used(items, experiment_id, path="data/used_stock.csv"):
                 "category": item.get("category", ""),
                 "search_query": item.get("search_query", ""),
                 "page_url": item.get("page_url", ""),
+                "start_sec": item.get("start_sec", ""),
+                "cut_seconds": item.get("cut_seconds", ""),
+                "sequence_index": item.get("sequence_index", ""),
                 "used_at": datetime.now(timezone.utc).isoformat()
             })
 
