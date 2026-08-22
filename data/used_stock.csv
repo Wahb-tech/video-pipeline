@@ -1,137 +1,154 @@
-experiment_id,provider,stock_id,category,search_query,page_url,used_at
-20260818T172456Z-fd0a6a,pexels,6475058,business,man suit black luxury,https://www.pexels.com/video/a-man-drinking-an-alcoholic-beverage-6475058/,2026-08-18T17:26:18.001287+00:00
-20260818T172456Z-fd0a6a,pexels,4691252,restaurant,rooftop restaurant night luxury,https://www.pexels.com/video/a-person-is-holding-a-wine-glass-in-front-of-a-bar-4691252/,2026-08-18T17:26:18.001304+00:00
-20260818T172456Z-fd0a6a,pexels,35153704,supercar,black supercar night,https://www.pexels.com/video/moody-nighttime-city-street-with-rain-35153704/,2026-08-18T17:26:18.001315+00:00
-20260818T172456Z-fd0a6a,pexels,6266442,cash,counting money dark aesthetic,https://www.pexels.com/video/a-woman-holding-cash-6266442/,2026-08-18T17:26:18.001335+00:00
-20260818T172456Z-fd0a6a,pexels,32100662,business,businessman night cinematic,https://www.pexels.com/video/stunning-twilight-cityscape-with-timelapse-clouds-32100662/,2026-08-18T17:26:18.001349+00:00
-20260818T172456Z-fd0a6a,pexels,34274041,watch,expensive watch low light,https://www.pexels.com/video/illuminated-wristwatch-with-vibrant-neon-glow-34274041/,2026-08-18T17:26:18.001364+00:00
-20260818T172456Z-fd0a6a,pexels,34867898,restaurant,dark luxury restaurant,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-34867898/,2026-08-18T17:26:18.001371+00:00
-20260818T172456Z-fd0a6a,pexels,12976044,watch,luxury watch dark aesthetic,https://www.pexels.com/video/close-up-of-watch-12976044/,2026-08-18T17:26:18.001378+00:00
-20260818T172456Z-fd0a6a,pexels,6266922,cash,counting money dark aesthetic,https://www.pexels.com/video/a-woman-throwing-money-6266922/,2026-08-18T17:26:18.001384+00:00
-20260818T172456Z-fd0a6a,pexels,5921010,watch,expensive watch low light,https://www.pexels.com/video/a-male-opening-a-lightning-brief-case-5921010/,2026-08-18T17:26:18.001391+00:00
-20260818T172456Z-fd0a6a,pexels,36601679,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/driving-through-a-dimly-lit-tunnel-36601679/,2026-08-18T17:26:18.001397+00:00
-20260818T172456Z-fd0a6a,pexels,6266653,cash,money luxury low light,https://www.pexels.com/video/close-up-shot-of-bank-notes-with-handcuffs-6266653/,2026-08-18T17:26:18.001404+00:00
-20260818T172456Z-fd0a6a,pexels,7299551,business,wealthy man dark luxury,https://www.pexels.com/video/a-couple-with-a-sinister-plan-7299551/,2026-08-18T17:26:18.001410+00:00
-20260818T172456Z-fd0a6a,pexels,39024911,watch,luxury watch dark aesthetic,https://www.pexels.com/video/dramatic-cloudscape-with-bright-glow-39024911/,2026-08-18T17:26:18.001417+00:00
-20260818T172456Z-fd0a6a,pexels,6266645,cash,counting money dark aesthetic,https://www.pexels.com/video/person-counting-bundle-of-cash-6266645/,2026-08-18T17:26:18.001423+00:00
-20260818T172456Z-fd0a6a,pexels,34615187,restaurant,fine dining low light cinematic,https://www.pexels.com/video/elegant-fine-dining-restaurant-interior-ambiance-34615187/,2026-08-18T17:26:18.001430+00:00
-20260818T172456Z-fd0a6a,pexels,9563517,cash,cash money dark luxury,https://www.pexels.com/video/a-person-throwing-dollars-on-the-table-9563517/,2026-08-18T17:26:18.001436+00:00
-20260819T073959Z-f1b647,pexels,32832185,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/moody-portrait-of-man-in-neon-light-ambiance-32832185/,2026-08-19T07:41:06.416574+00:00
-20260819T073959Z-f1b647,pexels,35530181,business,businessman night cinematic,https://www.pexels.com/video/rainy-night-traffic-in-bustling-city-35530181/,2026-08-19T07:41:06.416590+00:00
-20260819T073959Z-f1b647,pixabay,157352,hotel,five star hotel night,https://pixabay.com/videos/id-157352/,2026-08-19T07:41:06.416622+00:00
-20260819T073959Z-f1b647,pexels,35050095,watch,luxury watch dark aesthetic,https://www.pexels.com/video/elegant-hand-with-green-manicure-in-low-light-35050095/,2026-08-19T07:41:06.416631+00:00
-20260819T073959Z-f1b647,pexels,7599304,business,man suit black luxury,https://www.pexels.com/video/man-in-black-suit-walking-in-the-hallway-7599304/,2026-08-19T07:41:06.416639+00:00
-20260819T073959Z-f1b647,pexels,37528254,watch,luxury watch dark aesthetic,https://www.pexels.com/video/elegant-perfume-bottle-in-minimalist-lighting-37528254/,2026-08-19T07:41:06.416646+00:00
-20260819T073959Z-f1b647,pexels,38879271,hotel,five star hotel night,https://www.pexels.com/video/cityscape-view-from-hotel-room-at-night-38879271/,2026-08-19T07:41:06.416658+00:00
-20260819T073959Z-f1b647,pexels,9401800,business,man suit black luxury,https://www.pexels.com/video/a-man-drinking-wine-9401800/,2026-08-19T07:41:06.416664+00:00
-20260819T073959Z-f1b647,pexels,37451556,supercar,luxury car dark parking,https://www.pexels.com/video/sleek-white-car-driving-in-urban-setting-37451556/,2026-08-19T07:41:06.416671+00:00
-20260819T073959Z-f1b647,pexels,9565186,watch,watch wrist dark luxury,https://www.pexels.com/video/a-man-putting-his-money-on-a-bar-counter-9565186/,2026-08-19T07:41:06.416678+00:00
-20260819T073959Z-f1b647,pexels,24800301,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/the-cover-of-the-book-the-dark-side-of-the-light-24800301/,2026-08-19T07:41:06.416684+00:00
-20260819T073959Z-f1b647,pexels,7270298,watch,luxury watch dark aesthetic,https://www.pexels.com/video/shadow-of-a-person-holding-a-champagne-glass-7270298/,2026-08-19T07:41:06.416691+00:00
-20260819T073959Z-f1b647,pexels,36644498,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/dramatic-human-silhouette-in-blue-light-36644498/,2026-08-19T07:41:06.416698+00:00
-20260819T073959Z-f1b647,pexels,11666243,watch,watch wrist dark luxury,https://www.pexels.com/video/close-up-view-of-hand-agaisnt-black-background-11666243/,2026-08-19T07:41:06.416704+00:00
-20260819T073959Z-f1b647,pexels,35021894,hotel,luxury lobby low light,https://www.pexels.com/video/elegant-hotel-lobby-with-modern-design-35021894/,2026-08-19T07:41:06.416711+00:00
-20260819T073959Z-f1b647,pexels,7698892,watch,watch wrist dark luxury,https://www.pexels.com/video/a-man-s-fist-with-wounds-7698892/,2026-08-19T07:41:06.416717+00:00
-20260819T073959Z-f1b647,pexels,35833931,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/nighttime-urban-highway-aerial-view-35833931/,2026-08-19T07:41:06.416724+00:00
-20260819T185329Z-120058,pexels,35603478,supercar,luxury car dark parking,https://www.pexels.com/video/sleek-white-car-in-a-foggy-night-cityscape-35603478/,2026-08-19T18:54:23.096341+00:00
-20260819T185329Z-120058,pexels,34324889,watch,watch wrist dark luxury,https://www.pexels.com/video/gold-watch-on-tattooed-arm-in-artistic-setting-34324889/,2026-08-19T18:54:23.096354+00:00
-20260819T185329Z-120058,pexels,36110193,supercar,black supercar night,https://www.pexels.com/video/sleek-rainy-day-supercar-showcase-36110193/,2026-08-19T18:54:23.096362+00:00
-20260819T185329Z-120058,pexels,37337937,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/burj-khalifa-night-sky-light-show-37337937/,2026-08-19T18:54:23.096368+00:00
-20260819T185329Z-120058,pexels,6765478,business,man suit black luxury,https://www.pexels.com/video/a-man-fitting-his-suit-6765478/,2026-08-19T18:54:23.096374+00:00
-20260819T185329Z-120058,pexels,35099109,supercar,luxury car dark parking,https://www.pexels.com/video/white-car-in-dimly-lit-parking-garage-35099109/,2026-08-19T18:54:23.096380+00:00
-20260819T185329Z-120058,pexels,35353790,dubai,dubai supercar night,https://www.pexels.com/video/high-speed-dubai-supercar-on-sheikh-zayed-road-35353790/,2026-08-19T18:54:23.096386+00:00
-20260819T185329Z-120058,pexels,34596730,watch,expensive watch low light,https://www.pexels.com/video/polish-banknotes-on-desk-financial-scene-34596730/,2026-08-19T18:54:23.096391+00:00
-20260819T185329Z-120058,pexels,5921006,business,wealthy man dark luxury,https://www.pexels.com/video/a-person-pouring-whiskey-on-a-glass-while-throwing-money-5921006/,2026-08-19T18:54:23.096397+00:00
-20260819T185329Z-120058,pexels,36174826,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/dubai-skyscrapers-and-burj-khalifa-at-night-36174826/,2026-08-19T18:54:23.096402+00:00
-20260819T185329Z-120058,pexels,6475055,business,man suit black luxury,https://www.pexels.com/video/man-drinking-alcohol-6475055/,2026-08-19T18:54:23.096407+00:00
-20260819T185329Z-120058,pexels,10003629,watch,expensive watch low light,https://www.pexels.com/video/airplane-taking-off-at-night-10003629/,2026-08-19T18:54:23.096413+00:00
-20260819T185329Z-120058,pexels,7608614,business,wealthy man dark luxury,https://www.pexels.com/video/man-holding-casino-chips-while-looking-at-camera-7608614/,2026-08-19T18:54:23.096418+00:00
-20260819T185329Z-120058,pexels,36248857,supercar,black supercar night,https://www.pexels.com/video/vintage-car-parked-at-night-with-city-lights-36248857/,2026-08-19T18:54:23.096424+00:00
-20260819T185329Z-120058,pexels,8345155,business,man suit black luxury,https://www.pexels.com/video/man-looking-at-camera-8345155/,2026-08-19T18:54:23.096429+00:00
-20260819T185329Z-120058,pexels,28905349,watch,watch wrist dark luxury,https://www.pexels.com/video/nighttime-black-and-white-clock-video-28905349/,2026-08-19T18:54:23.096434+00:00
-20260819T185329Z-120058,pexels,28560962,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/a-dark-tunnel-with-a-light-on-it-28560962/,2026-08-19T18:54:23.096440+00:00
-20260819T201152Z-5b1ca4,pexels,10961751,private_jet,private jet night luxury,https://www.pexels.com/video/commercial-airplane-landing-at-night-10961751/,2026-08-19T20:12:53.411966+00:00
-20260819T201152Z-5b1ca4,pexels,9956020,restaurant,rooftop restaurant night luxury,https://www.pexels.com/video/street-in-city-at-night-9956020/,2026-08-19T20:12:53.411983+00:00
-20260819T201152Z-5b1ca4,pexels,36781254,dubai,dubai supercar night,https://www.pexels.com/video/luxury-suv-drives-through-downtown-dubai-36781254/,2026-08-19T20:12:53.411993+00:00
-20260819T201152Z-5b1ca4,pexels,13046891,watch,watch wrist dark luxury,https://www.pexels.com/video/hands-of-watch-moving-13046891/,2026-08-19T20:12:53.412001+00:00
-20260819T201152Z-5b1ca4,pexels,6396000,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/man-asking-a-woman-to-dance-with-him-6396000/,2026-08-19T20:12:53.412008+00:00
-20260819T201152Z-5b1ca4,pexels,4881725,nightlife,luxury rooftop night adults,https://www.pexels.com/video/people-sitting-on-the-roof-of-a-building-watching-a-movie-4881725/,2026-08-19T20:12:53.412015+00:00
-20260819T201152Z-5b1ca4,pexels,35972538,private_jet,private jet night luxury,https://www.pexels.com/video/sunset-view-from-airplane-window-35972538/,2026-08-19T20:12:53.412022+00:00
-20260819T201152Z-5b1ca4,pexels,7299606,business,wealthy man dark luxury,https://www.pexels.com/video/a-woman-aiming-a-hand-gun-7299606/,2026-08-19T20:12:53.412029+00:00
-20260819T201152Z-5b1ca4,pexels,37337794,dubai,dubai night luxury dark,https://www.pexels.com/video/majestic-burj-khalifa-at-night-reflection-37337794/,2026-08-19T20:12:53.412035+00:00
-20260819T201152Z-5b1ca4,pexels,31569922,dark_feminine,adult woman yacht party night cinematic,https://www.pexels.com/video/energetic-dancing-woman-in-nightclub-scene-31569922/,2026-08-19T20:12:53.412042+00:00
-20260819T201152Z-5b1ca4,pexels,6766767,business,man suit black luxury,https://www.pexels.com/video/a-tailor-taking-body-measurements-6766767/,2026-08-19T20:12:53.412049+00:00
-20260819T201152Z-5b1ca4,pexels,29280252,watch,watch wrist dark luxury,https://www.pexels.com/video/close-up-of-vintage-mechanical-watch-gears-29280252/,2026-08-19T20:12:53.412057+00:00
-20260819T201152Z-5b1ca4,pexels,29464628,dubai,dubai night luxury dark,https://www.pexels.com/video/towering-burj-khalifa-at-night-in-dubai-29464628/,2026-08-19T20:12:53.412063+00:00
-20260819T201152Z-5b1ca4,pexels,7722226,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/man-performing-in-a-concert-7722226/,2026-08-19T20:12:53.412069+00:00
-20260819T201152Z-5b1ca4,pexels,37337798,dubai,dubai supercar night,https://www.pexels.com/video/night-skyline-featuring-burj-khalifa-37337798/,2026-08-19T20:12:53.412076+00:00
-20260819T201152Z-5b1ca4,pexels,6396007,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/man-and-woman-talking-at-the-bar-6396007/,2026-08-19T20:12:53.412082+00:00
-20260819T201152Z-5b1ca4,pexels,7722230,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/a-disk-jockey-performing-at-the-club-7722230/,2026-08-19T20:12:53.412088+00:00
-20260819T224223Z-57fec0,pexels,36754646,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/nighttime-tunnel-drive-with-vibrant-blue-light-36754646/,2026-08-19T22:43:31.554636+00:00
-20260819T224223Z-57fec0,pexels,12560234,watch,expensive watch low light,https://www.pexels.com/video/close-up-of-an-expensive-wristwatch-12560234/,2026-08-19T22:43:31.554653+00:00
-20260819T224223Z-57fec0,pexels,7607100,business,man suit black luxury,https://www.pexels.com/video/fancy-couple-7607100/,2026-08-19T22:43:31.554663+00:00
-20260819T224223Z-57fec0,pexels,7722361,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/a-disk-jockey-performing-at-the-club-7722361/,2026-08-19T22:43:31.554671+00:00
-20260819T224223Z-57fec0,pexels,30703854,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/young-woman-in-vibrant-outfit-walking-in-city-30703854/,2026-08-19T22:43:31.554679+00:00
-20260819T224223Z-57fec0,pexels,34922677,dubai,dubai night luxury dark,https://www.pexels.com/video/stunning-night-view-of-dubai-s-burj-khalifa-34922677/,2026-08-19T22:43:31.554686+00:00
-20260819T224223Z-57fec0,pexels,7946013,watch,luxury watch dark aesthetic,https://www.pexels.com/video/black-silky-cloth-7946013/,2026-08-19T22:43:31.554694+00:00
-20260819T224223Z-57fec0,pexels,6872480,supercar,black supercar night,https://www.pexels.com/video/a-woman-cleaning-the-car-6872480/,2026-08-19T22:43:31.554700+00:00
-20260819T224223Z-57fec0,pexels,8345028,business,man suit black luxury,https://www.pexels.com/video/driver-getting-inside-a-car-8345028/,2026-08-19T22:43:31.554707+00:00
-20260819T224223Z-57fec0,pexels,27807353,dark_feminine,adult woman elegant bikini luxury pool night,https://www.pexels.com/video/a-statue-of-a-woman-holding-a-large-bowl-27807353/,2026-08-19T22:43:31.554713+00:00
-20260819T224223Z-57fec0,pexels,9864562,dubai,dubai night luxury dark,https://www.pexels.com/video/illuminated-skyscraper-at-night-9864562/,2026-08-19T22:43:31.554726+00:00
-20260819T224223Z-57fec0,pexels,18962713,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/chicago-18962713/,2026-08-19T22:43:31.554733+00:00
-20260819T224223Z-57fec0,pexels,32779590,supercar,black supercar night,https://www.pexels.com/video/sleek-blue-supercar-parked-on-city-street-32779590/,2026-08-19T22:43:31.554740+00:00
-20260819T224223Z-57fec0,pexels,8345041,business,man suit black luxury,https://www.pexels.com/video/man-calling-someone-on-the-phone-8345041/,2026-08-19T22:43:31.554746+00:00
-20260819T224223Z-57fec0,pexels,6873503,supercar,black supercar night,https://www.pexels.com/video/shiny-black-car-6873503/,2026-08-19T22:43:31.554753+00:00
-20260819T224223Z-57fec0,pexels,29963215,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/woman-celebrating-birthday-with-cupcake-candles-29963215/,2026-08-19T22:43:31.554759+00:00
-20260819T224223Z-57fec0,pexels,34867895,hotel,luxury lobby low light,https://www.pexels.com/video/majestic-dome-of-parisi-udvar-budapest-34867895/,2026-08-19T22:43:31.554766+00:00
-20260820T073600Z-0883a8,pexels,11267671,watch,watch wrist dark luxury,https://www.pexels.com/video/close-up-on-moving-clock-hands-11267671/,2026-08-20T07:37:00.144267+00:00
-20260820T073600Z-0883a8,pexels,18514372,business,businessman night cinematic,https://www.pexels.com/video/traveler-with-a-suitcase-18514372/,2026-08-20T07:37:00.144281+00:00
-20260820T073600Z-0883a8,pexels,30197413,nightlife,dark luxury nightlife,https://www.pexels.com/video/artistic-black-and-white-cocktail-pouring-scene-30197413/,2026-08-20T07:37:00.144289+00:00
-20260820T073600Z-0883a8,pexels,7608915,business,wealthy man dark luxury,https://www.pexels.com/video/fancy-woman-at-a-bar-7608915/,2026-08-20T07:37:00.144296+00:00
-20260820T073600Z-0883a8,pexels,36431050,dark_feminine,adult woman black dress luxury night,https://www.pexels.com/video/elegant-woman-using-phone-in-hotel-room-36431050/,2026-08-20T07:37:00.144302+00:00
-20260820T073600Z-0883a8,pexels,35168475,private_jet,private jet night luxury,https://www.pexels.com/video/private-jets-and-shuttle-bus-on-airport-tarmac-35168475/,2026-08-20T07:37:00.144309+00:00
-20260820T073600Z-0883a8,pexels,35747920,hotel,luxury lobby low light,https://www.pexels.com/video/elegant-hotel-interior-with-escalator-and-art-35747920/,2026-08-20T07:37:00.144314+00:00
-20260820T073600Z-0883a8,pexels,34719386,watch,expensive watch low light,https://www.pexels.com/video/counting-cash-at-desk-for-financial-planning-34719386/,2026-08-20T07:37:00.144320+00:00
-20260820T073600Z-0883a8,pexels,28245283,restaurant,fine dining low light cinematic,https://www.pexels.com/video/a-person-pouring-wine-into-a-glass-on-a-bar-28245283/,2026-08-20T07:37:00.144326+00:00
-20260820T073600Z-0883a8,pexels,10380577,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/woman-in-jacket-leaning-on-car-at-night-10380577/,2026-08-20T07:37:00.144331+00:00
-20260820T073600Z-0883a8,pexels,35128721,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/vibrant-cityscape-at-night-with-skyscrapers-35128721/,2026-08-20T07:37:00.144337+00:00
-20260820T073600Z-0883a8,pexels,18824881,private_jet,luxury aviation night,https://www.pexels.com/video/sky-view-airplane-plane-windows-windows-seat-coolplaces4k-air-sky-18824881/,2026-08-20T07:37:00.144343+00:00
-20260820T073600Z-0883a8,pexels,19816804,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/the-freeways-against-the-skyscrapers-at-night-19816804/,2026-08-20T07:37:00.144348+00:00
-20260820T073600Z-0883a8,pexels,7608982,business,wealthy man dark luxury,https://www.pexels.com/video/man-smoking-at-a-bar-7608982/,2026-08-20T07:37:00.144354+00:00
-20260820T073600Z-0883a8,pexels,36201517,dubai,dubai supercar night,https://www.pexels.com/video/stunning-night-view-of-burj-khalifa-skyscraper-36201517/,2026-08-20T07:37:00.144359+00:00
-20260820T073600Z-0883a8,pixabay,134548,dark_feminine,adult woman elegant bikini luxury pool night,https://pixabay.com/videos/id-134548/,2026-08-20T07:37:00.144364+00:00
-20260820T073600Z-0883a8,pexels,37594553,business,businessman night cinematic,https://www.pexels.com/video/vibrant-night-train-view-of-tokyo-s-cityscape-37594553/,2026-08-20T07:37:00.144369+00:00
-20260820T105539Z-0cf750,pexels,6326861,cash,counting hundred dollar bills dark,https://www.pexels.com/video/man-counting-banknotes-6326861/,2026-08-20T10:57:03.853966+00:00
-20260820T105539Z-0cf750,pixabay,39863,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-39863/,2026-08-20T10:57:03.853984+00:00
-20260820T105539Z-0cf750,pexels,7820503,hotel,five star hotel lobby dark,https://www.pexels.com/video/a-hotel-receptionist-talking-on-the-telephone-7820503/,2026-08-20T10:57:03.853994+00:00
-20260820T105539Z-0cf750,pexels,31150451,private_jet,private jet runway night,https://www.pexels.com/video/private-jet-on-tarmac-in-arizona-airport-31150451/,2026-08-20T10:57:03.854002+00:00
-20260820T105539Z-0cf750,pexels,6693624,cash,counting hundred dollar bills dark,https://www.pexels.com/video/man-calculating-his-money-6693624/,2026-08-20T10:57:03.854010+00:00
-20260820T105539Z-0cf750,pixabay,158531,watch,luxury watch macro black,https://pixabay.com/videos/id-158531/,2026-08-20T10:57:03.854017+00:00
-20260820T105539Z-0cf750,pexels,34867907,hotel,five star hotel lobby dark,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-budapest-34867907/,2026-08-20T10:57:03.854023+00:00
-20260820T105539Z-0cf750,pexels,27155341,cash,counting hundred dollar bills dark,https://www.pexels.com/video/man-and-money-27155341/,2026-08-20T10:57:03.854029+00:00
-20260820T105539Z-0cf750,pexels,38413547,villa,modern villa night luxury,https://www.pexels.com/video/luxury-villa-with-infinity-pool-and-wooden-deck-38413547/,2026-08-20T10:57:03.854036+00:00
-20260820T105539Z-0cf750,pexels,29797321,hotel,luxury hotel suite night,https://www.pexels.com/video/luxurious-canopy-bed-in-elegant-hotel-room-29797321/,2026-08-20T10:57:03.854043+00:00
-20260820T105539Z-0cf750,pexels,6266655,cash,cash stacks black background,https://www.pexels.com/video/stacks-of-money-scattered-on-a-table-6266655/,2026-08-20T10:57:03.854050+00:00
-20260820T105539Z-0cf750,pexels,37694695,villa,modern villa night luxury,https://www.pexels.com/video/modern-luxury-villa-with-tropical-design-37694695/,2026-08-20T10:57:03.854057+00:00
-20260820T105539Z-0cf750,pexels,6266251,cash,counting hundred dollar bills dark,https://www.pexels.com/video/a-person-counting-dollar-bills-6266251/,2026-08-20T10:57:03.854064+00:00
-20260820T105539Z-0cf750,pexels,34867881,hotel,five star hotel lobby dark,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-in-budapest-34867881/,2026-08-20T10:57:03.854070+00:00
-20260820T105539Z-0cf750,pixabay,152184,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-152184/,2026-08-20T10:57:03.854077+00:00
-20260820T105539Z-0cf750,pixabay,144660,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-144660/,2026-08-20T10:57:03.854083+00:00
-20260820T105539Z-0cf750,pexels,35167311,villa,modern villa night luxury,https://www.pexels.com/video/aerial-view-of-scenic-mountain-villa-35167311/,2026-08-20T10:57:03.854089+00:00
-20260821T073725Z-513e3b,pexels,34867891,hotel,dark marble hotel interior,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-budapest-34867891/,2026-08-21T07:38:29.254379+00:00
-20260821T073725Z-513e3b,pexels,6700011,cash,counting hundred dollar bills dark,https://www.pexels.com/video/a-person-counting-money-6700011/,2026-08-21T07:38:29.254392+00:00
-20260821T073725Z-513e3b,pixabay,15604,watch,expensive watch low light,https://pixabay.com/videos/id-15604/,2026-08-21T07:38:29.254400+00:00
-20260821T073725Z-513e3b,pexels,6590514,cash,cash stacks black background,https://www.pexels.com/video/us-dollar-bills-on-display-6590514/,2026-08-21T07:38:29.254406+00:00
-20260821T073725Z-513e3b,pixabay,15629,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-15629/,2026-08-21T07:38:29.254412+00:00
-20260821T073725Z-513e3b,pexels,37539550,villa,modern villa night luxury,https://www.pexels.com/video/aerial-view-of-eco-friendly-luxury-villa-37539550/,2026-08-21T07:38:29.254417+00:00
-20260821T073725Z-513e3b,pexels,29470443,private_jet,luxury jet interior cinematic,https://www.pexels.com/video/private-jet-at-sunset-on-arizona-runway-29470443/,2026-08-21T07:38:29.254423+00:00
-20260821T073725Z-513e3b,pexels,12976045,watch,expensive watch low light,https://www.pexels.com/video/moving-watch-hands-12976045/,2026-08-21T07:38:29.254429+00:00
-20260821T073725Z-513e3b,pexels,6266433,cash,cash stacks black background,https://www.pexels.com/video/close-up-shot-of-man-counting-money-6266433/,2026-08-21T07:38:29.254434+00:00
-20260821T073725Z-513e3b,pexels,30058553,private_jet,private jet runway night,https://www.pexels.com/video/private-jet-on-tarmac-at-sunset-30058553/,2026-08-21T07:38:29.254440+00:00
-20260821T073725Z-513e3b,pixabay,135728,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-135728/,2026-08-21T07:38:29.254446+00:00
-20260821T073725Z-513e3b,pexels,6624826,cash,cash stacks black background,https://www.pexels.com/video/hand-holding-banknotes-6624826/,2026-08-21T07:38:29.254451+00:00
-20260821T073725Z-513e3b,pexels,38413572,villa,modern villa night luxury,https://www.pexels.com/video/luxury-tropical-villa-with-poolside-deck-38413572/,2026-08-21T07:38:29.254457+00:00
-20260821T073725Z-513e3b,pexels,6266255,cash,money safe dark cinematic,https://www.pexels.com/video/hands-putting-dollar-bills-stacks-in-briefcase-6266255/,2026-08-21T07:38:29.254463+00:00
-20260821T073725Z-513e3b,pexels,34867913,hotel,dark marble hotel interior,https://www.pexels.com/video/elegant-cocktail-in-a-grand-budapest-hotel-lobby-34867913/,2026-08-21T07:38:29.254468+00:00
-20260821T073725Z-513e3b,pexels,4836776,cash,cash stacks black background,https://www.pexels.com/video/person-counting-a-money-4836776/,2026-08-21T07:38:29.254474+00:00
-20260821T073725Z-513e3b,pexels,34812171,villa,modern villa night luxury,https://www.pexels.com/video/modern-villa-with-pool-and-garden-aerial-view-34812171/,2026-08-21T07:38:29.254479+00:00
+experiment_id,provider,stock_id,category,search_query,page_url,start_sec,cut_seconds,sequence_index,used_at
+20260818T172456Z-fd0a6a,pexels,6475058,business,man suit black luxury,https://www.pexels.com/video/a-man-drinking-an-alcoholic-beverage-6475058/,,,,2026-08-18T17:26:18.001287+00:00
+20260818T172456Z-fd0a6a,pexels,4691252,restaurant,rooftop restaurant night luxury,https://www.pexels.com/video/a-person-is-holding-a-wine-glass-in-front-of-a-bar-4691252/,,,,2026-08-18T17:26:18.001304+00:00
+20260818T172456Z-fd0a6a,pexels,35153704,supercar,black supercar night,https://www.pexels.com/video/moody-nighttime-city-street-with-rain-35153704/,,,,2026-08-18T17:26:18.001315+00:00
+20260818T172456Z-fd0a6a,pexels,6266442,cash,counting money dark aesthetic,https://www.pexels.com/video/a-woman-holding-cash-6266442/,,,,2026-08-18T17:26:18.001335+00:00
+20260818T172456Z-fd0a6a,pexels,32100662,business,businessman night cinematic,https://www.pexels.com/video/stunning-twilight-cityscape-with-timelapse-clouds-32100662/,,,,2026-08-18T17:26:18.001349+00:00
+20260818T172456Z-fd0a6a,pexels,34274041,watch,expensive watch low light,https://www.pexels.com/video/illuminated-wristwatch-with-vibrant-neon-glow-34274041/,,,,2026-08-18T17:26:18.001364+00:00
+20260818T172456Z-fd0a6a,pexels,34867898,restaurant,dark luxury restaurant,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-34867898/,,,,2026-08-18T17:26:18.001371+00:00
+20260818T172456Z-fd0a6a,pexels,12976044,watch,luxury watch dark aesthetic,https://www.pexels.com/video/close-up-of-watch-12976044/,,,,2026-08-18T17:26:18.001378+00:00
+20260818T172456Z-fd0a6a,pexels,6266922,cash,counting money dark aesthetic,https://www.pexels.com/video/a-woman-throwing-money-6266922/,,,,2026-08-18T17:26:18.001384+00:00
+20260818T172456Z-fd0a6a,pexels,5921010,watch,expensive watch low light,https://www.pexels.com/video/a-male-opening-a-lightning-brief-case-5921010/,,,,2026-08-18T17:26:18.001391+00:00
+20260818T172456Z-fd0a6a,pexels,36601679,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/driving-through-a-dimly-lit-tunnel-36601679/,,,,2026-08-18T17:26:18.001397+00:00
+20260818T172456Z-fd0a6a,pexels,6266653,cash,money luxury low light,https://www.pexels.com/video/close-up-shot-of-bank-notes-with-handcuffs-6266653/,,,,2026-08-18T17:26:18.001404+00:00
+20260818T172456Z-fd0a6a,pexels,7299551,business,wealthy man dark luxury,https://www.pexels.com/video/a-couple-with-a-sinister-plan-7299551/,,,,2026-08-18T17:26:18.001410+00:00
+20260818T172456Z-fd0a6a,pexels,39024911,watch,luxury watch dark aesthetic,https://www.pexels.com/video/dramatic-cloudscape-with-bright-glow-39024911/,,,,2026-08-18T17:26:18.001417+00:00
+20260818T172456Z-fd0a6a,pexels,6266645,cash,counting money dark aesthetic,https://www.pexels.com/video/person-counting-bundle-of-cash-6266645/,,,,2026-08-18T17:26:18.001423+00:00
+20260818T172456Z-fd0a6a,pexels,34615187,restaurant,fine dining low light cinematic,https://www.pexels.com/video/elegant-fine-dining-restaurant-interior-ambiance-34615187/,,,,2026-08-18T17:26:18.001430+00:00
+20260818T172456Z-fd0a6a,pexels,9563517,cash,cash money dark luxury,https://www.pexels.com/video/a-person-throwing-dollars-on-the-table-9563517/,,,,2026-08-18T17:26:18.001436+00:00
+20260819T073959Z-f1b647,pexels,32832185,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/moody-portrait-of-man-in-neon-light-ambiance-32832185/,,,,2026-08-19T07:41:06.416574+00:00
+20260819T073959Z-f1b647,pexels,35530181,business,businessman night cinematic,https://www.pexels.com/video/rainy-night-traffic-in-bustling-city-35530181/,,,,2026-08-19T07:41:06.416590+00:00
+20260819T073959Z-f1b647,pixabay,157352,hotel,five star hotel night,https://pixabay.com/videos/id-157352/,,,,2026-08-19T07:41:06.416622+00:00
+20260819T073959Z-f1b647,pexels,35050095,watch,luxury watch dark aesthetic,https://www.pexels.com/video/elegant-hand-with-green-manicure-in-low-light-35050095/,,,,2026-08-19T07:41:06.416631+00:00
+20260819T073959Z-f1b647,pexels,7599304,business,man suit black luxury,https://www.pexels.com/video/man-in-black-suit-walking-in-the-hallway-7599304/,,,,2026-08-19T07:41:06.416639+00:00
+20260819T073959Z-f1b647,pexels,37528254,watch,luxury watch dark aesthetic,https://www.pexels.com/video/elegant-perfume-bottle-in-minimalist-lighting-37528254/,,,,2026-08-19T07:41:06.416646+00:00
+20260819T073959Z-f1b647,pexels,38879271,hotel,five star hotel night,https://www.pexels.com/video/cityscape-view-from-hotel-room-at-night-38879271/,,,,2026-08-19T07:41:06.416658+00:00
+20260819T073959Z-f1b647,pexels,9401800,business,man suit black luxury,https://www.pexels.com/video/a-man-drinking-wine-9401800/,,,,2026-08-19T07:41:06.416664+00:00
+20260819T073959Z-f1b647,pexels,37451556,supercar,luxury car dark parking,https://www.pexels.com/video/sleek-white-car-driving-in-urban-setting-37451556/,,,,2026-08-19T07:41:06.416671+00:00
+20260819T073959Z-f1b647,pexels,9565186,watch,watch wrist dark luxury,https://www.pexels.com/video/a-man-putting-his-money-on-a-bar-counter-9565186/,,,,2026-08-19T07:41:06.416678+00:00
+20260819T073959Z-f1b647,pexels,24800301,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/the-cover-of-the-book-the-dark-side-of-the-light-24800301/,,,,2026-08-19T07:41:06.416684+00:00
+20260819T073959Z-f1b647,pexels,7270298,watch,luxury watch dark aesthetic,https://www.pexels.com/video/shadow-of-a-person-holding-a-champagne-glass-7270298/,,,,2026-08-19T07:41:06.416691+00:00
+20260819T073959Z-f1b647,pexels,36644498,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/dramatic-human-silhouette-in-blue-light-36644498/,,,,2026-08-19T07:41:06.416698+00:00
+20260819T073959Z-f1b647,pexels,11666243,watch,watch wrist dark luxury,https://www.pexels.com/video/close-up-view-of-hand-agaisnt-black-background-11666243/,,,,2026-08-19T07:41:06.416704+00:00
+20260819T073959Z-f1b647,pexels,35021894,hotel,luxury lobby low light,https://www.pexels.com/video/elegant-hotel-lobby-with-modern-design-35021894/,,,,2026-08-19T07:41:06.416711+00:00
+20260819T073959Z-f1b647,pexels,7698892,watch,watch wrist dark luxury,https://www.pexels.com/video/a-man-s-fist-with-wounds-7698892/,,,,2026-08-19T07:41:06.416717+00:00
+20260819T073959Z-f1b647,pexels,35833931,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/nighttime-urban-highway-aerial-view-35833931/,,,,2026-08-19T07:41:06.416724+00:00
+20260819T185329Z-120058,pexels,35603478,supercar,luxury car dark parking,https://www.pexels.com/video/sleek-white-car-in-a-foggy-night-cityscape-35603478/,,,,2026-08-19T18:54:23.096341+00:00
+20260819T185329Z-120058,pexels,34324889,watch,watch wrist dark luxury,https://www.pexels.com/video/gold-watch-on-tattooed-arm-in-artistic-setting-34324889/,,,,2026-08-19T18:54:23.096354+00:00
+20260819T185329Z-120058,pexels,36110193,supercar,black supercar night,https://www.pexels.com/video/sleek-rainy-day-supercar-showcase-36110193/,,,,2026-08-19T18:54:23.096362+00:00
+20260819T185329Z-120058,pexels,37337937,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/burj-khalifa-night-sky-light-show-37337937/,,,,2026-08-19T18:54:23.096368+00:00
+20260819T185329Z-120058,pexels,6765478,business,man suit black luxury,https://www.pexels.com/video/a-man-fitting-his-suit-6765478/,,,,2026-08-19T18:54:23.096374+00:00
+20260819T185329Z-120058,pexels,35099109,supercar,luxury car dark parking,https://www.pexels.com/video/white-car-in-dimly-lit-parking-garage-35099109/,,,,2026-08-19T18:54:23.096380+00:00
+20260819T185329Z-120058,pexels,35353790,dubai,dubai supercar night,https://www.pexels.com/video/high-speed-dubai-supercar-on-sheikh-zayed-road-35353790/,,,,2026-08-19T18:54:23.096386+00:00
+20260819T185329Z-120058,pexels,34596730,watch,expensive watch low light,https://www.pexels.com/video/polish-banknotes-on-desk-financial-scene-34596730/,,,,2026-08-19T18:54:23.096391+00:00
+20260819T185329Z-120058,pexels,5921006,business,wealthy man dark luxury,https://www.pexels.com/video/a-person-pouring-whiskey-on-a-glass-while-throwing-money-5921006/,,,,2026-08-19T18:54:23.096397+00:00
+20260819T185329Z-120058,pexels,36174826,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/dubai-skyscrapers-and-burj-khalifa-at-night-36174826/,,,,2026-08-19T18:54:23.096402+00:00
+20260819T185329Z-120058,pexels,6475055,business,man suit black luxury,https://www.pexels.com/video/man-drinking-alcohol-6475055/,,,,2026-08-19T18:54:23.096407+00:00
+20260819T185329Z-120058,pexels,10003629,watch,expensive watch low light,https://www.pexels.com/video/airplane-taking-off-at-night-10003629/,,,,2026-08-19T18:54:23.096413+00:00
+20260819T185329Z-120058,pexels,7608614,business,wealthy man dark luxury,https://www.pexels.com/video/man-holding-casino-chips-while-looking-at-camera-7608614/,,,,2026-08-19T18:54:23.096418+00:00
+20260819T185329Z-120058,pexels,36248857,supercar,black supercar night,https://www.pexels.com/video/vintage-car-parked-at-night-with-city-lights-36248857/,,,,2026-08-19T18:54:23.096424+00:00
+20260819T185329Z-120058,pexels,8345155,business,man suit black luxury,https://www.pexels.com/video/man-looking-at-camera-8345155/,,,,2026-08-19T18:54:23.096429+00:00
+20260819T185329Z-120058,pexels,28905349,watch,watch wrist dark luxury,https://www.pexels.com/video/nighttime-black-and-white-clock-video-28905349/,,,,2026-08-19T18:54:23.096434+00:00
+20260819T185329Z-120058,pexels,28560962,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/a-dark-tunnel-with-a-light-on-it-28560962/,,,,2026-08-19T18:54:23.096440+00:00
+20260819T201152Z-5b1ca4,pexels,10961751,private_jet,private jet night luxury,https://www.pexels.com/video/commercial-airplane-landing-at-night-10961751/,,,,2026-08-19T20:12:53.411966+00:00
+20260819T201152Z-5b1ca4,pexels,9956020,restaurant,rooftop restaurant night luxury,https://www.pexels.com/video/street-in-city-at-night-9956020/,,,,2026-08-19T20:12:53.411983+00:00
+20260819T201152Z-5b1ca4,pexels,36781254,dubai,dubai supercar night,https://www.pexels.com/video/luxury-suv-drives-through-downtown-dubai-36781254/,,,,2026-08-19T20:12:53.411993+00:00
+20260819T201152Z-5b1ca4,pexels,13046891,watch,watch wrist dark luxury,https://www.pexels.com/video/hands-of-watch-moving-13046891/,,,,2026-08-19T20:12:53.412001+00:00
+20260819T201152Z-5b1ca4,pexels,6396000,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/man-asking-a-woman-to-dance-with-him-6396000/,,,,2026-08-19T20:12:53.412008+00:00
+20260819T201152Z-5b1ca4,pexels,4881725,nightlife,luxury rooftop night adults,https://www.pexels.com/video/people-sitting-on-the-roof-of-a-building-watching-a-movie-4881725/,,,,2026-08-19T20:12:53.412015+00:00
+20260819T201152Z-5b1ca4,pexels,35972538,private_jet,private jet night luxury,https://www.pexels.com/video/sunset-view-from-airplane-window-35972538/,,,,2026-08-19T20:12:53.412022+00:00
+20260819T201152Z-5b1ca4,pexels,7299606,business,wealthy man dark luxury,https://www.pexels.com/video/a-woman-aiming-a-hand-gun-7299606/,,,,2026-08-19T20:12:53.412029+00:00
+20260819T201152Z-5b1ca4,pexels,37337794,dubai,dubai night luxury dark,https://www.pexels.com/video/majestic-burj-khalifa-at-night-reflection-37337794/,,,,2026-08-19T20:12:53.412035+00:00
+20260819T201152Z-5b1ca4,pexels,31569922,dark_feminine,adult woman yacht party night cinematic,https://www.pexels.com/video/energetic-dancing-woman-in-nightclub-scene-31569922/,,,,2026-08-19T20:12:53.412042+00:00
+20260819T201152Z-5b1ca4,pexels,6766767,business,man suit black luxury,https://www.pexels.com/video/a-tailor-taking-body-measurements-6766767/,,,,2026-08-19T20:12:53.412049+00:00
+20260819T201152Z-5b1ca4,pexels,29280252,watch,watch wrist dark luxury,https://www.pexels.com/video/close-up-of-vintage-mechanical-watch-gears-29280252/,,,,2026-08-19T20:12:53.412057+00:00
+20260819T201152Z-5b1ca4,pexels,29464628,dubai,dubai night luxury dark,https://www.pexels.com/video/towering-burj-khalifa-at-night-in-dubai-29464628/,,,,2026-08-19T20:12:53.412063+00:00
+20260819T201152Z-5b1ca4,pexels,7722226,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/man-performing-in-a-concert-7722226/,,,,2026-08-19T20:12:53.412069+00:00
+20260819T201152Z-5b1ca4,pexels,37337798,dubai,dubai supercar night,https://www.pexels.com/video/night-skyline-featuring-burj-khalifa-37337798/,,,,2026-08-19T20:12:53.412076+00:00
+20260819T201152Z-5b1ca4,pexels,6396007,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/man-and-woman-talking-at-the-bar-6396007/,,,,2026-08-19T20:12:53.412082+00:00
+20260819T201152Z-5b1ca4,pexels,7722230,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/a-disk-jockey-performing-at-the-club-7722230/,,,,2026-08-19T20:12:53.412088+00:00
+20260819T224223Z-57fec0,pexels,36754646,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/nighttime-tunnel-drive-with-vibrant-blue-light-36754646/,,,,2026-08-19T22:43:31.554636+00:00
+20260819T224223Z-57fec0,pexels,12560234,watch,expensive watch low light,https://www.pexels.com/video/close-up-of-an-expensive-wristwatch-12560234/,,,,2026-08-19T22:43:31.554653+00:00
+20260819T224223Z-57fec0,pexels,7607100,business,man suit black luxury,https://www.pexels.com/video/fancy-couple-7607100/,,,,2026-08-19T22:43:31.554663+00:00
+20260819T224223Z-57fec0,pexels,7722361,nightlife,exclusive club dark cinematic,https://www.pexels.com/video/a-disk-jockey-performing-at-the-club-7722361/,,,,2026-08-19T22:43:31.554671+00:00
+20260819T224223Z-57fec0,pexels,30703854,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/young-woman-in-vibrant-outfit-walking-in-city-30703854/,,,,2026-08-19T22:43:31.554679+00:00
+20260819T224223Z-57fec0,pexels,34922677,dubai,dubai night luxury dark,https://www.pexels.com/video/stunning-night-view-of-dubai-s-burj-khalifa-34922677/,,,,2026-08-19T22:43:31.554686+00:00
+20260819T224223Z-57fec0,pexels,7946013,watch,luxury watch dark aesthetic,https://www.pexels.com/video/black-silky-cloth-7946013/,,,,2026-08-19T22:43:31.554694+00:00
+20260819T224223Z-57fec0,pexels,6872480,supercar,black supercar night,https://www.pexels.com/video/a-woman-cleaning-the-car-6872480/,,,,2026-08-19T22:43:31.554700+00:00
+20260819T224223Z-57fec0,pexels,8345028,business,man suit black luxury,https://www.pexels.com/video/driver-getting-inside-a-car-8345028/,,,,2026-08-19T22:43:31.554707+00:00
+20260819T224223Z-57fec0,pexels,27807353,dark_feminine,adult woman elegant bikini luxury pool night,https://www.pexels.com/video/a-statue-of-a-woman-holding-a-large-bowl-27807353/,,,,2026-08-19T22:43:31.554713+00:00
+20260819T224223Z-57fec0,pexels,9864562,dubai,dubai night luxury dark,https://www.pexels.com/video/illuminated-skyscraper-at-night-9864562/,,,,2026-08-19T22:43:31.554726+00:00
+20260819T224223Z-57fec0,pexels,18962713,supercar,supercar tunnel night cinematic,https://www.pexels.com/video/chicago-18962713/,,,,2026-08-19T22:43:31.554733+00:00
+20260819T224223Z-57fec0,pexels,32779590,supercar,black supercar night,https://www.pexels.com/video/sleek-blue-supercar-parked-on-city-street-32779590/,,,,2026-08-19T22:43:31.554740+00:00
+20260819T224223Z-57fec0,pexels,8345041,business,man suit black luxury,https://www.pexels.com/video/man-calling-someone-on-the-phone-8345041/,,,,2026-08-19T22:43:31.554746+00:00
+20260819T224223Z-57fec0,pexels,6873503,supercar,black supercar night,https://www.pexels.com/video/shiny-black-car-6873503/,,,,2026-08-19T22:43:31.554753+00:00
+20260819T224223Z-57fec0,pexels,29963215,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/woman-celebrating-birthday-with-cupcake-candles-29963215/,,,,2026-08-19T22:43:31.554759+00:00
+20260819T224223Z-57fec0,pexels,34867895,hotel,luxury lobby low light,https://www.pexels.com/video/majestic-dome-of-parisi-udvar-budapest-34867895/,,,,2026-08-19T22:43:31.554766+00:00
+20260820T073600Z-0883a8,pexels,11267671,watch,watch wrist dark luxury,https://www.pexels.com/video/close-up-on-moving-clock-hands-11267671/,,,,2026-08-20T07:37:00.144267+00:00
+20260820T073600Z-0883a8,pexels,18514372,business,businessman night cinematic,https://www.pexels.com/video/traveler-with-a-suitcase-18514372/,,,,2026-08-20T07:37:00.144281+00:00
+20260820T073600Z-0883a8,pexels,30197413,nightlife,dark luxury nightlife,https://www.pexels.com/video/artistic-black-and-white-cocktail-pouring-scene-30197413/,,,,2026-08-20T07:37:00.144289+00:00
+20260820T073600Z-0883a8,pexels,7608915,business,wealthy man dark luxury,https://www.pexels.com/video/fancy-woman-at-a-bar-7608915/,,,,2026-08-20T07:37:00.144296+00:00
+20260820T073600Z-0883a8,pexels,36431050,dark_feminine,adult woman black dress luxury night,https://www.pexels.com/video/elegant-woman-using-phone-in-hotel-room-36431050/,,,,2026-08-20T07:37:00.144302+00:00
+20260820T073600Z-0883a8,pexels,35168475,private_jet,private jet night luxury,https://www.pexels.com/video/private-jets-and-shuttle-bus-on-airport-tarmac-35168475/,,,,2026-08-20T07:37:00.144309+00:00
+20260820T073600Z-0883a8,pexels,35747920,hotel,luxury lobby low light,https://www.pexels.com/video/elegant-hotel-interior-with-escalator-and-art-35747920/,,,,2026-08-20T07:37:00.144314+00:00
+20260820T073600Z-0883a8,pexels,34719386,watch,expensive watch low light,https://www.pexels.com/video/counting-cash-at-desk-for-financial-planning-34719386/,,,,2026-08-20T07:37:00.144320+00:00
+20260820T073600Z-0883a8,pexels,28245283,restaurant,fine dining low light cinematic,https://www.pexels.com/video/a-person-pouring-wine-into-a-glass-on-a-bar-28245283/,,,,2026-08-20T07:37:00.144326+00:00
+20260820T073600Z-0883a8,pexels,10380577,dark_feminine,adult woman short evening dress supercar night,https://www.pexels.com/video/woman-in-jacket-leaning-on-car-at-night-10380577/,,,,2026-08-20T07:37:00.144331+00:00
+20260820T073600Z-0883a8,pexels,35128721,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/vibrant-cityscape-at-night-with-skyscrapers-35128721/,,,,2026-08-20T07:37:00.144337+00:00
+20260820T073600Z-0883a8,pexels,18824881,private_jet,luxury aviation night,https://www.pexels.com/video/sky-view-airplane-plane-windows-windows-seat-coolplaces4k-air-sky-18824881/,,,,2026-08-20T07:37:00.144343+00:00
+20260820T073600Z-0883a8,pexels,19816804,dubai,dubai rooftop night cinematic,https://www.pexels.com/video/the-freeways-against-the-skyscrapers-at-night-19816804/,,,,2026-08-20T07:37:00.144348+00:00
+20260820T073600Z-0883a8,pexels,7608982,business,wealthy man dark luxury,https://www.pexels.com/video/man-smoking-at-a-bar-7608982/,,,,2026-08-20T07:37:00.144354+00:00
+20260820T073600Z-0883a8,pexels,36201517,dubai,dubai supercar night,https://www.pexels.com/video/stunning-night-view-of-burj-khalifa-skyscraper-36201517/,,,,2026-08-20T07:37:00.144359+00:00
+20260820T073600Z-0883a8,pixabay,134548,dark_feminine,adult woman elegant bikini luxury pool night,https://pixabay.com/videos/id-134548/,,,,2026-08-20T07:37:00.144364+00:00
+20260820T073600Z-0883a8,pexels,37594553,business,businessman night cinematic,https://www.pexels.com/video/vibrant-night-train-view-of-tokyo-s-cityscape-37594553/,,,,2026-08-20T07:37:00.144369+00:00
+20260820T105539Z-0cf750,pexels,6326861,cash,counting hundred dollar bills dark,https://www.pexels.com/video/man-counting-banknotes-6326861/,,,,2026-08-20T10:57:03.853966+00:00
+20260820T105539Z-0cf750,pixabay,39863,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-39863/,,,,2026-08-20T10:57:03.853984+00:00
+20260820T105539Z-0cf750,pexels,7820503,hotel,five star hotel lobby dark,https://www.pexels.com/video/a-hotel-receptionist-talking-on-the-telephone-7820503/,,,,2026-08-20T10:57:03.853994+00:00
+20260820T105539Z-0cf750,pexels,31150451,private_jet,private jet runway night,https://www.pexels.com/video/private-jet-on-tarmac-in-arizona-airport-31150451/,,,,2026-08-20T10:57:03.854002+00:00
+20260820T105539Z-0cf750,pexels,6693624,cash,counting hundred dollar bills dark,https://www.pexels.com/video/man-calculating-his-money-6693624/,,,,2026-08-20T10:57:03.854010+00:00
+20260820T105539Z-0cf750,pixabay,158531,watch,luxury watch macro black,https://pixabay.com/videos/id-158531/,,,,2026-08-20T10:57:03.854017+00:00
+20260820T105539Z-0cf750,pexels,34867907,hotel,five star hotel lobby dark,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-budapest-34867907/,,,,2026-08-20T10:57:03.854023+00:00
+20260820T105539Z-0cf750,pexels,27155341,cash,counting hundred dollar bills dark,https://www.pexels.com/video/man-and-money-27155341/,,,,2026-08-20T10:57:03.854029+00:00
+20260820T105539Z-0cf750,pexels,38413547,villa,modern villa night luxury,https://www.pexels.com/video/luxury-villa-with-infinity-pool-and-wooden-deck-38413547/,,,,2026-08-20T10:57:03.854036+00:00
+20260820T105539Z-0cf750,pexels,29797321,hotel,luxury hotel suite night,https://www.pexels.com/video/luxurious-canopy-bed-in-elegant-hotel-room-29797321/,,,,2026-08-20T10:57:03.854043+00:00
+20260820T105539Z-0cf750,pexels,6266655,cash,cash stacks black background,https://www.pexels.com/video/stacks-of-money-scattered-on-a-table-6266655/,,,,2026-08-20T10:57:03.854050+00:00
+20260820T105539Z-0cf750,pexels,37694695,villa,modern villa night luxury,https://www.pexels.com/video/modern-luxury-villa-with-tropical-design-37694695/,,,,2026-08-20T10:57:03.854057+00:00
+20260820T105539Z-0cf750,pexels,6266251,cash,counting hundred dollar bills dark,https://www.pexels.com/video/a-person-counting-dollar-bills-6266251/,,,,2026-08-20T10:57:03.854064+00:00
+20260820T105539Z-0cf750,pexels,34867881,hotel,five star hotel lobby dark,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-in-budapest-34867881/,,,,2026-08-20T10:57:03.854070+00:00
+20260820T105539Z-0cf750,pixabay,152184,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-152184/,,,,2026-08-20T10:57:03.854077+00:00
+20260820T105539Z-0cf750,pixabay,144660,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-144660/,,,,2026-08-20T10:57:03.854083+00:00
+20260820T105539Z-0cf750,pexels,35167311,villa,modern villa night luxury,https://www.pexels.com/video/aerial-view-of-scenic-mountain-villa-35167311/,,,,2026-08-20T10:57:03.854089+00:00
+20260821T073725Z-513e3b,pexels,34867891,hotel,dark marble hotel interior,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-budapest-34867891/,,,,2026-08-21T07:38:29.254379+00:00
+20260821T073725Z-513e3b,pexels,6700011,cash,counting hundred dollar bills dark,https://www.pexels.com/video/a-person-counting-money-6700011/,,,,2026-08-21T07:38:29.254392+00:00
+20260821T073725Z-513e3b,pixabay,15604,watch,expensive watch low light,https://pixabay.com/videos/id-15604/,,,,2026-08-21T07:38:29.254400+00:00
+20260821T073725Z-513e3b,pexels,6590514,cash,cash stacks black background,https://www.pexels.com/video/us-dollar-bills-on-display-6590514/,,,,2026-08-21T07:38:29.254406+00:00
+20260821T073725Z-513e3b,pixabay,15629,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-15629/,,,,2026-08-21T07:38:29.254412+00:00
+20260821T073725Z-513e3b,pexels,37539550,villa,modern villa night luxury,https://www.pexels.com/video/aerial-view-of-eco-friendly-luxury-villa-37539550/,,,,2026-08-21T07:38:29.254417+00:00
+20260821T073725Z-513e3b,pexels,29470443,private_jet,luxury jet interior cinematic,https://www.pexels.com/video/private-jet-at-sunset-on-arizona-runway-29470443/,,,,2026-08-21T07:38:29.254423+00:00
+20260821T073725Z-513e3b,pexels,12976045,watch,expensive watch low light,https://www.pexels.com/video/moving-watch-hands-12976045/,,,,2026-08-21T07:38:29.254429+00:00
+20260821T073725Z-513e3b,pexels,6266433,cash,cash stacks black background,https://www.pexels.com/video/close-up-shot-of-man-counting-money-6266433/,,,,2026-08-21T07:38:29.254434+00:00
+20260821T073725Z-513e3b,pexels,30058553,private_jet,private jet runway night,https://www.pexels.com/video/private-jet-on-tarmac-at-sunset-30058553/,,,,2026-08-21T07:38:29.254440+00:00
+20260821T073725Z-513e3b,pixabay,135728,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-135728/,,,,2026-08-21T07:38:29.254446+00:00
+20260821T073725Z-513e3b,pexels,6624826,cash,cash stacks black background,https://www.pexels.com/video/hand-holding-banknotes-6624826/,,,,2026-08-21T07:38:29.254451+00:00
+20260821T073725Z-513e3b,pexels,38413572,villa,modern villa night luxury,https://www.pexels.com/video/luxury-tropical-villa-with-poolside-deck-38413572/,,,,2026-08-21T07:38:29.254457+00:00
+20260821T073725Z-513e3b,pexels,6266255,cash,money safe dark cinematic,https://www.pexels.com/video/hands-putting-dollar-bills-stacks-in-briefcase-6266255/,,,,2026-08-21T07:38:29.254463+00:00
+20260821T073725Z-513e3b,pexels,34867913,hotel,dark marble hotel interior,https://www.pexels.com/video/elegant-cocktail-in-a-grand-budapest-hotel-lobby-34867913/,,,,2026-08-21T07:38:29.254468+00:00
+20260821T073725Z-513e3b,pexels,4836776,cash,cash stacks black background,https://www.pexels.com/video/person-counting-a-money-4836776/,,,,2026-08-21T07:38:29.254474+00:00
+20260821T073725Z-513e3b,pexels,34812171,villa,modern villa night luxury,https://www.pexels.com/video/modern-villa-with-pool-and-garden-aerial-view-34812171/,,,,2026-08-21T07:38:29.254479+00:00
+20260822T175537Z-06906e,pixabay,200439,private_jet,private jet cabin dark luxury,https://pixabay.com/videos/id-200439/,13.849,0.9803921568627452,0,2026-08-22T17:57:32.564210+00:00
+20260822T175537Z-06906e,pexels,34867905,hotel,five star hotel lobby dark,https://www.pexels.com/video/elegant-interior-of-parisi-udvar-hotel-34867905/,4.862,1.4705882352941178,1,2026-08-22T17:57:32.564233+00:00
+20260822T175537Z-06906e,pixabay,55760,watch,expensive watch low light,https://pixabay.com/videos/id-55760/,3.848,1.9607843137254903,2,2026-08-22T17:57:32.564246+00:00
+20260822T175537Z-06906e,pexels,6266439,cash,money safe dark cinematic,https://www.pexels.com/video/close-up-shot-of-man-counting-money-6266439/,0.434,1.9607843137254903,3,2026-08-22T17:57:32.564255+00:00
+20260822T175537Z-06906e,pixabay,152184,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-152184/,4.636,1.9607843137254903,4,2026-08-22T17:57:32.564269+00:00
+20260822T175537Z-06906e,pexels,37446304,villa,modern villa night luxury,https://www.pexels.com/video/eco-friendly-tropical-villa-at-dusk-37446304/,6.256,0.9803921568627452,5,2026-08-22T17:57:32.564278+00:00
+20260822T175537Z-06906e,pexels,6266434,cash,counting hundred dollar bills dark,https://www.pexels.com/video/a-lot-of-money-on-the-table-6266434/,10.684,0.9803921568627452,6,2026-08-22T17:57:32.564287+00:00
+20260822T175537Z-06906e,pexels,28962904,villa,luxury mansion night cinematic,https://www.pexels.com/video/luxury-waterfront-mansion-with-palm-trees-28962904/,3.678,0.9803921568627452,7,2026-08-22T17:57:32.564296+00:00
+20260822T175537Z-06906e,pixabay,3652,watch,expensive watch low light,https://pixabay.com/videos/id-3652/,34.547,1.4705882352941178,8,2026-08-22T17:57:32.564305+00:00
+20260822T175537Z-06906e,pexels,6624835,cash,cash stacks black background,https://www.pexels.com/video/person-holding-dollars-6624835/,2.093,1.9607843137254903,9,2026-08-22T17:57:32.564313+00:00
+20260822T175537Z-06906e,pixabay,32952,private_jet,luxury jet interior cinematic,https://pixabay.com/videos/id-32952/,18.065,1.4705882352941178,10,2026-08-22T17:57:32.564322+00:00
+20260822T175537Z-06906e,pixabay,77485,villa,modern villa night luxury,https://pixabay.com/videos/id-77485/,5.266,1.9607843137254903,11,2026-08-22T17:57:32.564331+00:00
+20260822T175537Z-06906e,pixabay,51022,private_jet,luxury jet interior cinematic,https://pixabay.com/videos/id-51022/,2.468,0.9803921568627452,12,2026-08-22T17:57:32.564338+00:00
+20260822T175537Z-06906e,pixabay,9740,villa,modern villa night luxury,https://pixabay.com/videos/id-9740/,17.859,1.9607843137254903,13,2026-08-22T17:57:32.564347+00:00
+20260822T175537Z-06906e,pixabay,93550,cash,counting hundred dollar bills dark,https://pixabay.com/videos/id-93550/,6.016,0.9803921568627452,14,2026-08-22T17:57:32.564354+00:00
+20260822T175537Z-06906e,pexels,35605168,hotel,dark marble hotel interior,https://www.pexels.com/video/luxurious-venetian-hotel-lobby-interior-35605168/,8.537,0.9803921568627452,15,2026-08-22T17:57:32.564362+00:00
+20260822T175537Z-06906e,pexels,6266925,cash,money safe dark cinematic,https://www.pexels.com/video/a-man-putting-money-on-the-briefcase-6266925/,1.166,1.9607843137254903,16,2026-08-22T17:57:32.564371+00:00
