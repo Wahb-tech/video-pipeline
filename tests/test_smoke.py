@@ -4,7 +4,7 @@ from src.gemini import fallback_plan
 from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
-from src.stock import FORBIDDEN_TERMS
+from src.stock import FORBIDDEN_TERMS, is_strict_dark_luxury
 
 
 def test_fallback_plan_count():
@@ -22,6 +22,21 @@ def test_dark_luxury_limits_feminine_clips():
 def test_swimwear_is_context_checked_not_globally_forbidden():
     assert "bikini" not in FORBIDDEN_TERMS
     assert "swimsuit" not in FORBIDDEN_TERMS
+
+
+def test_abstract_water_clip_is_rejected():
+    item = {"page_url": "https://example.com/luxury-villa-water-fountain-close-up", "tags": "water, stone, fountain"}
+    assert not is_strict_dark_luxury(item, "villa")
+
+
+def test_category_without_explicit_wealth_is_rejected():
+    item = {"page_url": "https://example.com/ordinary-villa", "tags": "villa, house"}
+    assert not is_strict_dark_luxury(item, "villa")
+
+
+def test_explicit_dark_luxury_clip_is_accepted():
+    item = {"page_url": "https://example.com/luxury-supercar-night", "tags": "luxury, lamborghini, night"}
+    assert is_strict_dark_luxury(item, "supercar")
 
 
 def test_cut_lengths_sum():

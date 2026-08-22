@@ -26,7 +26,18 @@ STRICT_TERMS = {
 FORBIDDEN_TERMS = {
     "girl",
     "cosplay", "costume", "jester", "anime", "dj", "concert", "festival",
-    "party", "dancing", "beach", "wedding"
+    "party", "dancing", "beach", "wedding", "abstract", "background",
+    "texture", "close up", "close-up", "macro", "water", "fountain",
+    "waterfall", "rain", "river", "stone", "rock", "nature", "forest",
+    "flower", "smoke", "fire", "light leak", "bokeh"
+}
+
+WEALTH_TERMS = {
+    "luxury", "luxurious", "wealth", "rich", "exclusive", "premium",
+    "supercar", "lamborghini", "ferrari", "mclaren", "porsche", "rolls royce",
+    "private jet", "business jet", "superyacht", "yacht", "rolex", "diamond",
+    "jewelry", "mansion", "penthouse", "five star", "hotel suite", "cash",
+    "money", "banknote", "dubai", "burj"
 }
 
 FEMININE_LUXURY_TERMS = {
@@ -42,7 +53,7 @@ def pexels_search(query, per_page=12):
     if not key:
         return []
     r = requests.get(
-        "https://api.pexels.com/videos/search",
+        "https://api.pexels.com/v1/videos/search",
         headers={"Authorization": key, "User-Agent": UA},
         params={"query": query, "per_page": per_page, "orientation": "portrait"},
         timeout=30,
@@ -132,7 +143,9 @@ def is_strict_dark_luxury(item, category):
         has_woman = any(term in text for term in STRICT_TERMS["dark_feminine"])
         has_luxury = any(term in text for term in FEMININE_LUXURY_TERMS)
         return has_woman and has_luxury
-    return any(term in text for term in STRICT_TERMS.get(category, set()))
+    has_category = any(term in text for term in STRICT_TERMS.get(category, set()))
+    has_wealth = any(term in text for term in WEALTH_TERMS)
+    return has_category and has_wealth
 
 
 def is_safe_dark_luxury(item):
@@ -180,12 +193,6 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
         if not candidates:
             candidates = [x for x in pool if is_strict_dark_luxury(x, category)]
             fallback_reason = "reusing strict stock"
-        if not candidates:
-            candidates = [x for x in unused if is_safe_dark_luxury(x)]
-            fallback_reason = "using safe query-matched stock"
-        if not candidates:
-            candidates = [x for x in pool if is_safe_dark_luxury(x)]
-            fallback_reason = "reusing safe query-matched stock"
         if fallback_reason:
             print(f"Stock fallback for {category}: {fallback_reason}")
     else:
