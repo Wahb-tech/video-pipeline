@@ -203,3 +203,20 @@ experiment_id,provider,stock_id,category,search_query,page_url,start_sec,cut_sec
 20260823T171130Z-125435,pixabay,135155,dark_feminine,woman bikini superyacht night luxury,https://pixabay.com/videos/id-135155/,2.232,1.7857142857142858,14,2026-08-23T17:13:26.350964+00:00
 20260823T171130Z-125435,pixabay,135728,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-135728/,0.0,1.7857142857142858,15,2026-08-23T17:13:26.350973+00:00
 20260823T171130Z-125435,pexels,6700265,cash,counting hundred dollar bills dark,https://www.pexels.com/video/a-person-counting-cash-6700265/,8.023,0.8928571428571429,16,2026-08-23T17:13:26.350982+00:00
+20260823T175041Z-0ea497,pixabay,25907,hotel,luxury hotel suite night,https://pixabay.com/videos/id-25907/,0.0,1.0416666666666667,0,2026-08-23T17:53:04.335172+00:00
+20260823T175041Z-0ea497,pexels,32779590,supercar,supercar tunnel night,https://www.pexels.com/video/sleek-blue-supercar-parked-on-city-street-32779590/,4.135,1.5625,1,2026-08-23T17:53:04.335194+00:00
+20260823T175041Z-0ea497,pixabay,299162,dubai,Burj Khalifa night cinematic,https://pixabay.com/videos/id-299162/,4.07,1.5625,2,2026-08-23T17:53:04.335206+00:00
+20260823T175041Z-0ea497,pixabay,54778,watch,Rolex watch dark cinematic,https://pixabay.com/videos/id-54778/,11.321,2.0833333333333335,3,2026-08-23T17:53:04.335215+00:00
+20260823T175041Z-0ea497,pixabay,135728,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-135728/,6.635,1.0416666666666667,4,2026-08-23T17:53:04.335224+00:00
+20260823T175041Z-0ea497,pexels,38464916,dubai,Dubai skyline night luxury,https://www.pexels.com/video/stunning-dubai-night-skyline-timelapse-38464916/,10.713,1.0416666666666667,5,2026-08-23T17:53:04.335232+00:00
+20260823T175041Z-0ea497,pixabay,1190,hotel,luxury hotel suite night,https://pixabay.com/videos/id-1190/,11.861,1.0416666666666667,6,2026-08-23T17:53:04.335241+00:00
+20260823T175041Z-0ea497,pexels,31335127,dark_feminine,elegant woman luxury hotel night,https://www.pexels.com/video/elegant-woman-making-a-phone-call-in-hotel-room-31335127/,2.93,1.0416666666666667,7,2026-08-23T17:53:04.335249+00:00
+20260823T175041Z-0ea497,pixabay,152184,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-152184/,1.517,2.0833333333333335,8,2026-08-23T17:53:04.335258+00:00
+20260823T175041Z-0ea497,pexels,29963192,dark_feminine,elegant woman black dress luxury car night,https://www.pexels.com/video/woman-posing-with-luxury-car-in-dimly-lit-garage-29963192/,1.621,2.0833333333333335,9,2026-08-23T17:53:04.335266+00:00
+20260823T175041Z-0ea497,pexels,35425176,dubai,Dubai skyline night luxury,https://www.pexels.com/video/scenic-night-view-of-dubai-ferris-wheel-35425176/,2.853,1.5625,10,2026-08-23T17:53:04.335275+00:00
+20260823T175041Z-0ea497,pixabay,40289,dark_feminine,woman luxury villa pool night dark,https://pixabay.com/videos/id-40289/,30.469,1.0416666666666667,11,2026-08-23T17:53:04.335283+00:00
+20260823T175041Z-0ea497,pexels,38413547,villa,modern villa night luxury,https://www.pexels.com/video/luxury-villa-with-infinity-pool-and-wooden-deck-38413547/,1.359,2.0833333333333335,12,2026-08-23T17:53:04.335291+00:00
+20260823T175041Z-0ea497,pexels,37337793,dubai,Burj Khalifa night cinematic,https://www.pexels.com/video/night-view-of-iconic-burj-khalifa-37337793/,0.721,1.0416666666666667,13,2026-08-23T17:53:04.335299+00:00
+20260823T175041Z-0ea497,pexels,37572085,dark_feminine,elegant woman luxury hotel night,https://www.pexels.com/video/stylish-woman-walking-down-hotel-corridor-37572085/,3.503,1.5625,14,2026-08-23T17:53:04.335308+00:00
+20260823T175041Z-0ea497,pixabay,25905,hotel,luxury hotel suite night,https://pixabay.com/videos/id-25905/,0.0,1.0416666666666667,15,2026-08-23T17:53:04.335317+00:00
+20260823T175041Z-0ea497,pixabay,701,dark_feminine,woman luxury villa pool night dark,https://pixabay.com/videos/id-701/,6.52,2.0833333333333335,16,2026-08-23T17:53:04.335325+00:00
