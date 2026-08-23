@@ -1,1 +1,133 @@
-{}
+{
+  "samples": 0,
+  "theme": {
+    "dark_cars": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "money": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "dark_life": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "mixed_dark": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    }
+  },
+  "copy_variant": {
+    "one_day": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "soon": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "built_silence": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "different_standard": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "no_plan_b": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "earned_not_given": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "one_goal": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "destiny": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "end_goal": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    }
+  },
+  "caption_variant": {
+    "choice": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "aspiration": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "minimal": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    }
+  },
+  "next_variant": {
+    "theme": "money",
+    "copy_variant": "earned_not_given",
+    "caption_variant": "aspiration",
+    "sample_count": 0
+  },
+  "audio": {
+    "te_conoci_super_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "gozalo_super_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "no_era_amor_super_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "luz_roja_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "luna_bala_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "sempero_super_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "passo_bem_solto_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    }
+  },
+  "audio_segment": {}
+}
