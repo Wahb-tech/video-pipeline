@@ -49,6 +49,7 @@ jobs:
           GEMINI_MODEL: gemini-2.5-flash
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+          COVERR_API_KEY: ${{ secrets.COVERR_API_KEY }}
         run: |
           python -m src.main \
             --style dark_luxury \

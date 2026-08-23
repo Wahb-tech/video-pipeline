@@ -92,8 +92,8 @@ def main():
     args = parse_args()
     if args.seed is not None:
         random.seed(args.seed)
-    if not os.getenv("PEXELS_API_KEY") and not os.getenv("PIXABAY_API_KEY"):
-        raise SystemExit("Set PEXELS_API_KEY and/or PIXABAY_API_KEY")
+    if not any(os.getenv(name) for name in ("PEXELS_API_KEY", "PIXABAY_API_KEY", "COVERR_API_KEY")):
+        raise SystemExit("Set PEXELS_API_KEY, PIXABAY_API_KEY and/or COVERR_API_KEY")
 
     selected = choose_variant()
     theme = selected["theme"] if args.theme == "auto" else args.theme
@@ -184,6 +184,11 @@ def main():
     (out.parent / "sources.json").write_text(json.dumps(sources, indent=2, ensure_ascii=False), encoding="utf-8")
     rights = make_rights_manifest(sources, experiment_id)
     (out.parent / "rights_manifest.json").write_text(json.dumps(rights, indent=2, ensure_ascii=False), encoding="utf-8")
+    if any(item.get("provider") == "coverr" for item in sources):
+        caption = f"{caption}\n\nFootage via Coverr: https://coverr.co"
+        plan["caption"] = caption
+        (out.parent / "caption.txt").write_text(caption, encoding="utf-8")
+        (out.parent / "creative_plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
 
     concat = work / "concat.mp4"
     texted = work / "texted.mp4"

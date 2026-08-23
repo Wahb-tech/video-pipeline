@@ -3,6 +3,7 @@ import os
 import random
 import requests
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from .config import CATEGORIES, DARK_QUERIES
 
@@ -83,6 +84,53 @@ def pexels_search(query, per_page=12):
     return out
 
 
+@lru_cache(maxsize=128)
+def coverr_search(query, per_page=20):
+    key = os.getenv("COVERR_API_KEY", "").strip()
+    if not key:
+        return []
+    r = requests.get(
+        "https://api.coverr.co/videos",
+        headers={"Authorization": f"Bearer {key}", "User-Agent": UA},
+        params={
+            "query": query,
+            "page_size": per_page,
+            "sort": "popular",
+            "urls": "true",
+        },
+        timeout=30,
+    )
+    r.raise_for_status()
+    out = []
+    for video in r.json().get("hits", []):
+        urls = video.get("urls") or {}
+        url = urls.get("mp4_download") or urls.get("mp4")
+        if not url:
+            continue
+        tags = video.get("tags") or []
+        if isinstance(tags, str):
+            tags = [tags]
+        metadata = " ".join([
+            str(video.get("title") or ""),
+            str(video.get("description") or ""),
+            " ".join(str(tag) for tag in tags),
+        ]).strip()
+        out.append({
+            "provider": "coverr",
+            "id": str(video.get("id")),
+            "url": url,
+            "width": int(video.get("max_width") or 0),
+            "height": int(video.get("max_height") or 0),
+            "duration": float(video.get("duration") or 0),
+            "page_url": f'https://coverr.co/videos/{video.get("id")}',
+            "author": "Coverr",
+            "author_url": "https://coverr.co",
+            "license_reference": "https://coverr.co/license",
+            "tags": metadata,
+        })
+    return out
+
+
 def pixabay_search(query, per_page=20):
     key = os.getenv("PIXABAY_API_KEY", "").strip()
     if not key:
@@ -118,7 +166,7 @@ def pixabay_search(query, per_page=20):
     return out
 
 
-def score(item, usage=None):
+def score(item, usage=None, provider_usage=None):
     s = 0
     w, h = item.get("width", 0), item.get("height", 0)
     if h > w:
@@ -129,7 +177,13 @@ def score(item, usage=None):
         s += 2
     usage = usage or {}
     reuse_penalty = min(6.0, float(usage.get("count", 0)) * 0.8)
-    return s - reuse_penalty + random.random() * 2
+    provider_usage = provider_usage or {}
+    counts = list(provider_usage.values()) or [0]
+    provider_penalty = min(
+        3.0,
+        max(0, provider_usage.get(item.get("provider", ""), 0) - min(counts)) * 0.08,
+    )
+    return s - reuse_penalty - provider_penalty + random.random() * 2
 
 
 def is_strict_dark_luxury(item, category):
@@ -176,6 +230,13 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
             pool.extend(items)
         except Exception as e:
             print(f"Pixabay search failed for {query}: {e}")
+        try:
+            items = coverr_search(query)
+            for item in items:
+                item["search_query"] = query
+            pool.extend(items)
+        except Exception as e:
+            print(f"Coverr search failed for {query}: {e}")
     unique = {}
     for item in pool:
         unique[f'{item["provider"]}:{item["id"]}'] = item
@@ -186,6 +247,10 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
         history = {key: {"count": 1, "starts": []} for key in usage_history}
     else:
         history = usage_history
+    provider_usage = {}
+    for key, entry in history.items():
+        provider = key.split(":", 1)[0]
+        provider_usage[provider] = provider_usage.get(provider, 0) + int(entry.get("count", 0))
     unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in history]
     if style == "dark_luxury":
         candidates = [x for x in unused if is_strict_dark_luxury(x, category)]
@@ -200,7 +265,11 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
     if not candidates:
         raise RuntimeError(f"No stock video found for category: {category}")
     candidates.sort(
-        key=lambda item: score(item, history.get(f'{item["provider"]}:{item["id"]}', {})),
+        key=lambda item: score(
+            item,
+            history.get(f'{item["provider"]}:{item["id"]}', {}),
+            provider_usage,
+        ),
         reverse=True,
     )
     chosen = random.choice(candidates[: min(6, len(candidates))])
