@@ -33,7 +33,13 @@ def _media_files(group):
 
 def _cookie_args():
     cookie_file = os.getenv("AUTHORIZED_COOKIES_FILE", "").strip()
-    return ["--cookies", cookie_file] if cookie_file else []
+    if not cookie_file:
+        return []
+    path = Path(cookie_file)
+    if not path.is_file() or path.stat().st_size == 0:
+        print(f"Authorized cookies file is missing or empty: {path}")
+        return []
+    return ["--cookies", str(path)]
 
 
 def _download_instagram(url, group, limit):

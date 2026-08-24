@@ -118,7 +118,12 @@ def main():
     work.mkdir(parents=True)
     authorized = download_authorized_library(work / "authorized")
     if any(os.getenv(name) for name in authorized_names) and not authorized:
-        print("No usable authorized footage was downloaded; continuing with licensed stock providers")
+        message = "No usable authorized footage was downloaded"
+        if os.getenv("REQUIRE_AUTHORIZED_FOOTAGE", "").lower() in {"1", "true", "yes"}:
+            raise RuntimeError(
+                f"{message}. Refresh INSTAGRAM_COOKIES_B64 before generating; refusing a stock-only video"
+            )
+        print(f"{message}; continuing with licensed stock providers")
 
     text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)

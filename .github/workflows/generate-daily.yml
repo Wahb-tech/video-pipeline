@@ -48,6 +48,23 @@ jobs:
           python -m pip install playwright
           python -m playwright install chromium
 
+      - name: Prepare authorized Instagram session
+        env:
+          INSTAGRAM_COOKIES_B64: ${{ secrets.INSTAGRAM_COOKIES_B64 }}
+        run: |
+          if [ -z "$INSTAGRAM_COOKIES_B64" ]; then
+            echo "INSTAGRAM_COOKIES_B64 is missing"
+            exit 1
+          fi
+          cookie_file="$RUNNER_TEMP/instagram-cookies.txt"
+          printf '%s' "$INSTAGRAM_COOKIES_B64" | base64 --decode > "$cookie_file"
+          if [ ! -s "$cookie_file" ]; then
+            echo "Decoded Instagram cookies file is empty"
+            exit 1
+          fi
+          chmod 600 "$cookie_file"
+          echo "AUTHORIZED_COOKIES_FILE=$cookie_file" >> "$GITHUB_ENV"
+
       - name: Generate optimized dark-luxury video
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -61,6 +78,7 @@ jobs:
           AUTHORIZED_TEXT_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_TEXT_CREATOR_HANDLES }}
           BANNED_STOCK_IDS: ${{ secrets.BANNED_STOCK_IDS }}
           AUTHORIZED_SOURCE_OWNER: "@noirwealthlifestyle"
+          REQUIRE_AUTHORIZED_FOOTAGE: "true"
         run: |
           python -m src.main \
             --style dark_luxury \
