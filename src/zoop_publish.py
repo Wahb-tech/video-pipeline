@@ -97,29 +97,84 @@ def fill_caption(page):
     raise RuntimeError("Caption field not found")
 
 def upload_video(page):
-    file_input = page.locator('input[type="file"]')
+    page.wait_for_timeout(6000)
 
-    if file_input.count() > 0:
+    def use_file_input():
+        file_input = page.locator('input[type="file"]')
+        if file_input.count() == 0:
+            return False
         file_input.first.set_input_files(str(VIDEO))
+        print("ZOOP_UPLOAD_INPUT_FOUND", flush=True)
+        return True
+
+    def use_trigger(candidate, label):
+        try:
+            if candidate.count() == 0 or not candidate.first.is_visible():
+                return False
+            try:
+                with page.expect_file_chooser(timeout=3000) as chooser:
+                    candidate.first.click()
+                chooser.value.set_files(str(VIDEO))
+                print(f"ZOOP_UPLOAD_TRIGGER {label}", flush=True)
+                return True
+            except Exception:
+                page.wait_for_timeout(1200)
+                return use_file_input()
+        except Exception:
+            return False
+
+    if use_file_input():
         return
 
     candidates = [
         page.get_by_role("button", name=re.compile("create", re.I)),
         page.get_by_role("button", name=re.compile("new post", re.I)),
         page.get_by_role("button", name=re.compile("upload", re.I)),
+        page.get_by_role("button", name=re.compile(r"^add$", re.I)),
+        page.get_by_role("link", name=re.compile("create|new post|upload", re.I)),
         page.locator('button[aria-label*="post" i]'),
         page.locator('button[aria-label*="create" i]'),
+        page.locator('button[aria-label*="upload" i]'),
+        page.locator('[title*="create" i], [title*="upload" i], [title*="post" i]'),
+        page.locator('[data-testid*="create" i], [data-testid*="upload" i], [data-testid*="post" i]'),
+        page.get_by_text("+", exact=True),
     ]
 
-    for candidate in candidates:
+    for index, candidate in enumerate(candidates):
+        if use_trigger(candidate, f"semantic_{index}"):
+            return
+
+    controls = page.locator('button, a, [role="button"]')
+    viewport = page.viewport_size or {"width": 1280, "height": 720}
+    positional = []
+    for index in range(controls.count()):
+        control = controls.nth(index)
         try:
-            if candidate.count() > 0 and candidate.first.is_visible():
-                with page.expect_file_chooser(timeout=5000) as chooser:
-                    candidate.first.click()
-                chooser.value.set_files(str(VIDEO))
-                return
+            if not control.is_visible():
+                continue
+            box = control.bounding_box()
+            if not box:
+                continue
+            nearly_square = abs(box["width"] - box["height"]) <= 24
+            sidebar = box["x"] < viewport["width"] * 0.22
+            lower_half = box["y"] > viewport["height"] * 0.52
+            sensible_size = 32 <= box["width"] <= 100 and 32 <= box["height"] <= 100
+            if nearly_square and sidebar and lower_half and sensible_size:
+                positional.append((box["y"], index))
         except Exception:
             pass
+
+    for _, index in sorted(positional, reverse=True):
+        if use_trigger(controls.nth(index), f"sidebar_{index}"):
+            return
+
+    print("ZOOP_UPLOAD_DEBUG_URL", page.url, flush=True)
+    try:
+        print("ZOOP_UPLOAD_DEBUG_BODY", page.locator("body").inner_text()[:6000], flush=True)
+    except Exception:
+        pass
+    page.screenshot(path="zoop_upload_not_found.png", full_page=True)
+    Path("zoop_upload_not_found.html").write_text(page.content(), encoding="utf-8")
 
     raise RuntimeError("Upload control not found")
 
