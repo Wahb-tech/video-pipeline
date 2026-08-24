@@ -117,7 +117,7 @@ def main():
     work.mkdir(parents=True)
     authorized = download_authorized_library(work / "authorized")
     if any(os.getenv(name) for name in authorized_names) and not authorized:
-        raise RuntimeError("Authorized creator URLs were configured but no usable videos were downloaded")
+        print("No usable authorized footage was downloaded; continuing with licensed stock providers")
 
     text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)
