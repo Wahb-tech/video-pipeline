@@ -59,6 +59,7 @@ jobs:
           AUTHORIZED_TEXT_VIDEO_URLS: ${{ secrets.AUTHORIZED_TEXT_VIDEO_URLS }}
           AUTHORIZED_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_CREATOR_HANDLES }}
           AUTHORIZED_TEXT_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_TEXT_CREATOR_HANDLES }}
+          BANNED_STOCK_IDS: ${{ secrets.BANNED_STOCK_IDS }}
           AUTHORIZED_SOURCE_OWNER: "@noirwealthlifestyle"
         run: |
           python -m src.main \
@@ -67,6 +68,7 @@ jobs:
             --copy-variant auto \
             --caption-variant auto \
             --text-mode minimal \
+            --authorized-share 0.82 \
             --duration 25 \
             --clips 17 \
             --bpm 100 \

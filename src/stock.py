@@ -9,6 +9,8 @@ from .config import CATEGORIES, DARK_QUERIES
 
 UA = "ZoopLuxuryFactory/2.0"
 
+STOCK_BLOCKED_CATEGORIES = {"watch", "cash"}
+
 STRICT_TERMS = {
     "yacht": {"yacht", "superyacht", "marina"},
     "dubai": {"dubai", "burj", "emirates"},
@@ -32,7 +34,8 @@ FORBIDDEN_TERMS = {
     "waterfall", "rain", "river", "stone", "rock", "nature", "forest",
     "flower", "smoke", "fire", "light leak", "bokeh", "3d", "cgi",
     "render", "animation", "animated", "game", "gaming", "metaverse",
-    "digital art", "illustration", "cartoon", "ai generated", "generated ai"
+    "digital art", "illustration", "cartoon", "ai generated", "generated ai",
+    "futuristic", "concept car", "cyberpunk", "simulation", "virtual"
 }
 
 WEALTH_TERMS = {
@@ -211,7 +214,8 @@ def is_real_footage(item):
     ]).lower().replace("_", " ")
     synthetic = {
         "3d", "cgi", "render", "animation", "animated", "game", "gaming",
-        "metaverse", "digital art", "illustration", "cartoon", "ai generated"
+        "metaverse", "digital art", "illustration", "cartoon", "ai generated",
+        "futuristic", "concept car", "cyberpunk", "simulation", "virtual"
     }
     return not any(term in text for term in synthetic)
 
@@ -225,6 +229,8 @@ def is_safe_dark_luxury(item):
 
 
 def find_clip(category, usage_history, style="mixed", exclude_ids=None):
+    if style == "dark_luxury" and category in STOCK_BLOCKED_CATEGORIES:
+        raise RuntimeError(f"Stock category permanently blocked for dark luxury: {category}")
     query_map = DARK_QUERIES if style == "dark_luxury" else CATEGORIES
     queries = query_map[category][:]
     random.shuffle(queries)
@@ -256,6 +262,11 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
         unique[f'{item["provider"]}:{item["id"]}'] = item
     pool = list(unique.values())
     exclude_ids = exclude_ids or set()
+    banned_ids = {
+        value.strip() for value in os.getenv("BANNED_STOCK_IDS", "").replace("\n", ",").split(",")
+        if value.strip()
+    }
+    exclude_ids = set(exclude_ids) | banned_ids
     pool = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in exclude_ids]
     if isinstance(usage_history, set):
         history = {key: {"count": 1, "starts": []} for key in usage_history}
@@ -268,12 +279,6 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
     unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in history]
     if style == "dark_luxury":
         candidates = [x for x in unused if is_real_footage(x) and is_strict_dark_luxury(x, category)]
-        fallback_reason = ""
-        if not candidates:
-            candidates = [x for x in pool if is_real_footage(x) and is_strict_dark_luxury(x, category)]
-            fallback_reason = "reusing strict stock"
-        if fallback_reason:
-            print(f"Stock fallback for {category}: {fallback_reason}")
     else:
         candidates = unused or pool
     if not candidates:

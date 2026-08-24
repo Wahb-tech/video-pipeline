@@ -150,9 +150,11 @@ def choose_authorized_clip(items, usage_history, run_counts, position):
         return None
     def rank(item):
         key = f'{item["provider"]}:{item["id"]}'
+        author_key = f'author:{item.get("author", "authorized creator").lower()}'
         past = usage_history.get(key, {})
         total_uses = int(past.get("count", 0)) + run_counts.get(key, 0)
         positions = past.get("positions", [])
         position_penalty = 2 if position in positions[-6:] else 0
-        return total_uses * 3 + position_penalty + random.random()
+        author_penalty = run_counts.get(author_key, 0) * 4
+        return total_uses * 3 + author_penalty + position_penalty + random.random()
     return min(items, key=rank).copy()

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from .config import BASELINE, CAPTION_TEMPLATES, THEME_PRESETS
 from .gemini import generate_plan
-from .stock import find_clip, download, load_usage_history, append_used
+from .stock import STOCK_BLOCKED_CATEGORIES, find_clip, download, load_usage_history, append_used
 from .render import choose_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
 from .strategy import choose_variant
 from .audio import choose_audio
@@ -65,6 +65,7 @@ def parse_args():
     p.add_argument("--music", default="")
     p.add_argument("--experiment-id", default="")
     p.add_argument("--output", default="output/ZOOP_READY.mp4")
+    p.add_argument("--authorized-share", type=float, default=0.82)
     return p.parse_args()
 
 
@@ -164,12 +165,17 @@ def main():
     sources = []
 
     category_pool = list(dict.fromkeys(THEME_PRESETS.get(theme, plan["categories"])))
+    authorized_count = min(args.clips, max(0, round(args.clips * args.authorized_share)))
+    authorized_positions = set(random.sample(range(args.clips), authorized_count)) if authorized else set()
     for i, category in enumerate(plan["categories"]):
-        attempts = [category]
-        alternatives = [value for value in category_pool if value != category]
+        attempts = [] if category in STOCK_BLOCKED_CATEGORIES else [category]
+        alternatives = [
+            value for value in category_pool
+            if value != category and value not in STOCK_BLOCKED_CATEGORIES
+        ]
         random.shuffle(alternatives)
         attempts.extend(alternatives)
-        item = choose_authorized_clip(authorized, usage_history, run_counts, i)
+        item = choose_authorized_clip(authorized, usage_history, run_counts, i) if i in authorized_positions else None
         errors = []
         for attempted_category in ([] if item else attempts):
             try:
@@ -178,12 +184,17 @@ def main():
                 break
             except RuntimeError as exc:
                 errors.append(str(exc))
+        if item is None and authorized:
+            item = choose_authorized_clip(authorized, usage_history, run_counts, i)
         if item is None:
             raise RuntimeError("; ".join(errors))
         item_key = f'{item["provider"]}:{item["id"]}'
         if item["provider"] != "authorized_creator":
             current_video_ids.add(item_key)
         run_counts[item_key] = run_counts.get(item_key, 0) + 1
+        if item["provider"] == "authorized_creator":
+            author_key = f'author:{item.get("author", "authorized creator").lower()}'
+            run_counts[author_key] = run_counts.get(author_key, 0) + 1
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"
         download(item.get("local_path") or item["url"], raw)

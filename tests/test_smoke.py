@@ -4,7 +4,7 @@ from src.gemini import fallback_plan
 from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
-from src.stock import FORBIDDEN_TERMS, coverr_search, is_real_footage, is_strict_dark_luxury, score
+from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import recurring_text_region
 
@@ -134,6 +134,11 @@ def test_cgi_and_game_footage_are_rejected():
     assert not is_real_footage({"tags": "3D CGI luxury watch animation"})
     assert not is_real_footage({"tags": "dark supercar video game render"})
     assert is_real_footage({"tags": "real cinematic Rolls Royce at night"})
+
+
+def test_weak_stock_categories_are_blocked():
+    assert STOCK_BLOCKED_CATEGORIES == {"watch", "cash"}
+    assert not is_real_footage({"tags": "futuristic concept car luxury simulation"})
 
 
 def test_authorized_urls_accept_multiline_secret(monkeypatch):
