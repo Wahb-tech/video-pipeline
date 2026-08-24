@@ -30,7 +30,9 @@ FORBIDDEN_TERMS = {
     "party", "dancing", "beach", "wedding", "abstract", "background",
     "texture", "close up", "close-up", "macro", "water", "fountain",
     "waterfall", "rain", "river", "stone", "rock", "nature", "forest",
-    "flower", "smoke", "fire", "light leak", "bokeh"
+    "flower", "smoke", "fire", "light leak", "bokeh", "3d", "cgi",
+    "render", "animation", "animated", "game", "gaming", "metaverse",
+    "digital art", "illustration", "cartoon", "ai generated", "generated ai"
 }
 
 WEALTH_TERMS = {
@@ -202,6 +204,18 @@ def is_strict_dark_luxury(item, category):
     return has_category and has_wealth
 
 
+def is_real_footage(item):
+    text = " ".join([
+        str(item.get("page_url", "")),
+        str(item.get("tags", "")),
+    ]).lower().replace("_", " ")
+    synthetic = {
+        "3d", "cgi", "render", "animation", "animated", "game", "gaming",
+        "metaverse", "digital art", "illustration", "cartoon", "ai generated"
+    }
+    return not any(term in text for term in synthetic)
+
+
 def is_safe_dark_luxury(item):
     text = " ".join([
         str(item.get("page_url", "")),
@@ -253,10 +267,10 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
         provider_usage[provider] = provider_usage.get(provider, 0) + int(entry.get("count", 0))
     unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in history]
     if style == "dark_luxury":
-        candidates = [x for x in unused if is_strict_dark_luxury(x, category)]
+        candidates = [x for x in unused if is_real_footage(x) and is_strict_dark_luxury(x, category)]
         fallback_reason = ""
         if not candidates:
-            candidates = [x for x in pool if is_strict_dark_luxury(x, category)]
+            candidates = [x for x in pool if is_real_footage(x) and is_strict_dark_luxury(x, category)]
             fallback_reason = "reusing strict stock"
         if fallback_reason:
             print(f"Stock fallback for {category}: {fallback_reason}")
@@ -348,6 +362,10 @@ def append_used(items, experiment_id, path="data/used_stock.csv"):
 
 def download(url, destination):
     destination = Path(destination)
+    local = Path(str(url))
+    if local.exists():
+        destination.write_bytes(local.read_bytes())
+        return
     with requests.get(url, stream=True, timeout=120, headers={"User-Agent": UA}) as r:
         r.raise_for_status()
         with destination.open("wb") as f:

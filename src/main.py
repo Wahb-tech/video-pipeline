@@ -14,6 +14,8 @@ from .render import choose_cut_lengths, normalize_clip, concat_clips, make_text_
 from .strategy import choose_variant
 from .audio import choose_audio
 from .csvutil import append_row
+from .authorized_video import download_authorized_library, choose_authorized_clip
+from .text_cleanup import clean_creator_text
 
 GENERATED_FIELDS = [
     "experiment_id", "created_at", "style", "theme", "copy_variant", "caption_variant",
@@ -92,8 +94,14 @@ def main():
     args = parse_args()
     if args.seed is not None:
         random.seed(args.seed)
-    if not any(os.getenv(name) for name in ("PEXELS_API_KEY", "PIXABAY_API_KEY", "COVERR_API_KEY")):
-        raise SystemExit("Set PEXELS_API_KEY, PIXABAY_API_KEY and/or COVERR_API_KEY")
+    authorized_names = (
+        "AUTHORIZED_VIDEO_URLS",
+        "AUTHORIZED_TEXT_VIDEO_URLS",
+        "AUTHORIZED_CREATOR_HANDLES",
+        "AUTHORIZED_TEXT_CREATOR_HANDLES",
+    )
+    if not any(os.getenv(name) for name in ("PEXELS_API_KEY", "PIXABAY_API_KEY", "COVERR_API_KEY", *authorized_names)):
+        raise SystemExit("Configure an authorized creator source or a stock API key")
 
     selected = choose_variant()
     theme = selected["theme"] if args.theme == "auto" else args.theme
@@ -107,6 +115,9 @@ def main():
     if work.exists():
         shutil.rmtree(work)
     work.mkdir(parents=True)
+    authorized = download_authorized_library(work / "authorized")
+    if any(os.getenv(name) for name in authorized_names) and not authorized:
+        raise RuntimeError("Authorized creator URLs were configured but no usable videos were downloaded")
 
     text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)
@@ -147,6 +158,8 @@ def main():
     lengths = choose_cut_lengths(args.duration, args.clips, args.bpm)
     usage_history = load_usage_history()
     current_video_ids = set()
+    current_starts = {}
+    run_counts = {}
     normalized = []
     sources = []
 
@@ -156,9 +169,9 @@ def main():
         alternatives = [value for value in category_pool if value != category]
         random.shuffle(alternatives)
         attempts.extend(alternatives)
-        item = None
+        item = choose_authorized_clip(authorized, usage_history, run_counts, i)
         errors = []
-        for attempted_category in attempts:
+        for attempted_category in ([] if item else attempts):
             try:
                 item = find_clip(attempted_category, usage_history, args.style, current_video_ids)
                 category = attempted_category
@@ -168,12 +181,20 @@ def main():
         if item is None:
             raise RuntimeError("; ".join(errors))
         item_key = f'{item["provider"]}:{item["id"]}'
-        current_video_ids.add(item_key)
+        if item["provider"] != "authorized_creator":
+            current_video_ids.add(item_key)
+        run_counts[item_key] = run_counts.get(item_key, 0) + 1
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"
-        download(item["url"], raw)
-        previous_starts = usage_history.get(item_key, {}).get("starts", [])
-        start_sec = normalize_clip(raw, norm, lengths[i], args.style, previous_starts)
+        download(item.get("local_path") or item["url"], raw)
+        input_clip = raw
+        if item.get("cleanup_text"):
+            cleaned = work / f"cleaned_{i:02d}.mp4"
+            item["removed_text_region"] = clean_creator_text(raw, cleaned)
+            input_clip = cleaned
+        previous_starts = usage_history.get(item_key, {}).get("starts", []) + current_starts.get(item_key, [])
+        start_sec = normalize_clip(input_clip, norm, lengths[i], args.style, previous_starts)
+        current_starts.setdefault(item_key, []).append(start_sec)
         normalized.append(norm)
         item["category"] = category
         item["start_sec"] = round(start_sec, 3)
@@ -186,6 +207,17 @@ def main():
     (out.parent / "rights_manifest.json").write_text(json.dumps(rights, indent=2, ensure_ascii=False), encoding="utf-8")
     if any(item.get("provider") == "coverr" for item in sources):
         caption = f"{caption}\n\nFootage via Coverr: https://coverr.co"
+        plan["caption"] = caption
+        (out.parent / "caption.txt").write_text(caption, encoding="utf-8")
+        (out.parent / "creative_plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+    if any(item.get("provider") == "authorized_creator" for item in sources):
+        fallback_owner = os.getenv("AUTHORIZED_SOURCE_OWNER", "authorized creator").strip()
+        owners = sorted({
+            str(item.get("author") or fallback_owner).strip()
+            for item in sources
+            if item.get("provider") == "authorized_creator"
+        })
+        caption = f"{caption}\n\nFootage used with permission from {', '.join(owners)}."
         plan["caption"] = caption
         (out.parent / "caption.txt").write_text(caption, encoding="utf-8")
         (out.parent / "creative_plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")

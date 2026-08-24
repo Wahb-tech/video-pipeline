@@ -31,7 +31,7 @@ jobs:
       - name: Install FFmpeg
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg
+          sudo apt-get install -y --no-install-recommends ffmpeg tesseract-ocr
           ffmpeg -version
           ffprobe -version
 
@@ -50,6 +50,11 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           COVERR_API_KEY: ${{ secrets.COVERR_API_KEY }}
+          AUTHORIZED_VIDEO_URLS: ${{ secrets.AUTHORIZED_VIDEO_URLS }}
+          AUTHORIZED_TEXT_VIDEO_URLS: ${{ secrets.AUTHORIZED_TEXT_VIDEO_URLS }}
+          AUTHORIZED_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_CREATOR_HANDLES }}
+          AUTHORIZED_TEXT_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_TEXT_CREATOR_HANDLES }}
+          AUTHORIZED_SOURCE_OWNER: "@noirwealthlifestyle"
         run: |
           python -m src.main \
             --style dark_luxury \

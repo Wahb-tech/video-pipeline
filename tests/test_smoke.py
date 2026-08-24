@@ -4,7 +4,9 @@ from src.gemini import fallback_plan
 from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
-from src.stock import FORBIDDEN_TERMS, coverr_search, is_strict_dark_luxury, score
+from src.stock import FORBIDDEN_TERMS, coverr_search, is_real_footage, is_strict_dark_luxury, score
+from src.authorized_video import choose_authorized_clip, configured_sources, configured_urls
+from src.text_cleanup import recurring_text_region
 
 
 def test_fallback_plan_count():
@@ -126,3 +128,63 @@ def test_provider_rotation_penalizes_overused_provider(monkeypatch):
     coverr = {"provider": "coverr", "width": 1080, "height": 1920, "duration": 8}
     usage = {"pexels": 50, "coverr": 0, "pixabay": 20}
     assert score(coverr, provider_usage=usage) > score(pexels, provider_usage=usage)
+
+
+def test_cgi_and_game_footage_are_rejected():
+    assert not is_real_footage({"tags": "3D CGI luxury watch animation"})
+    assert not is_real_footage({"tags": "dark supercar video game render"})
+    assert is_real_footage({"tags": "real cinematic Rolls Royce at night"})
+
+
+def test_authorized_urls_accept_multiline_secret(monkeypatch):
+    monkeypatch.setenv("AUTHORIZED_VIDEO_URLS", "https://youtu.be/a\nhttps://youtu.be/b")
+    assert configured_urls() == ["https://youtu.be/a", "https://youtu.be/b"]
+
+
+def test_authorized_handles_become_youtube_video_feeds(monkeypatch):
+    monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
+    monkeypatch.setenv("AUTHORIZED_TEXT_CREATOR_HANDLES", "@theluxevora\n369godsplan, crestvalue")
+    assert configured_sources() == [
+        ("https://www.youtube.com/@theluxevora/videos", True),
+        ("https://www.youtube.com/@369godsplan/videos", True),
+        ("https://www.youtube.com/@crestvalue/videos", True),
+    ]
+
+
+def test_text_sources_are_marked_for_cleanup(monkeypatch):
+    monkeypatch.setenv("AUTHORIZED_VIDEO_URLS", "https://youtu.be/clean")
+    monkeypatch.setenv("AUTHORIZED_TEXT_VIDEO_URLS", "https://youtu.be/text")
+    assert configured_sources() == [
+        ("https://youtu.be/clean", False),
+        ("https://youtu.be/text", True),
+    ]
+
+
+def test_recurring_text_region_ignores_one_frame_text():
+    frames = [[(100, 100, 200, 50)], [], [], []]
+    assert recurring_text_region(frames, 1080, 1920) is None
+
+
+def test_recurring_text_region_finds_static_overlay():
+    frames = [
+        [(300, 850, 400, 80)],
+        [(310, 855, 390, 78)],
+        [(305, 852, 395, 82)],
+        [],
+    ]
+    region = recurring_text_region(frames, 1080, 1920)
+    assert region is not None
+    assert region[0] < 300
+    assert region[2] > 400
+
+
+def test_authorized_rotation_prefers_less_used_video(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "a"},
+        {"provider": "authorized_creator", "id": "b"},
+    ]
+    chosen = choose_authorized_clip(items, {}, {"authorized_creator:a": 2}, 0)
+    assert chosen["id"] == "b"

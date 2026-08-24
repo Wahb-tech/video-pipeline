@@ -1,0 +1,94 @@
+import json
+import os
+import random
+import subprocess
+from pathlib import Path
+
+
+def _split_urls(raw):
+    return [line.strip() for line in raw.replace(",", "\n").splitlines() if line.strip()]
+
+
+def _creator_url(value):
+    value = value.strip()
+    if not value:
+        return ""
+    if value.startswith(("http://", "https://")):
+        return value.rstrip("/") + ("" if value.rstrip("/").endswith("/videos") else "/videos")
+    return f"https://www.youtube.com/@{value.lstrip('@')}/videos"
+
+
+def configured_sources():
+    sources = []
+    for url in _split_urls(os.getenv("AUTHORIZED_VIDEO_URLS", "")):
+        sources.append((url, False))
+    for url in _split_urls(os.getenv("AUTHORIZED_TEXT_VIDEO_URLS", "")):
+        sources.append((url, True))
+    for handle in _split_urls(os.getenv("AUTHORIZED_CREATOR_HANDLES", "")):
+        sources.append((_creator_url(handle), False))
+    for handle in _split_urls(os.getenv("AUTHORIZED_TEXT_CREATOR_HANDLES", "")):
+        sources.append((_creator_url(handle), True))
+    return list(dict.fromkeys(source for source in sources if source[0]))
+
+
+def configured_urls():
+    return [url for url, _ in configured_sources()]
+
+
+def download_authorized_library(destination):
+    sources = configured_sources()
+    if not sources:
+        return []
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    for index, (url, cleanup_text) in enumerate(sources):
+        group = destination / (f"text_{index}" if cleanup_text else f"clean_{index}")
+        group.mkdir(exist_ok=True)
+        output = str(group / "%(extractor)s_%(id)s.%(ext)s")
+        subprocess.run([
+            "yt-dlp", "--no-warnings", "--ignore-errors",
+            "--playlist-end", os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12"),
+            "--match-filter", "duration >= 8 & duration <= 1800",
+            "--write-info-json", "--merge-output-format", "mp4",
+            "-f", "bv*[height>=720]+ba/b[height>=720]/best",
+            "-o", output, url,
+        ], check=True)
+    owner = os.getenv("AUTHORIZED_SOURCE_OWNER", "authorized creator").strip()
+    items = []
+    for info_path in destination.glob("**/*.info.json"):
+        info = json.loads(info_path.read_text(encoding="utf-8"))
+        video_id = str(info.get("id") or info_path.stem)
+        matches = list(info_path.parent.glob(f"*_{video_id}.*"))
+        video = next((p for p in matches if p.suffix.lower() in {".mp4", ".mov", ".mkv", ".webm"}), None)
+        if not video:
+            continue
+        author = info.get("uploader") or owner
+        items.append({
+            "provider": "authorized_creator",
+            "id": video_id,
+            "local_path": str(video),
+            "page_url": info.get("webpage_url") or info.get("original_url") or "",
+            "author": author,
+            "author_url": info.get("channel_url") or "",
+            "license_reference": f"Direct permission from {author}",
+            "duration": float(info.get("duration") or 0),
+            "width": int(info.get("width") or 0),
+            "height": int(info.get("height") or 0),
+            "tags": "authorized creator footage dark luxury wealth lifestyle",
+            "search_query": "authorized creator library",
+            "cleanup_text": info_path.parent.name.startswith("text_"),
+        })
+    return items
+
+
+def choose_authorized_clip(items, usage_history, run_counts, position):
+    if not items:
+        return None
+    def rank(item):
+        key = f'{item["provider"]}:{item["id"]}'
+        past = usage_history.get(key, {})
+        total_uses = int(past.get("count", 0)) + run_counts.get(key, 0)
+        positions = past.get("positions", [])
+        position_penalty = 2 if position in positions[-6:] else 0
+        return total_uses * 3 + position_penalty + random.random()
+    return min(items, key=rank).copy()
