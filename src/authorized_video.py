@@ -2,7 +2,11 @@ import json
 import os
 import random
 import subprocess
+import atexit
+import shutil
 from pathlib import Path
+
+import requests
 
 
 def _split_urls(raw):
@@ -26,6 +30,12 @@ def _is_instagram(url):
     return "instagram.com/" in url.lower()
 
 
+def _instagram_username(url):
+    if not _is_instagram(url):
+        return ""
+    return url.split("instagram.com/", 1)[-1].split("?", 1)[0].strip("/").split("/", 1)[0]
+
+
 def _media_files(group):
     extensions = {".mp4", ".mov", ".mkv", ".webm"}
     return [path for path in group.rglob("*") if path.is_file() and path.suffix.lower() in extensions]
@@ -42,7 +52,46 @@ def _cookie_args():
     return ["--cookies", str(path)]
 
 
-def _download_instagram(url, group, limit):
+def _download_instagram_instaloader(url, group, limit):
+    username = _instagram_username(url)
+    if not username:
+        return False
+    try:
+        import instaloader
+
+        loader = instaloader.Instaloader(
+            download_pictures=False,
+            download_videos=False,
+            download_video_thumbnails=False,
+            download_geotags=False,
+            download_comments=False,
+            save_metadata=False,
+            compress_json=False,
+            quiet=True,
+        )
+        profile = instaloader.Profile.from_username(loader.context, username)
+        maximum = int(limit) if str(limit).isdigit() else 12
+        downloaded = 0
+        for post in profile.get_posts():
+            if not post.is_video:
+                continue
+            target = group / f"instagram_{post.shortcode}.mp4"
+            response = requests.get(post.video_url, stream=True, timeout=60)
+            response.raise_for_status()
+            with target.open("wb") as handle:
+                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        handle.write(chunk)
+            downloaded += 1
+            if maximum > 0 and downloaded >= maximum:
+                break
+        return downloaded > 0
+    except Exception as exc:
+        print(f"Instaloader unavailable for @{username}: {exc}")
+        return False
+
+
+def _download_instagram_gallery(url, group, limit):
     before = set(_media_files(group))
     result = subprocess.run([
         "gallery-dl", "--no-mtime", "--range", f"1-{limit}",
@@ -89,13 +138,16 @@ def download_authorized_library(destination):
         return []
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
+    atexit.register(shutil.rmtree, destination, ignore_errors=True)
     for index, (url, cleanup_text) in enumerate(sources):
         group = destination / (f"text_{index}" if cleanup_text else f"clean_{index}")
         group.mkdir(exist_ok=True)
         limit = os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12")
         downloaded = False
         if _is_instagram(url):
-            downloaded = _download_instagram(url, group, limit)
+            downloaded = _download_instagram_instaloader(url, group, limit)
+            if not downloaded:
+                downloaded = _download_instagram_gallery(url, group, limit)
         if not downloaded:
             downloaded = _download_with_ytdlp(url, group, limit)
         if not downloaded:

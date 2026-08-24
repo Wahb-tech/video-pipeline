@@ -116,3 +116,6 @@ jobs:
             output/sources.json
             output/rights_manifest.json
           retention-days: 30
+      - name: Delete temporary source footage
+        if: always()
+        run: rm -rf output/work

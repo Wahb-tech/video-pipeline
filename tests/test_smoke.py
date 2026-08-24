@@ -5,7 +5,7 @@ from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import _cookie_args, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.authorized_video import _cookie_args, _instagram_username, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import recurring_text_region
 
 
@@ -156,6 +156,10 @@ def test_authorized_handles_become_instagram_reel_feeds(monkeypatch):
         ("https://www.instagram.com/369godsplan/reels/", True),
         ("https://www.instagram.com/crestvalue/reels/", True),
     ]
+
+
+def test_instagram_username_is_extracted_from_reels_url():
+    assert _instagram_username("https://www.instagram.com/noirwealthlifestyle/reels/") == "noirwealthlifestyle"
 
 
 def test_authorized_cookie_file_is_passed_to_downloaders(monkeypatch, tmp_path):
