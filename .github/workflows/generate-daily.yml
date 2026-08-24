@@ -2,8 +2,13 @@ name: Automatic ZOOP Content Factory
 
 on:
   schedule:
-    - cron: "0 7 * * *"
-    - cron: "0 17 * * *"
+    # Four daily runs. GitHub cron is UTC; these correspond to
+    # 08:17, 12:47, 18:07 and 22:17 in Switzerland during summer time.
+    # Non-round minutes also reduce GitHub Actions scheduling congestion.
+    - cron: "17 6 * * *"
+    - cron: "47 10 * * *"
+    - cron: "7 16 * * *"
+    - cron: "17 20 * * *"
   workflow_dispatch:
 
 permissions:
