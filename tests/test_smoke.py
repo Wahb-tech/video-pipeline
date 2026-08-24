@@ -5,7 +5,7 @@ from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import choose_authorized_clip, configured_sources, configured_urls
+from src.authorized_video import choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import recurring_text_region
 
 
@@ -151,6 +151,19 @@ def test_authorized_handles_become_youtube_video_feeds(monkeypatch):
         ("https://www.youtube.com/@369godsplan/videos", True),
         ("https://www.youtube.com/@crestvalue/videos", True),
     ]
+
+
+def test_unavailable_authorized_source_does_not_abort(monkeypatch, tmp_path):
+    monkeypatch.setenv("AUTHORIZED_VIDEO_URLS", "https://youtube.com/@missing/videos")
+    monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_CREATOR_HANDLES", raising=False)
+
+    class Result:
+        returncode = 1
+
+    monkeypatch.setattr("src.authorized_video.subprocess.run", lambda *args, **kwargs: Result())
+    assert download_authorized_library(tmp_path) == []
 
 
 def test_text_sources_are_marked_for_cleanup(monkeypatch):

@@ -45,14 +45,16 @@ def download_authorized_library(destination):
         group = destination / (f"text_{index}" if cleanup_text else f"clean_{index}")
         group.mkdir(exist_ok=True)
         output = str(group / "%(extractor)s_%(id)s.%(ext)s")
-        subprocess.run([
+        result = subprocess.run([
             "yt-dlp", "--no-warnings", "--ignore-errors",
             "--playlist-end", os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12"),
             "--match-filter", "duration >= 8 & duration <= 1800",
             "--write-info-json", "--merge-output-format", "mp4",
             "-f", "bv*[height>=720]+ba/b[height>=720]/best",
             "-o", output, url,
-        ], check=True)
+        ], check=False)
+        if result.returncode:
+            print(f"Authorized source unavailable, skipping: {url}")
     owner = os.getenv("AUTHORIZED_SOURCE_OWNER", "authorized creator").strip()
     items = []
     for info_path in destination.glob("**/*.info.json"):
