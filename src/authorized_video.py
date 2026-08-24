@@ -59,6 +59,12 @@ def _download_instagram_instaloader(url, group, limit):
     try:
         import instaloader
 
+        class NoWaitRateController(instaloader.RateController):
+            def handle_429(self, query_type):
+                raise instaloader.ConnectionException(
+                    f"Instagram rate limit reached for {query_type}"
+                )
+
         loader = instaloader.Instaloader(
             download_pictures=False,
             download_videos=False,
@@ -68,6 +74,8 @@ def _download_instagram_instaloader(url, group, limit):
             save_metadata=False,
             compress_json=False,
             quiet=True,
+            max_connection_attempts=1,
+            rate_controller=lambda context: NoWaitRateController(context),
         )
         profile = instaloader.Profile.from_username(loader.context, username)
         maximum = int(limit) if str(limit).isdigit() else 12
