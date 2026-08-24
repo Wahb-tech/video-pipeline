@@ -14,8 +14,50 @@ def _creator_url(value):
     if not value:
         return ""
     if value.startswith(("http://", "https://")):
-        return value.rstrip("/") + ("" if value.rstrip("/").endswith("/videos") else "/videos")
-    return f"https://www.youtube.com/@{value.lstrip('@')}/videos"
+        return value
+    if value.lower().startswith("youtube:"):
+        return f"https://www.youtube.com/@{value.split(':', 1)[1].lstrip('@')}/videos"
+    if value.lower().startswith("instagram:"):
+        value = value.split(":", 1)[1]
+    return f"https://www.instagram.com/{value.lstrip('@')}/reels/"
+
+
+def _is_instagram(url):
+    return "instagram.com/" in url.lower()
+
+
+def _media_files(group):
+    extensions = {".mp4", ".mov", ".mkv", ".webm"}
+    return [path for path in group.rglob("*") if path.is_file() and path.suffix.lower() in extensions]
+
+
+def _cookie_args():
+    cookie_file = os.getenv("AUTHORIZED_COOKIES_FILE", "").strip()
+    return ["--cookies", cookie_file] if cookie_file else []
+
+
+def _download_instagram(url, group, limit):
+    before = set(_media_files(group))
+    result = subprocess.run([
+        "gallery-dl", "--no-mtime", "--range", f"1-{limit}",
+        "--filter", "extension in ('mp4', 'mov', 'mkv', 'webm')",
+        "-D", str(group), "-f", "instagram_{shortcode}_{num}.{extension}",
+        *_cookie_args(), url,
+    ], check=False)
+    return result.returncode == 0 and bool(set(_media_files(group)) - before)
+
+
+def _download_with_ytdlp(url, group, limit):
+    output = str(group / "%(extractor)s_%(id)s.%(ext)s")
+    result = subprocess.run([
+        "yt-dlp", "--no-warnings", "--ignore-errors",
+        "--playlist-end", limit,
+        "--match-filter", "duration >= 8 & duration <= 1800",
+        "--write-info-json", "--merge-output-format", "mp4",
+        "-f", "bv*[height>=720]+ba/b[height>=720]/best",
+        "-o", output, *_cookie_args(), url,
+    ], check=False)
+    return result.returncode == 0 and bool(_media_files(group))
 
 
 def configured_sources():
@@ -44,16 +86,13 @@ def download_authorized_library(destination):
     for index, (url, cleanup_text) in enumerate(sources):
         group = destination / (f"text_{index}" if cleanup_text else f"clean_{index}")
         group.mkdir(exist_ok=True)
-        output = str(group / "%(extractor)s_%(id)s.%(ext)s")
-        result = subprocess.run([
-            "yt-dlp", "--no-warnings", "--ignore-errors",
-            "--playlist-end", os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12"),
-            "--match-filter", "duration >= 8 & duration <= 1800",
-            "--write-info-json", "--merge-output-format", "mp4",
-            "-f", "bv*[height>=720]+ba/b[height>=720]/best",
-            "-o", output, url,
-        ], check=False)
-        if result.returncode:
+        limit = os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12")
+        downloaded = False
+        if _is_instagram(url):
+            downloaded = _download_instagram(url, group, limit)
+        if not downloaded:
+            downloaded = _download_with_ytdlp(url, group, limit)
+        if not downloaded:
             print(f"Authorized source unavailable, skipping: {url}")
     owner = os.getenv("AUTHORIZED_SOURCE_OWNER", "authorized creator").strip()
     items = []
@@ -79,6 +118,29 @@ def download_authorized_library(destination):
             "tags": "authorized creator footage dark luxury wealth lifestyle",
             "search_query": "authorized creator library",
             "cleanup_text": info_path.parent.name.startswith("text_"),
+        })
+    indexed_paths = {Path(item["local_path"]).resolve() for item in items}
+    for video in _media_files(destination):
+        if video.resolve() in indexed_paths:
+            continue
+        cleanup_text = video.parent.name.startswith("text_")
+        source_index = video.parent.name.split("_", 1)[-1]
+        source_url = sources[int(source_index)][0] if source_index.isdigit() and int(source_index) < len(sources) else ""
+        author = source_url.split("instagram.com/", 1)[-1].split("/", 1)[0] if _is_instagram(source_url) else owner
+        items.append({
+            "provider": "authorized_creator",
+            "id": video.stem,
+            "local_path": str(video),
+            "page_url": source_url,
+            "author": author or owner,
+            "author_url": source_url,
+            "license_reference": f"Direct permission from {author or owner}",
+            "duration": 0,
+            "width": 0,
+            "height": 0,
+            "tags": "authorized creator footage dark luxury wealth lifestyle",
+            "search_query": "authorized creator library",
+            "cleanup_text": cleanup_text,
         })
     return items
 

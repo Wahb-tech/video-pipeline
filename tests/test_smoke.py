@@ -141,15 +141,26 @@ def test_authorized_urls_accept_multiline_secret(monkeypatch):
     assert configured_urls() == ["https://youtu.be/a", "https://youtu.be/b"]
 
 
-def test_authorized_handles_become_youtube_video_feeds(monkeypatch):
+def test_authorized_handles_become_instagram_reel_feeds(monkeypatch):
     monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
     monkeypatch.setenv("AUTHORIZED_TEXT_CREATOR_HANDLES", "@theluxevora\n369godsplan, crestvalue")
     assert configured_sources() == [
-        ("https://www.youtube.com/@theluxevora/videos", True),
-        ("https://www.youtube.com/@369godsplan/videos", True),
-        ("https://www.youtube.com/@crestvalue/videos", True),
+        ("https://www.instagram.com/theluxevora/reels/", True),
+        ("https://www.instagram.com/369godsplan/reels/", True),
+        ("https://www.instagram.com/crestvalue/reels/", True),
+    ]
+
+
+def test_explicit_platform_handles(monkeypatch):
+    monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_CREATOR_HANDLES", raising=False)
+    monkeypatch.setenv("AUTHORIZED_CREATOR_HANDLES", "youtube:noirwealthlifestyle\ninstagram:5relux")
+    assert configured_sources() == [
+        ("https://www.youtube.com/@noirwealthlifestyle/videos", False),
+        ("https://www.instagram.com/5relux/reels/", False),
     ]
 
 
