@@ -72,10 +72,40 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           COVERR_API_KEY: ${{ secrets.COVERR_API_KEY }}
-          AUTHORIZED_VIDEO_URLS: ${{ secrets.AUTHORIZED_VIDEO_URLS }}
-          AUTHORIZED_TEXT_VIDEO_URLS: ${{ secrets.AUTHORIZED_TEXT_VIDEO_URLS }}
-          AUTHORIZED_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_CREATOR_HANDLES }}
-          AUTHORIZED_TEXT_CREATOR_HANDLES: ${{ secrets.AUTHORIZED_TEXT_CREATOR_HANDLES }}
+          AUTHORIZED_VIDEO_URLS: |
+            ${{ secrets.AUTHORIZED_VIDEO_URLS }}
+            https://www.instagram.com/noirwealthlifestyle/reel/DX18E6-NS0W/
+            https://www.instagram.com/noirwealthlifestyle/reel/DX4d47BN7xC/
+            https://www.instagram.com/noirwealthlifestyle/reel/Db_RBfLT057/
+            https://www.instagram.com/noirwealthlifestyle/reel/DaZ3ZlgN_9w/
+            https://www.instagram.com/noirwealthlifestyle/reel/DaL8vDEN8bP/
+            https://www.instagram.com/noirwealthlifestyle/reel/DZjYz3uIixC/
+            https://www.instagram.com/noirwealthlifestyle/reel/DZcdXllNcN-/
+            https://www.instagram.com/noirwealthlifestyle/reel/DZcdCBBtrdx/
+            https://www.instagram.com/noirwealthlifestyle/reel/DZXuyZ4Nqwb/
+            https://www.instagram.com/noirwealthlifestyle/reel/DZDTNuZtKTL/
+            https://www.instagram.com/noirwealthlifestyle/reel/DYz9WmKta4b/
+            https://www.instagram.com/noirwealthlifestyle/reel/DYz8mo9tCaF/
+            https://www.instagram.com/noirwealthlifestyle/reel/DYxQMNwtEnK/
+            https://www.instagram.com/noirwealthlifestyle/reel/DYfZpeaNTbQ/
+            https://www.instagram.com/noirwealthlifestyle/reel/DYfJFaHtgMn/
+          AUTHORIZED_TEXT_VIDEO_URLS: |
+            ${{ secrets.AUTHORIZED_TEXT_VIDEO_URLS }}
+            https://www.instagram.com/crestvalue/reel/Db-_Jq9zX9T/
+            https://www.instagram.com/crestvalue/reel/DcbWcs2SNw2/
+            https://www.instagram.com/crestvalue/reel/DcbWPuEPRqA/
+            https://www.instagram.com/crestvalue/reel/DcbWFzMR8Yp/
+            https://www.instagram.com/crestvalue/reel/DcbV4VKp-V_/
+            https://www.instagram.com/crestvalue/reel/DcbVpfwOwRc/
+            https://www.instagram.com/crestvalue/reel/DcYY_l_sxor/
+            https://www.instagram.com/crestvalue/reel/DcYYrmoJmzk/
+            https://www.instagram.com/crestvalue/reel/DcYYf40PyRc/
+            https://www.instagram.com/crestvalue/reel/DcYYVBStDBf/
+            https://www.instagram.com/crestvalue/reel/DcYVDcux_rr/
+            https://www.instagram.com/crestvalue/reel/DcXGm-cz6Dd/
+            https://www.instagram.com/crestvalue/reel/DcWBjWuzetI/
+          AUTHORIZED_CREATOR_HANDLES: ""
+          AUTHORIZED_TEXT_CREATOR_HANDLES: ""
           BANNED_STOCK_IDS: ${{ secrets.BANNED_STOCK_IDS }}
           AUTHORIZED_SOURCE_OWNER: "@noirwealthlifestyle"
           REQUIRE_AUTHORIZED_FOOTAGE: "true"

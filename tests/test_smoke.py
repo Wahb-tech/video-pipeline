@@ -5,7 +5,7 @@ from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import _cookie_args, _instagram_username, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.authorized_video import _cookie_args, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import recurring_text_region
 
 
@@ -160,6 +160,12 @@ def test_authorized_handles_become_instagram_reel_feeds(monkeypatch):
 
 def test_instagram_username_is_extracted_from_reels_url():
     assert _instagram_username("https://www.instagram.com/noirwealthlifestyle/reels/") == "noirwealthlifestyle"
+
+
+def test_direct_instagram_media_is_detected_without_matching_profile_feed():
+    assert _is_direct_instagram_media("https://www.instagram.com/crestvalue/reel/Db-_Jq9zX9T/")
+    assert _is_direct_instagram_media("https://www.instagram.com/creator/p/abc123/")
+    assert not _is_direct_instagram_media("https://www.instagram.com/crestvalue/reels/")
 
 
 def test_authorized_cookie_file_is_passed_to_downloaders(monkeypatch, tmp_path):

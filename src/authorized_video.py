@@ -36,6 +36,12 @@ def _instagram_username(url):
     return url.split("instagram.com/", 1)[-1].split("?", 1)[0].strip("/").split("/", 1)[0]
 
 
+def _is_direct_instagram_media(url):
+    path = url.lower().split("instagram.com/", 1)[-1].split("?", 1)[0].strip("/")
+    parts = path.split("/")
+    return len(parts) >= 3 and parts[1] in {"reel", "p", "tv"}
+
+
 def _media_files(group):
     extensions = {".mp4", ".mov", ".mkv", ".webm"}
     return [path for path in group.rglob("*") if path.is_file() and path.suffix.lower() in extensions]
@@ -152,7 +158,7 @@ def download_authorized_library(destination):
         group.mkdir(exist_ok=True)
         limit = os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12")
         downloaded = False
-        if _is_instagram(url):
+        if _is_instagram(url) and not _is_direct_instagram_media(url):
             downloaded = _download_instagram_instaloader(url, group, limit)
             if not downloaded:
                 downloaded = _download_instagram_gallery(url, group, limit)
