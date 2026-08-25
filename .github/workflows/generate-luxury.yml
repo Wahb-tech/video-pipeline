@@ -36,6 +36,7 @@ on:
           - luna_bala_slowed
           - sempero_super_slowed
           - passo_bem_solto_slowed
+          - montagem_fuego_super_slowed
       duration:
         description: Duration in seconds
         required: true

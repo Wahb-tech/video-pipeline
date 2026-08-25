@@ -5,6 +5,7 @@ def test_catalog_has_validated_tracks():
     catalog = load_catalog()
     assert "te_conoci_super_slowed" in catalog
     assert "gozalo_super_slowed" in catalog
+    assert "montagem_fuego_super_slowed" in catalog
     assert catalog["te_conoci_super_slowed"]["preferred_start_sec"] == 8.0
 
 
@@ -22,3 +23,10 @@ def test_missing_audio_file_is_safe():
 def test_audio_selects_known_segment(tmp_path):
     audio = choose_audio("dark_life", "gozalo_super_slowed", metrics_path=str(tmp_path / "missing.csv"))
     assert audio["selected_start_sec"] in {0.0, 25.0, 35.0, 55.0}
+
+
+def test_montagem_fuego_is_available_for_dark_luxury():
+    audio = choose_audio("dark_cars", "montagem_fuego_super_slowed")
+    assert audio["title"] == "MONTAGEM FUEGO"
+    assert audio["version"] == "Super Slowed"
+    assert audio["audio_id"] == "montagem_fuego_super_slowed"
