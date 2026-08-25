@@ -220,8 +220,12 @@ def download_authorized_library(destination):
     return items
 
 
-def choose_authorized_clip(items, usage_history, run_counts, position):
-    if not items:
+def choose_authorized_clip(items, usage_history, run_counts, position, excluded_ids=()):
+    available = [
+        item for item in items
+        if f'{item["provider"]}:{item["id"]}' not in excluded_ids
+    ]
+    if not available:
         return None
     def rank(item):
         key = f'{item["provider"]}:{item["id"]}'
@@ -232,4 +236,4 @@ def choose_authorized_clip(items, usage_history, run_counts, position):
         position_penalty = 2 if position in positions[-6:] else 0
         author_penalty = run_counts.get(author_key, 0) * 4
         return total_uses * 3 + author_penalty + position_penalty + random.random()
-    return min(items, key=rank).copy()
+    return min(available, key=rank).copy()

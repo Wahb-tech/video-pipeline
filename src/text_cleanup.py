@@ -86,18 +86,18 @@ def clean_creator_text(src, dst):
     x, y, w, h = region
     if w * h > width * height * 0.28:
         raise TextCleanupError("Embedded text covers too much of the image")
-    if y + h < height * 0.24:
+    if y + h < height * 0.20:
         crop_y = min(height - 2, y + h + 12)
+        if crop_y > height * 0.20:
+            raise TextCleanupError("Top text cannot be cropped without damaging the image")
         vf = f"crop=iw:ih-{crop_y}:0:{crop_y}"
-    elif y > height * 0.76:
+    elif y > height * 0.80:
         crop_h = max(2, y - 12)
+        if height - crop_h > height * 0.20:
+            raise TextCleanupError("Bottom text cannot be cropped without damaging the image")
         vf = f"crop=iw:{crop_h}:0:0"
     else:
-        x = max(1, min(x, width - 3))
-        y = max(1, min(y, height - 3))
-        w = max(2, min(w, width - x - 1))
-        h = max(2, min(h, height - y - 1))
-        vf = f"delogo=x={x}:y={y}:w={w}:h={h}:show=0"
+        raise TextCleanupError("Embedded text is not on a safely croppable edge")
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-an", "-vf", vf,
         "-c:v", "libx264", "-preset", "fast", "-crf", "16", "-pix_fmt", "yuv420p", str(dst)

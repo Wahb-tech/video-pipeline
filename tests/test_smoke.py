@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
@@ -7,7 +8,7 @@ from src.render import _overlay_lines, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
-from src.text_cleanup import recurring_text_region
+from src.text_cleanup import TextCleanupError, clean_creator_text, recurring_text_region
 
 
 def test_fallback_plan_count():
@@ -84,8 +85,9 @@ def test_automatic_strategy_does_not_repeat_last_copy(tmp_path, monkeypatch):
 
 def test_copy_bank_contains_many_non_generic_hooks():
     hooks = [text for key, values in COPY_VARIANTS.items() if key != "none" for text in values]
-    assert len(hooks) >= 50
-    assert sum(text.startswith("POV:") for text in hooks) >= 15
+    assert len(hooks) >= 75
+    assert sum(text.startswith("POV:") for text in hooks) >= 25
+    assert {"identity_shift", "legacy"} <= set(COPY_VARIANTS)
 
 
 def test_long_overlay_is_split_into_two_balanced_lines():
@@ -234,6 +236,19 @@ def test_text_cleanup_failure_falls_back_to_clean_authorized_clip(monkeypatch):
     assert chosen["id"] == "clean"
 
 
+def test_cleanup_fallback_never_reuses_a_clip_in_same_reel(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "text", "cleanup_text": True},
+        {"provider": "authorized_creator", "id": "used", "cleanup_text": False},
+        {"provider": "authorized_creator", "id": "fresh", "cleanup_text": False},
+    ]
+    chosen = choose_cleanup_fallback(
+        items, "text", {}, {}, 4, {"authorized_creator:used"}
+    )
+    assert chosen["id"] == "fresh"
+
+
 def test_explicit_platform_handles(monkeypatch):
     monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
@@ -267,6 +282,15 @@ def test_text_sources_are_marked_for_cleanup(monkeypatch):
     ]
 
 
+def test_noir_wealth_source_is_never_marked_for_cleanup(monkeypatch):
+    url = "https://www.instagram.com/noirwealthlifestyle/reel/example/"
+    monkeypatch.setenv("AUTHORIZED_VIDEO_URLS", url)
+    monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_CREATOR_HANDLES", raising=False)
+    assert configured_sources() == [(url, False)]
+
+
 def test_recurring_text_region_ignores_one_frame_text():
     frames = [[(100, 100, 200, 50)], [], [], []]
     assert recurring_text_region(frames, 1080, 1920) is None
@@ -285,6 +309,19 @@ def test_recurring_text_region_finds_static_overlay():
     assert region[2] > 400
 
 
+def test_center_text_is_rejected_instead_of_blurred(monkeypatch, tmp_path):
+    src = tmp_path / "source.mp4"
+    dst = tmp_path / "clean.mp4"
+    src.write_bytes(b"video")
+    monkeypatch.setattr(
+        "src.text_cleanup.detect_recurring_text",
+        lambda path: ((300, 800, 400, 100), 1080, 1920),
+    )
+    with pytest.raises(TextCleanupError, match="safely croppable"):
+        clean_creator_text(src, dst)
+    assert not dst.exists()
+
+
 def test_authorized_rotation_prefers_less_used_video(monkeypatch):
     monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
     items = [
@@ -293,3 +330,18 @@ def test_authorized_rotation_prefers_less_used_video(monkeypatch):
     ]
     chosen = choose_authorized_clip(items, {}, {"authorized_creator:a": 2}, 0)
     assert chosen["id"] == "b"
+
+
+def test_authorized_clip_is_unique_inside_one_reel(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "a"},
+        {"provider": "authorized_creator", "id": "b"},
+    ]
+    first = choose_authorized_clip(items, {}, {}, 0)
+    excluded = {f'{first["provider"]}:{first["id"]}'}
+    second = choose_authorized_clip(items, {}, {}, 1, excluded)
+    assert second["id"] != first["id"]
+    assert choose_authorized_clip(
+        items, {}, {}, 2, {"authorized_creator:a", "authorized_creator:b"}
+    ) is None

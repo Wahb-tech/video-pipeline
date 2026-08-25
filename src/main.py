@@ -7,7 +7,7 @@ import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from .config import BASELINE, CAPTION_TEMPLATES, THEME_PRESETS
+from .config import BASELINE, THEME_PRESETS
 from .gemini import generate_plan
 from .stock import STOCK_BLOCKED_CATEGORIES, find_clip, download, load_usage_history, append_used
 from .render import choose_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
@@ -91,12 +91,12 @@ def make_rights_manifest(sources, experiment_id):
     }
 
 
-def choose_cleanup_fallback(items, rejected_id, usage_history, run_counts, position):
+def choose_cleanup_fallback(items, rejected_id, usage_history, run_counts, position, excluded_ids=()):
     candidates = [
         item for item in items
         if not item.get("cleanup_text") and item.get("id") != rejected_id
     ]
-    return choose_authorized_clip(candidates, usage_history, run_counts, position)
+    return choose_authorized_clip(candidates, usage_history, run_counts, position, excluded_ids)
 
 
 def main():
@@ -137,7 +137,7 @@ def main():
     text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)
     plan["categories"] = shuffled_categories(plan["categories"], load_recent_sequences())
-    caption = random.choice(CAPTION_TEMPLATES[caption_variant][theme])
+    caption = plan["overlay_text"]
     plan.update({
         "experiment_id": experiment_id,
         "theme": theme,
@@ -189,7 +189,9 @@ def main():
         ]
         random.shuffle(alternatives)
         attempts.extend(alternatives)
-        item = choose_authorized_clip(authorized, usage_history, run_counts, i) if i in authorized_positions else None
+        item = choose_authorized_clip(
+            authorized, usage_history, run_counts, i, current_video_ids
+        ) if i in authorized_positions else None
         errors = []
         for attempted_category in ([] if item else attempts):
             try:
@@ -199,12 +201,12 @@ def main():
             except RuntimeError as exc:
                 errors.append(str(exc))
         if item is None and authorized:
-            item = choose_authorized_clip(authorized, usage_history, run_counts, i)
+            item = choose_authorized_clip(
+                authorized, usage_history, run_counts, i, current_video_ids
+            )
         if item is None:
             raise RuntimeError("; ".join(errors))
         item_key = f'{item["provider"]}:{item["id"]}'
-        if item["provider"] != "authorized_creator":
-            current_video_ids.add(item_key)
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"
         download(item.get("local_path") or item["url"], raw)
@@ -217,7 +219,7 @@ def main():
             except TextCleanupError as exc:
                 rejected_id = item.get("id")
                 item = choose_cleanup_fallback(
-                    authorized, rejected_id, usage_history, run_counts, i
+                    authorized, rejected_id, usage_history, run_counts, i, current_video_ids
                 )
                 if item is None:
                     raise RuntimeError(
@@ -227,6 +229,7 @@ def main():
                 item_key = f'{item["provider"]}:{item["id"]}'
                 download(item.get("local_path") or item["url"], raw)
                 input_clip = raw
+        current_video_ids.add(item_key)
         run_counts[item_key] = run_counts.get(item_key, 0) + 1
         if item["provider"] == "authorized_creator":
             author_key = f'author:{item.get("author", "authorized creator").lower()}'
@@ -244,23 +247,6 @@ def main():
     (out.parent / "sources.json").write_text(json.dumps(sources, indent=2, ensure_ascii=False), encoding="utf-8")
     rights = make_rights_manifest(sources, experiment_id)
     (out.parent / "rights_manifest.json").write_text(json.dumps(rights, indent=2, ensure_ascii=False), encoding="utf-8")
-    if any(item.get("provider") == "coverr" for item in sources):
-        caption = f"{caption}\n\nFootage via Coverr: https://coverr.co"
-        plan["caption"] = caption
-        (out.parent / "caption.txt").write_text(caption, encoding="utf-8")
-        (out.parent / "creative_plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-    if any(item.get("provider") == "authorized_creator" for item in sources):
-        fallback_owner = os.getenv("AUTHORIZED_SOURCE_OWNER", "authorized creator").strip()
-        owners = sorted({
-            str(item.get("author") or fallback_owner).strip()
-            for item in sources
-            if item.get("provider") == "authorized_creator"
-        })
-        caption = f"{caption}\n\nFootage used with permission from {', '.join(owners)}."
-        plan["caption"] = caption
-        (out.parent / "caption.txt").write_text(caption, encoding="utf-8")
-        (out.parent / "creative_plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-
     concat = work / "concat.mp4"
     texted = work / "texted.mp4"
     overlay = work / "overlay.png"

@@ -14,7 +14,7 @@ on:
         required: true
         type: choice
         default: auto
-        options: [auto, pov_relationship, future_self, silent_revenge, obsession, standards, discipline, minimal, none]
+        options: [auto, pov_relationship, future_self, silent_revenge, obsession, standards, discipline, identity_shift, legacy, minimal, none]
       caption_variant:
         description: Caption style
         required: true

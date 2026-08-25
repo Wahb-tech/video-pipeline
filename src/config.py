@@ -70,7 +70,11 @@ COPY_VARIANTS = {
         "Your current pain is funding this version of you.",
         "One day, the vision stops being a vision.",
         "Build until your old dreams look small.",
-        "The future is watching what you do tonight."
+        "The future is watching what you do tonight.",
+        "POV: You meet the version of you that never gave up.",
+        "POV: Your old wallpaper became your driveway.",
+        "The person you want to become is watching today's choices.",
+        "Act like your future memories depend on tonight."
     ],
     "silent_revenge": [
         "POV: They stopped laughing when it started working.",
@@ -110,7 +114,31 @@ COPY_VARIANTS = {
         "You don't rise to the dream. You fall to the routine.",
         "Private discipline. Public difference.",
         "Your habits are already choosing your lifestyle.",
-        "The price was consistency. Most people walked away."
+        "The price was consistency. Most people walked away.",
+        "POV: Your alarm rings. So does everyone else's. You get up.",
+        "Every private choice is voting for your public life.",
+        "You don't need more time. You need fewer negotiations."
+    ],
+    "identity_shift": [
+        "POV: You stopped proving yourself and started becoming undeniable.",
+        "POV: The old you would call this impossible.",
+        "Your life changed when your identity caught up with your ambition.",
+        "You don't attract the life you want. You repeat the person who earns it.",
+        "The upgrade began when excuses stopped sounding like you.",
+        "Your environment stayed the same. Your standards didn't.",
+        "Become so consistent that the old version feels fictional.",
+        "The hardest flex is becoming who you promised yourself."
+    ],
+    "legacy": [
+        "POV: You're building a surname that opens doors.",
+        "POV: The sacrifice ends with you. The legacy starts too.",
+        "POV: Your family tree changes direction with you.",
+        "Make your future family wonder what struggle felt like.",
+        "Build something your absence can't erase.",
+        "You weren't born into it. So you became the beginning.",
+        "Temporary comfort or permanent family history.",
+        "The goal isn't applause. It's generational evidence.",
+        "Your discipline is writing a story your bloodline will inherit."
     ],
     "minimal": [
         "Built in silence.",
