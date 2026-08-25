@@ -180,7 +180,7 @@ def test_missing_authorized_cookie_file_is_ignored(monkeypatch, tmp_path):
     assert _cookie_args() == []
 
 
-def test_ytdlp_accepts_short_authorized_reels(monkeypatch, tmp_path):
+def test_ytdlp_does_not_filter_direct_instagram_reels_by_duration(monkeypatch, tmp_path):
     commands = []
 
     class Result:
@@ -192,8 +192,23 @@ def test_ytdlp_accepts_short_authorized_reels(monkeypatch, tmp_path):
 
     monkeypatch.setattr("src.authorized_video.subprocess.run", fake_run)
     assert not _download_with_ytdlp("https://www.instagram.com/creator/reel/short/", tmp_path, "12")
+    assert "--match-filter" not in commands[0]
+
+
+def test_ytdlp_keeps_duration_filter_for_other_sources(monkeypatch, tmp_path):
+    commands = []
+
+    class Result:
+        returncode = 1
+
+    def fake_run(command, check=False):
+        commands.append(command)
+        return Result()
+
+    monkeypatch.setattr("src.authorized_video.subprocess.run", fake_run)
+    assert not _download_with_ytdlp("https://youtube.com/@creator/videos", tmp_path, "12")
     match_filter = commands[0][commands[0].index("--match-filter") + 1]
-    assert match_filter == "duration > 0 & duration <= 1800"
+    assert match_filter == "duration >= 8 & duration <= 1800"
 
 
 def test_explicit_platform_handles(monkeypatch):
