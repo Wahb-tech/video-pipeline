@@ -52,16 +52,75 @@ THEME_PRESETS = {
 }
 
 COPY_VARIANTS = {
-    "one_day": "One day.",
-    "soon": "Soon.",
-    "built_silence": "Built in silence.",
-    "different_standard": "Different standards.",
-    "no_plan_b": "No plan B.",
-    "earned_not_given": "Earned. Not given.",
-    "one_goal": "One goal.",
-    "destiny": "Destiny.",
-    "end_goal": "The end goal.",
-    "none": ""
+    "pov_relationship": [
+        "POV: She wants double texts. You want double the income.",
+        "POV: She asks why you reply late. You're busy building what they said you couldn't.",
+        "POV: She wants your attention. Your future needs it more.",
+        "POV: They call you distant. You're just closer to your goals.",
+        "POV: Dating can wait. The vision can't.",
+        "She asked what matters more. You showed her the blueprint.",
+        "Too focused to explain the silence.",
+        "Her type was available. Your type is unstoppable."
+    ],
+    "future_self": [
+        "POV: Your future self finally recognizes you.",
+        "POV: You became everything you used to scroll past.",
+        "POV: This is why you didn't quit.",
+        "POV: The life in your head became your address.",
+        "Your current pain is funding this version of you.",
+        "One day, the vision stops being a vision.",
+        "Build until your old dreams look small.",
+        "The future is watching what you do tonight."
+    ],
+    "silent_revenge": [
+        "POV: They stopped laughing when it started working.",
+        "POV: No announcement. Just a different lifestyle.",
+        "They ignored the plan. They won't ignore the result.",
+        "The comeback doesn't need a caption.",
+        "Let the upgrade answer every question.",
+        "Revenge, but make it look like discipline.",
+        "You said less. The results said enough.",
+        "They'll call it luck because they missed the sacrifice."
+    ],
+    "obsession": [
+        "POV: You stopped chasing people and started chasing impossible goals.",
+        "POV: Your obsession finally became visible.",
+        "Not motivated. Possessed by the vision.",
+        "Normal goals never kept you awake.",
+        "You don't need balance when you're building the escape.",
+        "Some call it unhealthy. You call it unfinished.",
+        "The goal got louder than every distraction.",
+        "Comfort became the only thing you feared."
+    ],
+    "standards": [
+        "POV: Your standards became more expensive than your excuses.",
+        "POV: You outgrew every room that doubted you.",
+        "High standards. Higher goals.",
+        "You weren't asking for too much. You were asking the wrong life.",
+        "A different life requires a different standard.",
+        "Stop shrinking the dream to fit the room.",
+        "Average was never part of the plan.",
+        "Your taste is a preview, not a fantasy."
+    ],
+    "discipline": [
+        "POV: Nobody clapped for the nights that built this.",
+        "POV: You worked while they waited for motivation.",
+        "Discipline bought what motivation kept promising.",
+        "The boring days paid for the unforgettable ones.",
+        "You don't rise to the dream. You fall to the routine.",
+        "Private discipline. Public difference.",
+        "Your habits are already choosing your lifestyle.",
+        "The price was consistency. Most people walked away."
+    ],
+    "minimal": [
+        "Built in silence.",
+        "No plan B.",
+        "Earned. Not given.",
+        "Different standards.",
+        "One goal.",
+        "The end goal."
+    ],
+    "none": [""]
 }
 
 CAPTION_TEMPLATES = {
@@ -85,7 +144,7 @@ CAPTION_TEMPLATES = {
     }
 }
 
-FALLBACK_TEXTS = list(COPY_VARIANTS.values())
+FALLBACK_TEXTS = [text for variants in COPY_VARIANTS.values() for text in variants]
 
 BASELINE = {
     "style": "dark_luxury",

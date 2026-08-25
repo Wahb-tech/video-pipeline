@@ -6,6 +6,11 @@ import time
 import requests
 from .config import STYLE_PRESETS, THEME_PRESETS, COPY_VARIANTS
 
+
+def choose_overlay_text(copy_variant):
+    phrases = COPY_VARIANTS.get(copy_variant) or COPY_VARIANTS["minimal"]
+    return random.choice(phrases)
+
 def fallback_plan(style, duration, clip_count, text_mode, theme="mixed_dark", copy_variant="one_day"):
     categories = THEME_PRESETS.get(theme) or STYLE_PRESETS.get(style, STYLE_PRESETS["mixed"])
     chosen = []
@@ -18,7 +23,7 @@ def fallback_plan(style, duration, clip_count, text_mode, theme="mixed_dark", co
         index = len(chosen) - 1 - chosen[::-1].index("dark_feminine")
         replacements = [value for value in categories if value != "dark_feminine"]
         chosen[index] = random.choice(replacements)
-    phrase = "" if text_mode == "none" else COPY_VARIANTS.get(copy_variant, "One day.")
+    phrase = "" if text_mode == "none" else choose_overlay_text(copy_variant)
     return {
         "concept": theme.replace("_", " ").title(),
         "overlay_text": phrase,
@@ -101,7 +106,7 @@ Rules:
                 cats[index] = random.choice(replacements)
             plan["categories"] = cats
             plan["duration"] = duration
-            plan["overlay_text"] = "" if text_mode == "none" else COPY_VARIANTS.get(copy_variant, "One day.")
+            plan["overlay_text"] = "" if text_mode == "none" else choose_overlay_text(copy_variant)
             return plan
         except Exception as e:
             last_error = e

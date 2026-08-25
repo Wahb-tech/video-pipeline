@@ -1,8 +1,9 @@
 import csv
 from pathlib import Path
 from src.gemini import fallback_plan
+from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import choose_clip_start, choose_cut_lengths
+from src.render import _overlay_lines, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -10,13 +11,13 @@ from src.text_cleanup import recurring_text_region
 
 
 def test_fallback_plan_count():
-    plan = fallback_plan("dark_luxury", 25, 17, "minimal", "dark_cars", "one_day")
+    plan = fallback_plan("dark_luxury", 25, 17, "minimal", "dark_cars", "pov_relationship")
     assert len(plan["categories"]) == 17
-    assert plan["overlay_text"] == "One day."
+    assert plan["overlay_text"] in COPY_VARIANTS["pov_relationship"]
 
 
 def test_dark_luxury_limits_feminine_clips():
-    plan = fallback_plan("dark_luxury", 25, 17, "minimal", "mixed_dark", "soon")
+    plan = fallback_plan("dark_luxury", 25, 17, "minimal", "mixed_dark", "future_self")
     assert plan["categories"].count("dark_feminine") <= 2
     assert not ({"business", "nightlife", "restaurant", "beach", "pool"} & set(plan["categories"]))
 
@@ -76,9 +77,21 @@ def test_automatic_strategy_does_not_repeat_last_copy(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     data = tmp_path / "data"
     data.mkdir()
-    (data / "generated.csv").write_text("copy_variant\none_day\n", encoding="utf-8")
+    (data / "generated.csv").write_text("copy_variant\npov_relationship\n", encoding="utf-8")
     for _ in range(30):
-        assert choose_variant()["copy_variant"] != "one_day"
+        assert choose_variant()["copy_variant"] != "pov_relationship"
+
+
+def test_copy_bank_contains_many_non_generic_hooks():
+    hooks = [text for key, values in COPY_VARIANTS.items() if key != "none" for text in values]
+    assert len(hooks) >= 50
+    assert sum(text.startswith("POV:") for text in hooks) >= 15
+
+
+def test_long_overlay_is_split_into_two_balanced_lines():
+    lines = _overlay_lines("POV: SHE WANTS DOUBLE TEXTS. YOU WANT DOUBLE THE INCOME.")
+    assert len(lines) == 2
+    assert abs(len(lines[0]) - len(lines[1])) <= 12
 
 
 def test_shuffled_categories_preserves_content():

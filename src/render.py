@@ -96,22 +96,42 @@ def _draw_tracked(draw, text, font, x, y, spacing, fill):
         cursor += w + spacing
 
 
+def _overlay_lines(text):
+    words = text.split()
+    if len(text) <= 34 or len(words) < 4:
+        return [text]
+    target = len(text) / 2
+    best = min(
+        range(1, len(words)),
+        key=lambda index: abs(len(" ".join(words[:index])) - target)
+    )
+    return [" ".join(words[:best]), " ".join(words[best:])]
+
+
 def make_text_overlay(text, output, position="center"):
     if not text:
         return None
     canvas = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
     font_path = _font_path()
-    font = ImageFont.truetype(font_path, 27) if font_path else ImageFont.load_default()
     clean = " ".join(text.upper().split())
-    spacing = 11
-    width = _tracked_width(draw, clean, font, spacing)
-    while width > 760 and spacing > 4:
-        spacing -= 1
-        width = _tracked_width(draw, clean, font, spacing)
-    x = (1080 - width) / 2
-    y = 906 if position == "center" else 1435
-    _draw_tracked(draw, clean, font, x, y, spacing, (238, 238, 238, 230))
+    lines = _overlay_lines(clean)
+    font_size = 29 if len(lines) == 1 else 25
+    spacing = 10 if len(lines) == 1 else 6
+    while True:
+        font = ImageFont.truetype(font_path, font_size) if font_path else ImageFont.load_default()
+        widths = [_tracked_width(draw, line, font, spacing) for line in lines]
+        if max(widths) <= 820 or font_size <= 18:
+            break
+        font_size -= 1
+        spacing = max(3, spacing - 1)
+    center_y = 906 if position == "center" else 1435
+    line_height = font_size + 18
+    first_y = center_y - (len(lines) - 1) * line_height / 2
+    for index, (line, width) in enumerate(zip(lines, widths)):
+        x = (1080 - width) / 2
+        y = first_y + index * line_height
+        _draw_tracked(draw, line, font, x, y, spacing, (238, 238, 238, 230))
     canvas.save(output)
     return output
 
