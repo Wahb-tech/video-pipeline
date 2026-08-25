@@ -121,7 +121,7 @@ def _download_with_ytdlp(url, group, limit):
     result = subprocess.run([
         "yt-dlp", "--no-warnings", "--ignore-errors",
         "--playlist-end", limit,
-        "--match-filter", "duration >= 8 & duration <= 1800",
+        "--match-filter", "duration > 0 & duration <= 1800",
         "--write-info-json", "--merge-output-format", "mp4",
         "-f", "bv*[height>=720]+ba/b[height>=720]/best",
         "-o", output, *_cookie_args(), url,

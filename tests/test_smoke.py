@@ -5,7 +5,7 @@ from src.main import shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import _cookie_args, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import recurring_text_region
 
 
@@ -178,6 +178,22 @@ def test_authorized_cookie_file_is_passed_to_downloaders(monkeypatch, tmp_path):
 def test_missing_authorized_cookie_file_is_ignored(monkeypatch, tmp_path):
     monkeypatch.setenv("AUTHORIZED_COOKIES_FILE", str(tmp_path / "missing.txt"))
     assert _cookie_args() == []
+
+
+def test_ytdlp_accepts_short_authorized_reels(monkeypatch, tmp_path):
+    commands = []
+
+    class Result:
+        returncode = 1
+
+    def fake_run(command, check=False):
+        commands.append(command)
+        return Result()
+
+    monkeypatch.setattr("src.authorized_video.subprocess.run", fake_run)
+    assert not _download_with_ytdlp("https://www.instagram.com/creator/reel/short/", tmp_path, "12")
+    match_filter = commands[0][commands[0].index("--match-filter") + 1]
+    assert match_filter == "duration > 0 & duration <= 1800"
 
 
 def test_explicit_platform_handles(monkeypatch):

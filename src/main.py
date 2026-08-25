@@ -121,7 +121,8 @@ def main():
         message = "No usable authorized footage was downloaded"
         if os.getenv("REQUIRE_AUTHORIZED_FOOTAGE", "").lower() in {"1", "true", "yes"}:
             raise RuntimeError(
-                f"{message}. Refresh INSTAGRAM_COOKIES_B64 before generating; refusing a stock-only video"
+                f"{message}. The configured sources may be unavailable, private, or rejected by the downloader; "
+                "refusing a stock-only video"
             )
         print(f"{message}; continuing with licensed stock providers")
 
