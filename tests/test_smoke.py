@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from src.gemini import fallback_plan
-from src.main import shuffled_categories
+from src.main import choose_cleanup_fallback, shuffled_categories
 from src.render import choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
@@ -209,6 +209,16 @@ def test_ytdlp_keeps_duration_filter_for_other_sources(monkeypatch, tmp_path):
     assert not _download_with_ytdlp("https://youtube.com/@creator/videos", tmp_path, "12")
     match_filter = commands[0][commands[0].index("--match-filter") + 1]
     assert match_filter == "duration >= 8 & duration <= 1800"
+
+
+def test_text_cleanup_failure_falls_back_to_clean_authorized_clip(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "text", "cleanup_text": True},
+        {"provider": "authorized_creator", "id": "clean", "cleanup_text": False},
+    ]
+    chosen = choose_cleanup_fallback(items, "text", {}, {}, 4)
+    assert chosen["id"] == "clean"
 
 
 def test_explicit_platform_handles(monkeypatch):

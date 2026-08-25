@@ -15,7 +15,7 @@ from .strategy import choose_variant
 from .audio import choose_audio
 from .csvutil import append_row
 from .authorized_video import download_authorized_library, choose_authorized_clip
-from .text_cleanup import clean_creator_text
+from .text_cleanup import TextCleanupError, clean_creator_text
 
 GENERATED_FIELDS = [
     "experiment_id", "created_at", "style", "theme", "copy_variant", "caption_variant",
@@ -89,6 +89,14 @@ def make_rights_manifest(sources, experiment_id):
             for x in sources
         ]
     }
+
+
+def choose_cleanup_fallback(items, rejected_id, usage_history, run_counts, position):
+    candidates = [
+        item for item in items
+        if not item.get("cleanup_text") and item.get("id") != rejected_id
+    ]
+    return choose_authorized_clip(candidates, usage_history, run_counts, position)
 
 
 def main():
@@ -197,18 +205,32 @@ def main():
         item_key = f'{item["provider"]}:{item["id"]}'
         if item["provider"] != "authorized_creator":
             current_video_ids.add(item_key)
-        run_counts[item_key] = run_counts.get(item_key, 0) + 1
-        if item["provider"] == "authorized_creator":
-            author_key = f'author:{item.get("author", "authorized creator").lower()}'
-            run_counts[author_key] = run_counts.get(author_key, 0) + 1
         raw = work / f"raw_{i:02d}.mp4"
         norm = work / f"clip_{i:02d}.mp4"
         download(item.get("local_path") or item["url"], raw)
         input_clip = raw
         if item.get("cleanup_text"):
             cleaned = work / f"cleaned_{i:02d}.mp4"
-            item["removed_text_region"] = clean_creator_text(raw, cleaned)
-            input_clip = cleaned
+            try:
+                item["removed_text_region"] = clean_creator_text(raw, cleaned)
+                input_clip = cleaned
+            except TextCleanupError as exc:
+                rejected_id = item.get("id")
+                item = choose_cleanup_fallback(
+                    authorized, rejected_id, usage_history, run_counts, i
+                )
+                if item is None:
+                    raise RuntimeError(
+                        f"Text cleanup failed for {rejected_id} and no clean authorized fallback is available"
+                    ) from exc
+                print(f"Text cleanup failed for {rejected_id}; using clean authorized clip {item['id']}")
+                item_key = f'{item["provider"]}:{item["id"]}'
+                download(item.get("local_path") or item["url"], raw)
+                input_clip = raw
+        run_counts[item_key] = run_counts.get(item_key, 0) + 1
+        if item["provider"] == "authorized_creator":
+            author_key = f'author:{item.get("author", "authorized creator").lower()}'
+            run_counts[author_key] = run_counts.get(author_key, 0) + 1
         previous_starts = usage_history.get(item_key, {}).get("starts", []) + current_starts.get(item_key, [])
         start_sec = normalize_clip(input_clip, norm, lengths[i], args.style, previous_starts)
         current_starts.setdefault(item_key, []).append(start_sec)
