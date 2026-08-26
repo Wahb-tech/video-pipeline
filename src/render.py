@@ -5,6 +5,12 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 
+HIGH_QUALITY_VIDEO_ARGS = [
+    "-c:v", "libx264", "-preset", "slow", "-crf", "14",
+    "-pix_fmt", "yuv420p", "-movflags", "+faststart"
+]
+
+
 def run(cmd):
     print(" ".join(str(x) for x in cmd))
     subprocess.run(cmd, check=True)
@@ -45,7 +51,7 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
     total = probe_duration(src)
     start = choose_clip_start(total, seconds, prior_starts)
     filters = [
-        "scale=1080:1920:force_original_aspect_ratio=increase",
+        "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos",
         "crop=1080:1920",
         "fps=30",
         "setsar=1"
@@ -58,8 +64,7 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
     vf = ",".join(filters)
     run([
         "ffmpeg", "-y", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{seconds:.3f}",
-        "-an", "-vf", vf, "-c:v", "libx264", "-preset", "fast", "-crf", "18",
-        "-pix_fmt", "yuv420p", str(dst)
+        "-an", "-vf", vf, *HIGH_QUALITY_VIDEO_ARGS, str(dst)
     ])
     return start
 
@@ -143,8 +148,7 @@ def add_overlay(video, overlay, output):
     run([
         "ffmpeg", "-y", "-i", str(video), "-i", str(overlay),
         "-filter_complex", "[0:v][1:v]overlay=0:0:format=auto[v]",
-        "-map", "[v]", "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18",
-        "-pix_fmt", "yuv420p", str(output)
+        "-map", "[v]", "-an", *HIGH_QUALITY_VIDEO_ARGS, str(output)
     ])
 
 

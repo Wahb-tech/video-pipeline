@@ -4,7 +4,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import _overlay_lines, choose_clip_start, choose_cut_lengths
+from src.render import HIGH_QUALITY_VIDEO_ARGS, _overlay_lines, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -224,6 +224,30 @@ def test_ytdlp_keeps_duration_filter_for_other_sources(monkeypatch, tmp_path):
     assert not _download_with_ytdlp("https://youtube.com/@creator/videos", tmp_path, "12")
     match_filter = commands[0][commands[0].index("--match-filter") + 1]
     assert match_filter == "duration >= 8 & duration <= 1800"
+
+
+def test_ytdlp_requests_best_available_source_quality(monkeypatch, tmp_path):
+    commands = []
+
+    class Result:
+        returncode = 1
+
+    def fake_run(command, check=False):
+        commands.append(command)
+        return Result()
+
+    monkeypatch.setattr("src.authorized_video.subprocess.run", fake_run)
+    assert not _download_with_ytdlp("https://www.instagram.com/creator/reel/example/", tmp_path, "12")
+    command = commands[0]
+    assert command[command.index("-f") + 1] == "bv*+ba/b"
+    assert command[command.index("-S") + 1] == "res,fps,br"
+
+
+def test_render_uses_high_quality_encoding():
+    assert HIGH_QUALITY_VIDEO_ARGS == [
+        "-c:v", "libx264", "-preset", "slow", "-crf", "14",
+        "-pix_fmt", "yuv420p", "-movflags", "+faststart"
+    ]
 
 
 def test_text_cleanup_failure_falls_back_to_clean_authorized_clip(monkeypatch):

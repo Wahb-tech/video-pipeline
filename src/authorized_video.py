@@ -126,7 +126,8 @@ def _download_with_ytdlp(url, group, limit):
         "--playlist-end", limit,
         *duration_filter,
         "--write-info-json", "--merge-output-format", "mp4",
-        "-f", "bv*[height>=720]+ba/b[height>=720]/best",
+        "-f", "bv*+ba/b",
+        "-S", "res,fps,br",
         "-o", output, *_cookie_args(), url,
     ], check=False)
     return result.returncode == 0 and bool(_media_files(group))

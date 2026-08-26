@@ -100,6 +100,7 @@ def clean_creator_text(src, dst):
         raise TextCleanupError("Embedded text is not on a safely croppable edge")
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-an", "-vf", vf,
-        "-c:v", "libx264", "-preset", "fast", "-crf", "16", "-pix_fmt", "yuv420p", str(dst)
+        "-c:v", "libx264", "-preset", "slow", "-crf", "12", "-pix_fmt", "yuv420p",
+        "-movflags", "+faststart", str(dst)
     ], check=True)
     return region
