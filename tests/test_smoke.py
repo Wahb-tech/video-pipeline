@@ -4,7 +4,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, _overlay_lines, choose_clip_start, choose_cut_lengths
+from src.render import HIGH_QUALITY_VIDEO_ARGS, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -46,6 +46,14 @@ def test_explicit_dark_luxury_clip_is_accepted():
 def test_cut_lengths_sum():
     cuts = choose_cut_lengths(25, 17, 100)
     assert abs(sum(cuts) - 25) < 1e-6
+
+
+def test_music_cuts_snap_to_nearby_energy_peaks():
+    novelty = [0.0] * 101
+    for frame, strength in [(18, 2.0), (42, 3.0), (61, 4.0), (82, 2.5)]:
+        novelty[frame] = strength
+    cuts = _snap_cut_times(novelty, 0.1, 10.0, 5, search_radius=0.7)
+    assert cuts == pytest.approx([1.8, 4.2, 6.1, 8.2])
 
 
 def test_performance_score_positive():

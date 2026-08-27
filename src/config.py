@@ -177,7 +177,7 @@ FALLBACK_TEXTS = [text for variants in COPY_VARIANTS.values() for text in varian
 BASELINE = {
     "style": "dark_luxury",
     "duration": 25.0,
-    "clips": 17,
+    "clips": 12,
     "bpm": 100.0,
     "text_position": "center"
 }

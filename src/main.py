@@ -10,7 +10,7 @@ from pathlib import Path
 from .config import BASELINE, THEME_PRESETS
 from .gemini import generate_plan
 from .stock import STOCK_BLOCKED_CATEGORIES, find_clip, download, load_usage_history, append_used
-from .render import choose_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
+from .render import music_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
 from .strategy import choose_variant
 from .audio import choose_audio
 from .csvutil import append_row
@@ -165,12 +165,24 @@ def main():
     }
     plan["audio"] = audio_plan
 
-    (out.parent / "creative_plan.json").write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-    (out.parent / "audio_plan.json").write_text(json.dumps(audio_plan, indent=2, ensure_ascii=False), encoding="utf-8")
     (out.parent / "caption.txt").write_text(caption, encoding="utf-8")
     (out.parent / "EXPERIMENT_ID.txt").write_text(experiment_id, encoding="utf-8")
 
-    lengths = choose_cut_lengths(args.duration, args.clips, args.bpm)
+    lengths, cut_method = music_cut_lengths(
+        music, start_sec, args.duration, args.clips, args.bpm, with_method=True
+    )
+    elapsed = 0.0
+    audio_plan["cut_method"] = cut_method
+    audio_plan["cut_times_sec"] = []
+    for length in lengths[:-1]:
+        elapsed += length
+        audio_plan["cut_times_sec"].append(round(elapsed, 3))
+    (out.parent / "creative_plan.json").write_text(
+        json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    (out.parent / "audio_plan.json").write_text(
+        json.dumps(audio_plan, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     usage_history = load_usage_history()
     current_video_ids = set()
     current_starts = {}

@@ -1,6 +1,8 @@
 import os
 import random
 import subprocess
+from array import array
+from math import sqrt
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -32,6 +34,65 @@ def choose_cut_lengths(duration, count, bpm):
     lengths = [random.choice(possible) for _ in range(count)]
     scale = duration / sum(lengths)
     return [x * scale for x in lengths]
+
+
+def _snap_cut_times(novelty, step_seconds, duration, count, search_radius=1.0):
+    if count <= 1:
+        return []
+    cuts = []
+    minimum_gap = min(0.85, duration / count * 0.55)
+    for index in range(1, count):
+        target = duration * index / count
+        low = max(minimum_gap, target - search_radius)
+        high = min(duration - minimum_gap, target + search_radius)
+        candidates = [
+            frame for frame in range(max(1, int(low / step_seconds)), min(len(novelty), int(high / step_seconds) + 1))
+            if not cuts or frame * step_seconds - cuts[-1] >= minimum_gap
+        ]
+        if candidates:
+            best = max(candidates, key=lambda frame: novelty[frame])
+            cut = best * step_seconds
+        else:
+            cut = target
+        remaining = count - index
+        latest = duration - remaining * minimum_gap
+        cut = min(max(cut, cuts[-1] + minimum_gap if cuts else minimum_gap), latest)
+        cuts.append(cut)
+    return cuts
+
+
+def music_cut_lengths(music, start_sec, duration, count, bpm, with_method=False):
+    if not music or count <= 1:
+        lengths = choose_cut_lengths(duration, count, bpm)
+        return (lengths, "bpm_fallback") if with_method else lengths
+    sample_rate = 8000
+    block_seconds = 0.05
+    try:
+        result = subprocess.run([
+            "ffmpeg", "-v", "error", "-ss", f"{float(start_sec or 0):.3f}",
+            "-i", str(music), "-t", f"{duration:.3f}", "-ac", "1", "-ar", str(sample_rate),
+            "-f", "f32le", "pipe:1"
+        ], check=True, capture_output=True)
+        samples = array("f")
+        samples.frombytes(result.stdout)
+        block_size = int(sample_rate * block_seconds)
+        energy = [
+            sqrt(sum(value * value for value in samples[offset:offset + block_size]) / block_size)
+            for offset in range(0, len(samples) - block_size + 1, block_size)
+        ]
+        if len(energy) < count * 2 or max(energy, default=0) <= 0:
+            raise ValueError("Audio analysis returned too little signal")
+        novelty = [0.0]
+        for index in range(1, len(energy)):
+            local = sum(energy[max(0, index - 8):index]) / min(8, index)
+            novelty.append(max(0.0, energy[index] - local) + 0.35 * abs(energy[index] - energy[index - 1]))
+        cuts = _snap_cut_times(novelty, block_seconds, duration, count)
+        boundaries = [0.0, *cuts, duration]
+        lengths = [boundaries[index + 1] - boundaries[index] for index in range(count)]
+        return (lengths, "audio_onsets") if with_method else lengths
+    except (OSError, subprocess.SubprocessError, ValueError):
+        lengths = choose_cut_lengths(duration, count, bpm)
+        return (lengths, "bpm_fallback") if with_method else lengths
 
 
 def choose_clip_start(total, seconds, prior_starts=()):

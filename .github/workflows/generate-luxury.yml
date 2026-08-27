@@ -44,7 +44,7 @@ on:
       clips:
         description: Number of cuts
         required: true
-        default: "17"
+        default: "12"
       bpm:
         description: Cut rhythm reference
         required: true
