@@ -153,6 +153,13 @@ def test_provider_rotation_penalizes_overused_provider(monkeypatch):
     assert score(coverr, provider_usage=usage) > score(pexels, provider_usage=usage)
 
 
+def test_stock_quality_bonus_requires_true_1080_width(monkeypatch):
+    monkeypatch.setattr("src.stock.random.random", lambda: 0.0)
+    vertical_720 = {"provider": "pexels", "width": 720, "height": 1280, "duration": 8}
+    vertical_1080 = {"provider": "pexels", "width": 1080, "height": 1920, "duration": 8}
+    assert score(vertical_1080) == score(vertical_720) + 2
+
+
 def test_cgi_and_game_footage_are_rejected():
     assert not is_real_footage({"tags": "3D CGI luxury watch animation"})
     assert not is_real_footage({"tags": "dark supercar video game render"})
@@ -281,6 +288,18 @@ def test_cleanup_fallback_never_reuses_a_clip_in_same_reel(monkeypatch):
     assert chosen["id"] == "fresh"
 
 
+def test_cleanup_fallback_can_reuse_when_clean_pool_is_exhausted(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "text", "cleanup_text": True},
+        {"provider": "authorized_creator", "id": "used", "cleanup_text": False},
+    ]
+    excluded = {"authorized_creator:used"}
+    assert choose_cleanup_fallback(items, "text", {}, {}, 14, excluded) is None
+    chosen = choose_cleanup_fallback(items, "text", {}, {}, 14)
+    assert chosen["id"] == "used"
+
+
 def test_explicit_platform_handles(monkeypatch):
     monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
@@ -377,3 +396,22 @@ def test_authorized_clip_is_unique_inside_one_reel(monkeypatch):
     assert choose_authorized_clip(
         items, {}, {}, 2, {"authorized_creator:a", "authorized_creator:b"}
     ) is None
+
+
+def test_authorized_rotation_prefers_true_1080_source(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "low", "width": 480, "height": 864},
+        {"provider": "authorized_creator", "id": "hd", "width": 1080, "height": 1920},
+    ]
+    assert choose_authorized_clip(items, {}, {}, 0)["id"] == "hd"
+
+
+def test_authorized_rotation_keeps_low_resolution_as_fallback(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "low", "width": 480, "height": 864},
+        {"provider": "authorized_creator", "id": "hd", "width": 1080, "height": 1920},
+    ]
+    excluded = {"authorized_creator:hd"}
+    assert choose_authorized_clip(items, {}, {}, 1, excluded)["id"] == "low"

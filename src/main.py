@@ -234,10 +234,19 @@ def main():
                     authorized, rejected_id, usage_history, run_counts, i, current_video_ids
                 )
                 if item is None:
-                    raise RuntimeError(
-                        f"Text cleanup failed for {rejected_id} and no clean authorized fallback is available"
-                    ) from exc
-                print(f"Text cleanup failed for {rejected_id}; using clean authorized clip {item['id']}")
+                    item = choose_cleanup_fallback(
+                        authorized, rejected_id, usage_history, run_counts, i
+                    )
+                    if item is None:
+                        raise RuntimeError(
+                            f"Text cleanup failed for {rejected_id} and no clean authorized fallback is available"
+                        ) from exc
+                    print(
+                        f"Text cleanup failed for {rejected_id}; no unused clean clip remains, "
+                        f"reusing authorized clip {item['id']} at a different segment"
+                    )
+                else:
+                    print(f"Text cleanup failed for {rejected_id}; using clean authorized clip {item['id']}")
                 item_key = f'{item["provider"]}:{item["id"]}'
                 download(item.get("local_path") or item["url"], raw)
                 input_clip = raw

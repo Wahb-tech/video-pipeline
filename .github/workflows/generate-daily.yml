@@ -118,7 +118,7 @@ jobs:
             --text-mode minimal \
             --authorized-share 0.82 \
             --duration 25 \
-            --clips 17 \
+            --clips 12 \
             --bpm 100 \
             --audio auto
 

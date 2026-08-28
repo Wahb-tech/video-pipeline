@@ -176,7 +176,7 @@ def score(item, usage=None, provider_usage=None):
     w, h = item.get("width", 0), item.get("height", 0)
     if h > w:
         s += 6
-    if h >= 1080:
+    if min(w, h) >= 1080:
         s += 2
     if item.get("duration", 0) >= 5:
         s += 2
