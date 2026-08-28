@@ -4,7 +4,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
+from src.render import HIGH_QUALITY_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -54,6 +54,15 @@ def test_music_cuts_snap_to_nearby_energy_peaks():
         novelty[frame] = strength
     cuts = _snap_cut_times(novelty, 0.1, 10.0, 5, search_radius=0.7)
     assert cuts == pytest.approx([1.8, 4.2, 6.1, 8.2])
+
+
+def test_music_behavior_prefers_section_change_over_isolated_spike():
+    energy = [0.2] * 50 + [0.8] * 50
+    bass = [0.2] * 50 + [0.7] * 50
+    texture = [0.3] * 50 + [0.6] * 50
+    energy[20] = 1.0
+    novelty = _behavior_novelty(energy, bass, texture, window=10)
+    assert novelty[50] > novelty[20]
 
 
 def test_performance_score_positive():

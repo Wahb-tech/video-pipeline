@@ -93,7 +93,6 @@ jobs:
             https://www.instagram.com/noirwealthlifestyle/reel/DYz9WmKta4b/
             https://www.instagram.com/noirwealthlifestyle/reel/DYz8mo9tCaF/
             https://www.instagram.com/noirwealthlifestyle/reel/DYxQMNwtEnK/
-            https://www.instagram.com/noirwealthlifestyle/reel/DYfZpeaNTbQ/
             https://www.instagram.com/noirwealthlifestyle/reel/DYfJFaHtgMn/
           AUTHORIZED_TEXT_VIDEO_URLS: |
             ${{ secrets.AUTHORIZED_TEXT_VIDEO_URLS }}

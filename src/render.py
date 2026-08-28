@@ -40,7 +40,7 @@ def _snap_cut_times(novelty, step_seconds, duration, count, search_radius=1.0):
     if count <= 1:
         return []
     cuts = []
-    minimum_gap = min(0.85, duration / count * 0.55)
+    minimum_gap = min(1.15, duration / count * 0.65)
     for index in range(1, count):
         target = duration * index / count
         low = max(minimum_gap, target - search_radius)
@@ -61,6 +61,34 @@ def _snap_cut_times(novelty, step_seconds, duration, count, search_radius=1.0):
     return cuts
 
 
+def _normalized(values):
+    peak = max(values, default=0.0)
+    if peak <= 0:
+        return [0.0] * len(values)
+    return [value / peak for value in values]
+
+
+def _behavior_novelty(energy, bass, texture, window=12):
+    features = [_normalized(values) for values in (energy, bass, texture)]
+    size = min(len(values) for values in features)
+    novelty = [0.0] * size
+    for index in range(1, size):
+        before_start = max(0, index - window)
+        after_end = min(size, index + window)
+        before_size = index - before_start
+        after_size = after_end - index
+        if before_size < 2 or after_size < 2:
+            continue
+        structural_change = 0.0
+        for values in features:
+            before = sum(values[before_start:index]) / before_size
+            after = sum(values[index:after_end]) / after_size
+            structural_change += abs(after - before)
+        accent = max(0.0, features[0][index] - features[0][index - 1])
+        novelty[index] = structural_change + 0.18 * accent
+    return novelty
+
+
 def music_cut_lengths(music, start_sec, duration, count, bpm, with_method=False):
     if not music or count <= 1:
         lengths = choose_cut_lengths(duration, count, bpm)
@@ -76,20 +104,24 @@ def music_cut_lengths(music, start_sec, duration, count, bpm, with_method=False)
         samples = array("f")
         samples.frombytes(result.stdout)
         block_size = int(sample_rate * block_seconds)
-        energy = [
-            sqrt(sum(value * value for value in samples[offset:offset + block_size]) / block_size)
+        blocks = [
+            samples[offset:offset + block_size]
             for offset in range(0, len(samples) - block_size + 1, block_size)
         ]
+        energy = [sqrt(sum(value * value for value in block) / len(block)) for block in blocks]
         if len(energy) < count * 2 or max(energy, default=0) <= 0:
             raise ValueError("Audio analysis returned too little signal")
-        novelty = [0.0]
-        for index in range(1, len(energy)):
-            local = sum(energy[max(0, index - 8):index]) / min(8, index)
-            novelty.append(max(0.0, energy[index] - local) + 0.35 * abs(energy[index] - energy[index - 1]))
-        cuts = _snap_cut_times(novelty, block_seconds, duration, count)
+        bass = []
+        texture = []
+        for block in blocks:
+            grouped = [sum(block[index:index + 8]) / len(block[index:index + 8]) for index in range(0, len(block), 8)]
+            bass.append(sqrt(sum(value * value for value in grouped) / len(grouped)))
+            texture.append(sum(abs(block[index] - block[index - 1]) for index in range(1, len(block))) / (len(block) - 1))
+        novelty = _behavior_novelty(energy, bass, texture)
+        cuts = _snap_cut_times(novelty, block_seconds, duration, count, search_radius=1.35)
         boundaries = [0.0, *cuts, duration]
         lengths = [boundaries[index + 1] - boundaries[index] for index in range(count)]
-        return (lengths, "audio_onsets") if with_method else lengths
+        return (lengths, "music_structure") if with_method else lengths
     except (OSError, subprocess.SubprocessError, ValueError):
         lengths = choose_cut_lengths(duration, count, bpm)
         return (lengths, "bpm_fallback") if with_method else lengths
