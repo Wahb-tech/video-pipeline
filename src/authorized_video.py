@@ -150,6 +150,28 @@ def configured_urls():
     return [url for url, _ in configured_sources()]
 
 
+def authorized_quality_penalty(item):
+    width = int(item.get("width") or 0)
+    height = int(item.get("height") or 0)
+    short_edge = min(width, height) if width and height else 0
+    if short_edge >= 1000:
+        penalty = 0
+    elif short_edge >= 700:
+        penalty = 2
+    elif short_edge >= 540:
+        penalty = 5
+    elif short_edge > 0:
+        penalty = 9
+    else:
+        penalty = 3
+    if width and height:
+        if width > height:
+            penalty += 12
+        elif height / width < 1.5:
+            penalty += 4
+    return penalty
+
+
 def download_authorized_library(destination):
     sources = configured_sources()
     if not sources:
@@ -228,19 +250,6 @@ def choose_authorized_clip(items, usage_history, run_counts, position, excluded_
     ]
     if not available:
         return None
-    def quality_penalty(item):
-        width = int(item.get("width") or 0)
-        height = int(item.get("height") or 0)
-        short_edge = min(width, height) if width and height else 0
-        if short_edge >= 1000:
-            return 0
-        if short_edge >= 700:
-            return 2
-        if short_edge >= 540:
-            return 5
-        if short_edge > 0:
-            return 9
-        return 3
     def rank(item):
         key = f'{item["provider"]}:{item["id"]}'
         author_key = f'author:{item.get("author", "authorized creator").lower()}'
@@ -251,6 +260,6 @@ def choose_authorized_clip(items, usage_history, run_counts, position, excluded_
         author_penalty = run_counts.get(author_key, 0) * 4
         return (
             total_uses * 3 + author_penalty + position_penalty
-            + quality_penalty(item) + random.random()
+            + authorized_quality_penalty(item) + random.random()
         )
     return min(available, key=rank).copy()

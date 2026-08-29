@@ -7,7 +7,7 @@ from src.main import choose_cleanup_fallback, shuffled_categories
 from src.render import HIGH_QUALITY_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import TextCleanupError, clean_creator_text, recurring_text_region
 
 
@@ -167,6 +167,12 @@ def test_stock_quality_bonus_requires_true_1080_width(monkeypatch):
     vertical_720 = {"provider": "pexels", "width": 720, "height": 1280, "duration": 8}
     vertical_1080 = {"provider": "pexels", "width": 1080, "height": 1920, "duration": 8}
     assert score(vertical_1080) == score(vertical_720) + 2
+
+
+def test_authorized_vertical_video_is_preferred_over_landscape():
+    vertical = {"width": 1080, "height": 1920}
+    landscape = {"width": 1920, "height": 1080}
+    assert authorized_quality_penalty(vertical) < authorized_quality_penalty(landscape)
 
 
 def test_cgi_and_game_footage_are_rejected():
