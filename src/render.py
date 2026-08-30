@@ -1,6 +1,8 @@
 import os
 import random
 import subprocess
+import sys
+import tempfile
 from array import array
 from math import sqrt
 from pathlib import Path
@@ -39,6 +41,46 @@ def probe_dimensions(path):
     ], check=True, capture_output=True, text=True)
     width, height = p.stdout.strip().split("x")
     return int(width), int(height)
+
+
+def _should_ai_upscale(width, height):
+    enabled = os.getenv("ENABLE_AI_UPSCALE", "").lower() in {"1", "true", "yes"}
+    script = Path(os.getenv("REALESRGAN_SCRIPT", ""))
+    return enabled and script.is_file() and 600 <= width < 1000 and height > width * 1.4
+
+
+def _ai_upscale_segment(src, start, seconds, destination):
+    script = Path(os.getenv("REALESRGAN_SCRIPT", ""))
+    timeout = int(os.getenv("AI_UPSCALE_TIMEOUT_SECONDS", "900"))
+    with tempfile.TemporaryDirectory(prefix="zoop_ai_", dir=Path(destination).parent) as temp:
+        temp = Path(temp)
+        frames = temp / "frames"
+        enhanced = temp / "enhanced"
+        frames.mkdir()
+        enhanced.mkdir()
+        try:
+            subprocess.run([
+                "ffmpeg", "-v", "error", "-y", "-ss", f"{start:.3f}", "-i", str(src),
+                "-t", f"{seconds:.3f}", "-an", "-vf", "fps=30",
+                str(frames / "frame_%08d.png"),
+            ], check=True, timeout=120)
+            subprocess.run([
+                sys.executable, str(script), "-n", "realesr-general-x4v3",
+                "-i", str(frames), "-o", str(enhanced), "-s", "1.5",
+                "-dn", "0.35", "--suffix", "out", "--fp32", "--tile", "128", "--ext", "png",
+            ], check=True, timeout=timeout)
+            output_frames = sorted(enhanced.glob("frame_*_out.png"))
+            if not output_frames:
+                raise RuntimeError("Real-ESRGAN produced no frames")
+            run([
+                "ffmpeg", "-y", "-framerate", "30", "-i", str(enhanced / "frame_%08d_out.png"),
+                "-an", "-c:v", "ffv1", "-level", "3", "-pix_fmt", "yuv420p", str(destination),
+            ])
+            print(f"Real-ESRGAN enhanced {len(output_frames)} frames")
+            return True
+        except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
+            print(f"Real-ESRGAN unavailable for this clip; using Lanczos fallback: {exc}")
+            return False
 
 
 def choose_cut_lengths(duration, count, bpm):
@@ -159,13 +201,23 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
     total = probe_duration(src)
     width, height = probe_dimensions(src)
     start = choose_clip_start(total, seconds, prior_starts)
+    ai_source = Path(dst).with_suffix(".ai.mkv")
+    source = src
+    source_start = start
+    ai_applied = False
+    if _should_ai_upscale(width, height):
+        ai_applied = _ai_upscale_segment(src, start, seconds, ai_source)
+        if ai_applied:
+            source = ai_source
+            source_start = 0.0
+            width, height = probe_dimensions(source)
     filters = [
         "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos",
         "crop=1080:1920",
         "fps=30",
         "setsar=1"
     ]
-    if width < 1080 or height < 1920:
+    if not ai_applied and (width < 1080 or height < 1920):
         filters.append("unsharp=5:5:0.28:3:3:0.0")
     if style == "dark_luxury":
         filters.extend([
@@ -173,10 +225,14 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
             "vignette=PI/6"
         ])
     vf = ",".join(filters)
-    run([
-        "ffmpeg", "-y", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{seconds:.3f}",
-        "-an", "-vf", vf, *INTERMEDIATE_VIDEO_ARGS, str(dst)
-    ])
+    try:
+        run([
+            "ffmpeg", "-y", "-ss", f"{source_start:.3f}", "-i", str(source), "-t", f"{seconds:.3f}",
+            "-an", "-vf", vf, *INTERMEDIATE_VIDEO_ARGS, str(dst)
+        ])
+    finally:
+        if ai_source.exists():
+            ai_source.unlink()
     return start
 
 

@@ -56,7 +56,7 @@ permissions:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,6 +71,37 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation fonts-urw-base35 tesseract-ocr
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+      - name: Install optional Real-ESRGAN
+        continue-on-error: true
+        run: |
+          realesrgan_root="$RUNNER_TEMP/Real-ESRGAN"
+          git clone --depth 1 https://github.com/xinntao/Real-ESRGAN.git "$realesrgan_root"
+          python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r "$realesrgan_root/requirements.txt"
+          python -m pip install -e "$realesrgan_root"
+          python - <<'PY'
+          from pathlib import Path
+          import site
+
+          for root in map(Path, site.getsitepackages()):
+              target = root / "basicsr" / "data" / "degradations.py"
+              if target.exists():
+                  content = target.read_text()
+                  content = content.replace(
+                      "from torchvision.transforms.functional_tensor import rgb_to_grayscale",
+                      "from torchvision.transforms.functional import rgb_to_grayscale",
+                  )
+                  target.write_text(content)
+          PY
+          python "$realesrgan_root/inference_realesrgan.py" --help >/dev/null
+          echo "ENABLE_AI_UPSCALE=true" >> "$GITHUB_ENV"
+          echo "REALESRGAN_SCRIPT=$realesrgan_root/inference_realesrgan.py" >> "$GITHUB_ENV"
+          echo "AI_UPSCALE_TIMEOUT_SECONDS=900" >> "$GITHUB_ENV"
+      - name: Cache Real-ESRGAN weights
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/Real-ESRGAN/weights
+          key: realesrgan-general-x4v3-v1
       - name: Generate video
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

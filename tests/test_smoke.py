@@ -4,7 +4,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
+from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -286,6 +286,17 @@ def test_render_uses_high_quality_encoding():
         "-pix_fmt", "yuv420p", "-movflags", "+faststart"
     ]
     assert INTERMEDIATE_VIDEO_ARGS[INTERMEDIATE_VIDEO_ARGS.index("-crf") + 1] == "10"
+
+
+def test_ai_upscale_only_targets_sub_1080_portrait(monkeypatch, tmp_path):
+    script = tmp_path / "inference_realesrgan.py"
+    script.write_text("")
+    monkeypatch.setenv("ENABLE_AI_UPSCALE", "true")
+    monkeypatch.setenv("REALESRGAN_SCRIPT", str(script))
+    assert _should_ai_upscale(720, 1280)
+    assert not _should_ai_upscale(1080, 1920)
+    assert not _should_ai_upscale(1920, 1080)
+    assert not _should_ai_upscale(480, 854)
 
 
 def test_text_cleanup_failure_falls_back_to_clean_authorized_clip(monkeypatch):
