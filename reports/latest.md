@@ -17,15 +17,15 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
-| one_day | 0 | 8.00 | 0.00 |
-| soon | 0 | 8.00 | 0.00 |
-| built_silence | 0 | 8.00 | 0.00 |
-| different_standard | 0 | 8.00 | 0.00 |
-| no_plan_b | 0 | 8.00 | 0.00 |
-| earned_not_given | 0 | 8.00 | 0.00 |
-| one_goal | 0 | 8.00 | 0.00 |
-| destiny | 0 | 8.00 | 0.00 |
-| end_goal | 0 | 8.00 | 0.00 |
+| pov_relationship | 0 | 8.00 | 0.00 |
+| future_self | 0 | 8.00 | 0.00 |
+| silent_revenge | 0 | 8.00 | 0.00 |
+| obsession | 0 | 8.00 | 0.00 |
+| standards | 0 | 8.00 | 0.00 |
+| discipline | 0 | 8.00 | 0.00 |
+| identity_shift | 0 | 8.00 | 0.00 |
+| legacy | 0 | 8.00 | 0.00 |
+| minimal | 0 | 8.00 | 0.00 |
 
 ## Caption type
 
@@ -46,11 +46,12 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | luna_bala_slowed | 0 | 8.00 | 0.00 |
 | sempero_super_slowed | 0 | 8.00 | 0.00 |
 | passo_bem_solto_slowed | 0 | 8.00 | 0.00 |
+| montagem_fuego_super_slowed | 0 | 8.00 | 0.00 |
 
 ## Suggested next visual test
 
 - Theme: `money`
-- Overlay: `earned_not_given`
+- Overlay: `future_self`
 - Caption: `aspiration`
 
 Audio and segment selection are handled separately by `src.audio`: the system explores under-tested tracks/segments, then increasingly exploits combinations with the strongest observed performance.

@@ -23,47 +23,47 @@
     }
   },
   "copy_variant": {
-    "one_day": {
+    "pov_relationship": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "soon": {
+    "future_self": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "built_silence": {
+    "silent_revenge": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "different_standard": {
+    "obsession": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "no_plan_b": {
+    "standards": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "earned_not_given": {
+    "discipline": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "one_goal": {
+    "identity_shift": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "destiny": {
+    "legacy": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
     },
-    "end_goal": {
+    "minimal": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
@@ -88,7 +88,7 @@
   },
   "next_variant": {
     "theme": "money",
-    "copy_variant": "earned_not_given",
+    "copy_variant": "future_self",
     "caption_variant": "aspiration",
     "sample_count": 0
   },
@@ -124,6 +124,11 @@
       "score": 8.0
     },
     "passo_bem_solto_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_fuego_super_slowed": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0
