@@ -47,6 +47,27 @@ def _media_files(group):
     return [path for path in group.rglob("*") if path.is_file() and path.suffix.lower() in extensions]
 
 
+def _probe_media(path):
+    try:
+        result = subprocess.run([
+            "ffprobe", "-v", "error", "-select_streams", "v:0",
+            "-show_entries", "stream=width,height,avg_frame_rate,bit_rate",
+            "-of", "json", str(path),
+        ], check=True, capture_output=True, text=True)
+        stream = json.loads(result.stdout).get("streams", [{}])[0]
+        rate = str(stream.get("avg_frame_rate") or "0/1")
+        numerator, denominator = rate.split("/", 1)
+        fps = float(numerator) / max(float(denominator), 1.0)
+        return {
+            "width": int(stream.get("width") or 0),
+            "height": int(stream.get("height") or 0),
+            "fps": round(fps, 3),
+            "bit_rate": int(stream.get("bit_rate") or 0),
+        }
+    except (OSError, subprocess.SubprocessError, ValueError, KeyError, IndexError, json.JSONDecodeError):
+        return {"width": 0, "height": 0, "fps": 0.0, "bit_rate": 0}
+
+
 def _cookie_args():
     cookie_file = os.getenv("AUTHORIZED_COOKIES_FILE", "").strip()
     if not cookie_file:
@@ -156,19 +177,29 @@ def authorized_quality_penalty(item):
     short_edge = min(width, height) if width and height else 0
     if short_edge >= 1000:
         penalty = 0
+    elif short_edge >= 900:
+        penalty = 4
     elif short_edge >= 700:
-        penalty = 2
+        penalty = 14
     elif short_edge >= 540:
-        penalty = 5
+        penalty = 24
     elif short_edge > 0:
-        penalty = 9
+        penalty = 36
     else:
-        penalty = 3
+        penalty = 18
     if width and height:
         if width > height:
-            penalty += 12
+            penalty += 20
         elif height / width < 1.5:
-            penalty += 4
+            penalty += 8
+    bit_rate = int(item.get("bit_rate") or 0)
+    if bit_rate and bit_rate < 1_500_000:
+        penalty += 12
+    elif bit_rate and bit_rate < 3_000_000:
+        penalty += 5
+    fps = float(item.get("fps") or 0)
+    if fps and fps < 24.5:
+        penalty += 5
     return penalty
 
 
@@ -202,6 +233,7 @@ def download_authorized_library(destination):
         if not video:
             continue
         author = info.get("uploader") or owner
+        media = _probe_media(video)
         items.append({
             "provider": "authorized_creator",
             "id": video_id,
@@ -211,8 +243,10 @@ def download_authorized_library(destination):
             "author_url": info.get("channel_url") or "",
             "license_reference": f"Direct permission from {author}",
             "duration": float(info.get("duration") or 0),
-            "width": int(info.get("width") or 0),
-            "height": int(info.get("height") or 0),
+            "width": media["width"] or int(info.get("width") or 0),
+            "height": media["height"] or int(info.get("height") or 0),
+            "fps": media["fps"] or float(info.get("fps") or 0),
+            "bit_rate": media["bit_rate"] or int(float(info.get("tbr") or 0) * 1000),
             "tags": "authorized creator footage dark luxury wealth lifestyle",
             "search_query": "authorized creator library",
             "cleanup_text": info_path.parent.name.startswith("text_"),
@@ -225,6 +259,7 @@ def download_authorized_library(destination):
         source_index = video.parent.name.split("_", 1)[-1]
         source_url = sources[int(source_index)][0] if source_index.isdigit() and int(source_index) < len(sources) else ""
         author = source_url.split("instagram.com/", 1)[-1].split("/", 1)[0] if _is_instagram(source_url) else owner
+        media = _probe_media(video)
         items.append({
             "provider": "authorized_creator",
             "id": video.stem,
@@ -234,8 +269,10 @@ def download_authorized_library(destination):
             "author_url": source_url,
             "license_reference": f"Direct permission from {author or owner}",
             "duration": 0,
-            "width": 0,
-            "height": 0,
+            "width": media["width"],
+            "height": media["height"],
+            "fps": media["fps"],
+            "bit_rate": media["bit_rate"],
             "tags": "authorized creator footage dark luxury wealth lifestyle",
             "search_query": "authorized creator library",
             "cleanup_text": cleanup_text,

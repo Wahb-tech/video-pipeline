@@ -8,8 +8,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 HIGH_QUALITY_VIDEO_ARGS = [
-    "-c:v", "libx264", "-preset", "slow", "-crf", "14",
+    "-c:v", "libx264", "-preset", "slow", "-crf", "12",
+    "-profile:v", "high", "-level:v", "4.1",
     "-pix_fmt", "yuv420p", "-movflags", "+faststart"
+]
+
+INTERMEDIATE_VIDEO_ARGS = [
+    "-c:v", "libx264", "-preset", "slow", "-crf", "10",
+    "-profile:v", "high", "-level:v", "4.1", "-pix_fmt", "yuv420p"
 ]
 
 
@@ -24,6 +30,15 @@ def probe_duration(path):
         "-of", "default=noprint_wrappers=1:nokey=1", str(path)
     ], check=True, capture_output=True, text=True)
     return float(p.stdout.strip())
+
+
+def probe_dimensions(path):
+    p = subprocess.run([
+        "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-show_entries", "stream=width,height", "-of", "csv=s=x:p=0", str(path)
+    ], check=True, capture_output=True, text=True)
+    width, height = p.stdout.strip().split("x")
+    return int(width), int(height)
 
 
 def choose_cut_lengths(duration, count, bpm):
@@ -142,6 +157,7 @@ def choose_clip_start(total, seconds, prior_starts=()):
 
 def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
     total = probe_duration(src)
+    width, height = probe_dimensions(src)
     start = choose_clip_start(total, seconds, prior_starts)
     filters = [
         "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos",
@@ -149,6 +165,8 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
         "fps=30",
         "setsar=1"
     ]
+    if width < 1080 or height < 1920:
+        filters.append("unsharp=5:5:0.28:3:3:0.0")
     if style == "dark_luxury":
         filters.extend([
             "eq=brightness=-0.10:contrast=1.18:saturation=0.78:gamma=0.93",
@@ -157,7 +175,7 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
     vf = ",".join(filters)
     run([
         "ffmpeg", "-y", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{seconds:.3f}",
-        "-an", "-vf", vf, *HIGH_QUALITY_VIDEO_ARGS, str(dst)
+        "-an", "-vf", vf, *INTERMEDIATE_VIDEO_ARGS, str(dst)
     ])
     return start
 

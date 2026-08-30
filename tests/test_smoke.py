@@ -4,7 +4,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
+from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _snap_cut_times, choose_clip_start, choose_cut_lengths
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -175,6 +175,12 @@ def test_authorized_vertical_video_is_preferred_over_landscape():
     assert authorized_quality_penalty(vertical) < authorized_quality_penalty(landscape)
 
 
+def test_authorized_true_hd_is_strongly_preferred_over_720p():
+    hd = {"width": 1080, "height": 1920, "fps": 30, "bit_rate": 5_000_000}
+    compressed = {"width": 720, "height": 1280, "fps": 30, "bit_rate": 1_200_000}
+    assert authorized_quality_penalty(compressed) - authorized_quality_penalty(hd) >= 20
+
+
 def test_cgi_and_game_footage_are_rejected():
     assert not is_real_footage({"tags": "3D CGI luxury watch animation"})
     assert not is_real_footage({"tags": "dark supercar video game render"})
@@ -275,9 +281,11 @@ def test_ytdlp_requests_best_available_source_quality(monkeypatch, tmp_path):
 
 def test_render_uses_high_quality_encoding():
     assert HIGH_QUALITY_VIDEO_ARGS == [
-        "-c:v", "libx264", "-preset", "slow", "-crf", "14",
+        "-c:v", "libx264", "-preset", "slow", "-crf", "12",
+        "-profile:v", "high", "-level:v", "4.1",
         "-pix_fmt", "yuv420p", "-movflags", "+faststart"
     ]
+    assert INTERMEDIATE_VIDEO_ARGS[INTERMEDIATE_VIDEO_ARGS.index("-crf") + 1] == "10"
 
 
 def test_text_cleanup_failure_falls_back_to_clean_authorized_clip(monkeypatch):
