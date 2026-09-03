@@ -87,8 +87,8 @@
     }
   },
   "next_variant": {
-    "theme": "money",
-    "copy_variant": "pov_relationship",
+    "theme": "dark_cars",
+    "copy_variant": "standards",
     "caption_variant": "minimal",
     "sample_count": 0
   },
