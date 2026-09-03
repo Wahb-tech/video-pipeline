@@ -88,8 +88,8 @@
   },
   "next_variant": {
     "theme": "money",
-    "copy_variant": "future_self",
-    "caption_variant": "aspiration",
+    "copy_variant": "pov_relationship",
+    "caption_variant": "minimal",
     "sample_count": 0
   },
   "audio": {
