@@ -1,5 +1,7 @@
 import csv
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
@@ -9,6 +11,21 @@ from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.text_cleanup import TextCleanupError, clean_creator_text, recurring_text_region
+from src.zoop_metrics import (
+    METRIC_FIELDS,
+    PUBLICATION_FIELDS,
+    best_candidate,
+    build_metric_row,
+    candidates_from_payloads,
+    collect,
+    discover_publications,
+    due_window,
+    post_record_from_responses,
+    read_rows,
+    redact_payload,
+    upsert_row,
+    write_rows,
+)
 
 
 def test_fallback_plan_count():
@@ -449,3 +466,196 @@ def test_authorized_rotation_keeps_low_resolution_as_fallback(monkeypatch):
     ]
     excluded = {"authorized_creator:hd"}
     assert choose_authorized_clip(items, {}, {}, 1, excluded)["id"] == "low"
+
+
+def test_zoop_publish_response_is_linked_to_experiment():
+    responses = [{
+        "url": "https://api-v2.influencerindex.com/posts",
+        "payload": {
+            "data": {
+                "post": {
+                    "id": 128854,
+                    "caption": "Discipline. Income. Freedom.",
+                }
+            }
+        },
+    }]
+    record = post_record_from_responses(
+        responses,
+        "experiment-1",
+        "Discipline. Income. Freedom.",
+        "2026-09-03T10:00:00+00:00",
+        datetime(2026, 9, 3, 9, 0, tzinfo=timezone.utc),
+    )
+    assert record["post_id"] == "128854"
+    assert record["post_url"] == "https://app.zoop.club/profile/post/128854"
+    assert record["experiment_id"] == "experiment-1"
+
+
+def test_zoop_nested_insights_are_normalized_and_matched():
+    payloads = [{
+        "url": "https://api-v2.influencerindex.com/posts/128854",
+        "payload": {
+            "post": {
+                "id": 128854,
+                "caption": "Build in silence.",
+                "insights": {
+                    "viewCount": "1.2k",
+                    "likesCount": 81,
+                    "commentCount": 7,
+                    "shareCount": 4,
+                },
+            }
+        },
+    }]
+    candidates = candidates_from_payloads(payloads)
+    selected = best_candidate(candidates, {
+        "post_id": "128854",
+        "caption": "Build in silence.",
+    })
+    assert selected["views"] == 1200
+    assert selected["likes"] == 81
+    assert selected["comments"] == 7
+    assert selected["shares"] == 4
+
+
+def test_zoop_metric_windows_are_collected_once():
+    now = datetime(2026, 9, 10, 12, 0, tzinfo=timezone.utc)
+    publication = {
+        "experiment_id": "experiment-1",
+        "published_at": (now - timedelta(hours=80)).isoformat(),
+    }
+    assert due_window(publication, [], now) == "72h"
+    existing = [{"experiment_id": "experiment-1", "measurement_window": "72h"}]
+    assert due_window(publication, existing, now) == ""
+
+
+def test_zoop_latest_metric_upsert_does_not_duplicate_experiment(tmp_path):
+    path = tmp_path / "metrics.csv"
+    first = {field: "" for field in METRIC_FIELDS}
+    first.update({"experiment_id": "experiment-1", "views": 100, "measurement_window": "24h"})
+    second = {**first, "views": 500, "measurement_window": "72h"}
+    upsert_row(path, METRIC_FIELDS, first, ("experiment_id",))
+    upsert_row(path, METRIC_FIELDS, second, ("experiment_id",))
+    rows = read_rows(path)
+    assert len(rows) == 1
+    assert rows[0]["views"] == "500"
+    assert rows[0]["measurement_window"] == "72h"
+
+
+def test_zoop_metric_row_inherits_generated_experiment_factors():
+    publication = {
+        "experiment_id": "experiment-1",
+        "published_at": "2026-09-03T10:00:00+00:00",
+        "post_url": "https://app.zoop.club/profile/post/128854",
+    }
+    generated = {"experiment-1": {
+        "theme": "dark_life",
+        "copy_variant": "discipline",
+        "caption_variant": "minimal",
+        "audio_id": "montagem_coma_slowed",
+        "audio_start_sec": "12.0",
+        "audio_segment": "montagem_coma_slowed@12.0",
+    }}
+    candidate = {
+        "views": 900,
+        "likes": 50,
+        "comments": 3,
+        "shares": 2,
+        "source_url": "https://api-v2.influencerindex.com/posts/128854",
+    }
+    row = build_metric_row(
+        publication,
+        candidate,
+        generated,
+        "24h",
+        datetime(2026, 9, 4, 10, 0, tzinfo=timezone.utc),
+    )
+    assert row["theme"] == "dark_life"
+    assert row["audio_id"] == "montagem_coma_slowed"
+    assert row["measurement_window"] == "24h"
+
+
+def test_zoop_existing_post_is_backfilled_from_unique_caption():
+    candidates = [{
+        "post_id": "128854",
+        "post_url": "/profile/post/128854",
+        "caption": "You fall to the routine.",
+        "published_at": "2026-09-01T08:00:00Z",
+        "source_url": "https://api-v2.influencerindex.com/feed",
+    }]
+    generated = [{
+        "experiment_id": "experiment-old",
+        "caption": "You fall to the routine.",
+        "created_at": "2026-09-01T07:30:00Z",
+    }]
+    rows = discover_publications(
+        candidates,
+        generated,
+        [],
+        datetime(2026, 9, 3, 10, 0, tzinfo=timezone.utc),
+    )
+    assert len(rows) == 1
+    assert rows[0]["experiment_id"] == "experiment-old"
+    assert rows[0]["post_url"] == "https://app.zoop.club/profile/post/128854"
+
+
+def test_zoop_raw_diagnostics_redact_private_fields():
+    payload = {
+        "post": {"id": 1, "views": 20},
+        "user": {"email": "private@example.com", "access_token": "secret"},
+    }
+    redacted = redact_payload(payload)
+    assert redacted["post"]["views"] == 20
+    assert redacted["user"]["email"] == "[redacted]"
+    assert redacted["user"]["access_token"] == "[redacted]"
+
+
+def test_zoop_collector_updates_snapshot_and_latest_metric(monkeypatch, tmp_path):
+    fixed_now = datetime(2026, 9, 4, 12, 0, tzinfo=timezone.utc)
+    publications = tmp_path / "published.csv"
+    generated = tmp_path / "generated.csv"
+    metrics = tmp_path / "metrics.csv"
+    snapshots = tmp_path / "snapshots.csv"
+    write_rows(publications, PUBLICATION_FIELDS, [{
+        "experiment_id": "experiment-1",
+        "post_id": "128854",
+        "post_url": "https://app.zoop.club/profile/post/128854",
+        "caption": "Build in silence.",
+        "published_at": "2026-09-01T10:00:00+00:00",
+    }])
+    generated.write_text(
+        "experiment_id,theme,copy_variant,caption_variant,audio_id,audio_start_sec,audio_segment,caption\n"
+        "experiment-1,dark_life,discipline,minimal,coma,12.0,coma@12.0,Build in silence.\n",
+        encoding="utf-8",
+    )
+    payloads = [{
+        "url": "https://api-v2.influencerindex.com/posts/128854",
+        "payload": {"post": {
+            "id": 128854,
+            "caption": "Build in silence.",
+            "views": 1500,
+            "likes": 100,
+            "comments": 8,
+            "shares": 5,
+        }},
+    }]
+    monkeypatch.setattr("src.zoop_metrics.utc_now", lambda: fixed_now)
+    monkeypatch.setattr(
+        "src.zoop_metrics.capture_profile_payloads",
+        lambda state, profile_url, raw: payloads,
+    )
+    args = SimpleNamespace(
+        state="state.json",
+        profile_url="https://app.zoop.club/profile",
+        publications=str(publications),
+        generated=str(generated),
+        metrics=str(metrics),
+        snapshots=str(snapshots),
+        raw=str(tmp_path / "raw.json"),
+    )
+    assert collect(args) == 1
+    assert read_rows(metrics)[0]["views"] == "1500"
+    assert read_rows(metrics)[0]["measurement_window"] == "72h"
+    assert len(read_rows(snapshots)) == 1
+    collect,

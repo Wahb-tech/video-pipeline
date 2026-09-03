@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from datetime import datetime, timedelta
@@ -5,12 +6,20 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright
 
+try:
+    from .zoop_metrics import post_record_from_responses, register_publication
+except ImportError:
+    from zoop_metrics import post_record_from_responses, register_publication
+
 VIDEO = Path(os.environ.get("ZOOP_VIDEO", "/tmp/zoop_test.mp4"))
 CAPTION = os.environ.get("ZOOP_CAPTION", "ONE DAY.")
 STATE = os.environ.get("ZOOP_STATE", "zoop_state.json")
 SCHEDULE_DATE = os.environ.get("ZOOP_SCHEDULE_DATE", "").strip()
 SCHEDULE_TIME = os.environ.get("ZOOP_SCHEDULE_TIME", "").strip()
 SCHEDULE_COMMIT = os.environ.get("ZOOP_SCHEDULE_COMMIT", "0") == "1"
+EXPERIMENT_ID = os.environ.get("ZOOP_EXPERIMENT_ID", "").strip()
+PUBLICATIONS = os.environ.get("ZOOP_PUBLICATIONS", "data/published_posts.csv")
+PUBLISH_ARTIFACT = Path(os.environ.get("ZOOP_PUBLISH_ARTIFACT", "output/published_post.json"))
 
 
 def resolve_schedule(date_value, time_value):
@@ -441,9 +450,17 @@ def schedule_post(page):
 
     def capture_response(response):
         if response.request.method in ("POST", "PUT", "PATCH", "DELETE"):
-            mutation_responses.append(
-                (response.status, response.request.method, response.url)
-            )
+            entry = {
+                "status": response.status,
+                "method": response.request.method,
+                "url": response.url,
+            }
+            if "influencerindex.com" in response.url:
+                try:
+                    entry["payload"] = response.json()
+                except Exception:
+                    pass
+            mutation_responses.append(entry)
             print(
                 "ZOOP_SUBMIT_RESPONSE",
                 response.status,
@@ -493,7 +510,8 @@ def schedule_post(page):
         and "influencerindex.com" in url
         and not url.endswith("/pusher/authenticate")
         and not url.endswith("/app-users/profile")
-        for status, _, url in mutation_responses
+        for response in mutation_responses
+        for status, url in ((response["status"], response["url"]),)
     )
 
     if not successful_mutation:
@@ -505,6 +523,29 @@ def schedule_post(page):
         raise RuntimeError(
             "ZOOP did not confirm post creation after Schedule click"
         )
+
+    if EXPERIMENT_ID:
+        local_time = datetime.strptime(
+            f"{SCHEDULE_DATE} {SCHEDULE_TIME}", "%Y-%m-%d %H:%M"
+        ).replace(tzinfo=ZoneInfo("Europe/Zurich"))
+        record = post_record_from_responses(
+            mutation_responses,
+            EXPERIMENT_ID,
+            CAPTION,
+            local_time.astimezone(ZoneInfo("UTC")).isoformat(),
+        )
+        PUBLISH_ARTIFACT.parent.mkdir(parents=True, exist_ok=True)
+        PUBLISH_ARTIFACT.write_text(
+            json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+        register_publication(record, PUBLICATIONS)
+        print(
+            "ZOOP_PUBLICATION_RECORDED",
+            record.get("post_id") or "pending-discovery",
+            flush=True,
+        )
+    else:
+        print("ZOOP_EXPERIMENT_ID missing; publication mapping not recorded", flush=True)
 
     print("ZOOP_SCHEDULE_CONFIRMED", flush=True)
 

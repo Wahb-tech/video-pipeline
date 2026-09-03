@@ -220,6 +220,7 @@ jobs:
             echo
             echo 'ZOOP_CAPTION_EOF'
           } >> "$GITHUB_ENV"
+          echo "ZOOP_EXPERIMENT_ID=$(tr -d '\r\n' < output/EXPERIMENT_ID.txt)" >> "$GITHUB_ENV"
 
       - name: Publish generated video to ZOOP
         env:
@@ -227,6 +228,17 @@ jobs:
           ZOOP_STATE: zoop_state.json
           ZOOP_SCHEDULE_COMMIT: "1"
         run: python src/zoop_publish.py
+
+      - name: Save ZOOP publication mapping
+        run: |
+          git config user.name "zoop-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/published_posts.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "Record published ZOOP post"
+            git pull --rebase origin main
+            git push origin main
+          fi
 
       - name: Upload publish diagnostics
         if: always()
@@ -239,6 +251,7 @@ jobs:
             zoop_schedule_field_error.png
             zoop_connection_error.png
             zoop_debug.html
+            output/published_post.json
           if-no-files-found: ignore
 
       - name: Delete ZOOP session

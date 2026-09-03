@@ -1,4 +1,4 @@
-# ZOOP Dark-Luxury Factory v3
+# ZOOP Dark-Luxury Factory
 
 A cloud-first dark-luxury short-video factory built for GitHub Actions. It keeps the validated visual baseline (25 seconds, 17 cuts, dark-luxury grading) and adds an experiment/learning loop so the content mix evolves from the performance of your own posts.
 
@@ -10,15 +10,15 @@ A cloud-first dark-luxury short-video factory built for GitHub Actions. It keeps
 - Avoids recently reused stock clips across videos.
 - Generates a short caption variant for each post.
 - Produces a provenance/rights manifest for every export.
-- Generates one upload-ready package twice per day via GitHub Actions.
+- Generates and schedules up to four upload-ready posts per day via GitHub Actions.
 - Records every generated experiment in `data/generated.csv`.
-- Lets you record post performance through a GitHub Actions form.
+- Collects post performance at 24 hours, 72 hours and 7 days when Zoop exposes it.
+- Keeps a manual metrics form as a fallback.
 - Re-analyzes theme/copy/caption performance after each metrics entry and weekly.
 - Uses a 70/30 exploit/explore strategy after enough samples, while forcing early exploration so every variant gets tested.
 
-## What is not automated
-
-Direct ZOOP posting is intentionally not included. As of this version, ZOOP does not publish a public creator-upload API, and its policies restrict automated/bot/script interaction. The system therefore automates production, packaging, experiment selection and learning, while the final ZOOP upload stays manual.
+The publisher and metrics collector use the account's encrypted Playwright storage state from
+`ZOOP_STORAGE_STATE_B64`. The session file is deleted from the runner after every workflow.
 
 When ZOOP presents an AI Content / AI Edited Content label during upload, use the appropriate label for content that falls within ZOOP's current labelling rules.
 
@@ -28,7 +28,7 @@ The automatic factory uses:
 
 - Style: `dark_luxury`
 - Duration: `25s`
-- Cuts: `17`
+- Clips: `12`
 - BPM: `100`
 - Position: centered minimalist text
 
@@ -87,6 +87,23 @@ After posting a video, run this workflow and enter its `experiment_id` plus the 
 
 The workflow updates `data/metrics.csv`, `data/strategy_state.json` and `reports/latest.md`.
 
+### Collect ZOOP Metrics
+
+The scheduled publisher stores the link between each `experiment_id` and its Zoop post in
+`data/published_posts.csv`. The collector runs every six hours and captures one performance
+snapshot after 24 hours, 72 hours and 7 days.
+
+- `data/metric_snapshots.csv` keeps the three historical checkpoints.
+- `data/metrics.csv` keeps only the newest checkpoint for each post, so one post never counts
+  three times in the learning model.
+- `output/zoop_metrics_raw.json` is uploaded as a short-lived diagnostic artifact and contains
+  the Zoop API responses used by the parser.
+- A row is not sent to the learning model unless Zoop exposes a real view/reach count.
+
+The manual `Record ZOOP Metrics` workflow remains available as a fallback.
+On its first runs, the collector also backfills older generated posts when their caption has one
+unique exact match on the Zoop profile; ambiguous repeated captions are deliberately ignored.
+
 ### Analyze ZOOP Strategy
 
 Runs weekly and can also be run manually. It builds a report showing which themes, overlay texts and caption styles are winning.
@@ -136,12 +153,11 @@ Set these GitHub repository secrets:
 
 ## First recommended operating loop
 
-1. Let the factory create up to two videos per day.
-2. Post the best generated package to ZOOP manually.
-3. Keep the `EXPERIMENT_ID.txt` value.
-4. After the post has had time to collect meaningful engagement, run `Record ZOOP Metrics`.
-5. Repeat without manually changing the visual baseline.
-6. Review `reports/latest.md` after roughly 20, 40 and 60 recorded posts.
+1. Let the factory create and schedule up to four videos per day.
+2. Let `Collect ZOOP Metrics` measure each post at 24 hours, 72 hours and 7 days.
+3. Use `Record ZOOP Metrics` only when an automatic measurement is unavailable.
+4. Repeat without manually changing the visual baseline.
+5. Review `reports/latest.md` after roughly 20, 40 and 60 measured posts.
 
 The goal is to optimize from your own account data rather than pretend to know ZOOP's private ranking formula.
 

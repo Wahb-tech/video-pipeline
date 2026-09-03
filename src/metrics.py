@@ -2,12 +2,13 @@ import argparse
 import csv
 from datetime import datetime, timezone
 from pathlib import Path
-from .csvutil import append_row
+from .zoop_metrics import upsert_row
 
 METRICS_FIELDS = [
     "experiment_id", "published_at", "theme", "copy_variant", "caption_variant",
     "audio_id", "audio_start_sec", "audio_segment", "views", "likes", "comments", "shares", "follows",
-    "completion_rate", "avg_watch_seconds", "post_url", "notes", "recorded_at"
+    "completion_rate", "avg_watch_seconds", "post_url", "notes", "recorded_at",
+    "measurement_window", "source"
 ]
 
 
@@ -42,9 +43,11 @@ def record(args):
         "avg_watch_seconds": args.avg_watch_seconds,
         "post_url": args.post_url,
         "notes": args.notes,
-        "recorded_at": datetime.now(timezone.utc).isoformat()
+        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "measurement_window": "manual",
+        "source": "manual",
     }
-    append_row(args.metrics, METRICS_FIELDS, row)
+    upsert_row(args.metrics, METRICS_FIELDS, row, ("experiment_id",))
     print(f"Recorded metrics for {args.experiment_id}")
 
 

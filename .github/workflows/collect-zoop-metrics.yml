@@ -1,0 +1,85 @@
+name: Collect ZOOP Metrics
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: zoop-metrics-collector
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install collector browser
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Restore ZOOP session
+        env:
+          ZOOP_STORAGE_STATE_B64: ${{ secrets.ZOOP_STORAGE_STATE_B64 }}
+        run: |
+          test -n "$ZOOP_STORAGE_STATE_B64"
+          printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
+          chmod 600 zoop_state.json
+
+      - name: Collect due post metrics
+        id: collect
+        env:
+          ZOOP_STATE: zoop_state.json
+          ZOOP_PROFILE_URL: https://app.zoop.club/profile
+        run: |
+          python -m src.zoop_metrics
+          if git diff --quiet -- data/published_posts.csv data/metric_snapshots.csv data/metrics.csv; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update learning strategy
+        if: steps.collect.outputs.changed == 'true'
+        run: python -m src.analyze
+
+      - name: Save metrics and strategy
+        run: |
+          git config user.name "zoop-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            data/published_posts.csv \
+            data/metric_snapshots.csv \
+            data/metrics.csv \
+            data/strategy_state.json \
+            reports/latest.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Collect ZOOP metrics and update strategy"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
+      - name: Upload collector diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zoop-metrics-${{ github.run_id }}
+          path: output/zoop_metrics_raw.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Delete ZOOP session
+        if: always()
+        run: rm -f zoop_state.json

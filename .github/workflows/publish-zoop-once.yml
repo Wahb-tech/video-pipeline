@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -45,13 +45,16 @@ jobs:
 
           VIDEO="$(find /tmp/luxury -type f -name 'ZOOP_READY.mp4' | head -n 1)"
           CAPTION_FILE="$(find /tmp/luxury -type f -name 'caption.txt' | head -n 1)"
+          EXPERIMENT_FILE="$(find /tmp/luxury -type f -name 'EXPERIMENT_ID.txt' | head -n 1)"
 
           test -f "$VIDEO"
           test -f "$CAPTION_FILE"
+          test -f "$EXPERIMENT_FILE"
 
           cp "$VIDEO" /tmp/ZOOP_READY.mp4
 
           echo "ZOOP_VIDEO=/tmp/ZOOP_READY.mp4" >> "$GITHUB_ENV"
+          echo "ZOOP_EXPERIMENT_ID=$(tr -d '\r\n' < "$EXPERIMENT_FILE")" >> "$GITHUB_ENV"
 
           {
             echo 'ZOOP_CAPTION<<ZOOP_CAPTION_EOF'
@@ -82,6 +85,17 @@ jobs:
         run: |
           python src/zoop_publish.py
 
+      - name: Save ZOOP publication mapping
+        run: |
+          git config user.name "zoop-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/published_posts.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "Record published ZOOP post"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
       - name: Upload publish diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -93,6 +107,7 @@ jobs:
             zoop_schedule_field_error.png
             zoop_connection_error.png
             zoop_debug.html
+            output/published_post.json
           if-no-files-found: ignore
 
       - name: Delete session
