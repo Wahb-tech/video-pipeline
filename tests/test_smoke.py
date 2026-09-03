@@ -519,6 +519,27 @@ def test_zoop_nested_insights_are_normalized_and_matched():
     assert selected["shares"] == 4
 
 
+def test_zoop_real_feed_field_names_are_normalized():
+    payloads = [{
+        "url": "https://infdash-api.influencerindex.com/production/me/posts",
+        "payload": {"posts": [{
+            "id": 131526,
+            "message": "You repeat the person who earns it.",
+            "reactionsCount": 4,
+            "commentsCount": 2,
+            "createdAt": "2026-09-03T16:30:00.000Z",
+        }]},
+    }]
+    selected = best_candidate(candidates_from_payloads(payloads), {
+        "post_id": "131526",
+        "caption": "You repeat the person who earns it.",
+    })
+    assert selected["caption"] == "You repeat the person who earns it."
+    assert selected["likes"] == 4
+    assert selected["comments"] == 2
+    assert selected["published_at"] == "2026-09-03T16:30:00+00:00"
+
+
 def test_zoop_metric_windows_are_collected_once():
     now = datetime(2026, 9, 10, 12, 0, tzinfo=timezone.utc)
     publication = {
@@ -600,6 +621,29 @@ def test_zoop_existing_post_is_backfilled_from_unique_caption():
     assert rows[0]["post_url"] == "https://app.zoop.club/profile/post/128854"
 
 
+def test_zoop_repeated_caption_uses_nearest_generation_once():
+    candidates = [{
+        "post_id": "119285",
+        "caption": "Soon.",
+        "published_at": "2026-08-18T18:00:00Z",
+    }]
+    generated = [
+        {
+            "experiment_id": "near",
+            "caption": "Soon.",
+            "created_at": "2026-08-18T17:24:00Z",
+        },
+        {
+            "experiment_id": "far",
+            "caption": "Soon.",
+            "created_at": "2026-08-23T17:11:00Z",
+        },
+    ]
+    rows = discover_publications(candidates, generated, [])
+    assert len(rows) == 1
+    assert rows[0]["experiment_id"] == "near"
+
+
 def test_zoop_raw_diagnostics_redact_private_fields():
     payload = {
         "post": {"id": 1, "views": 20},
@@ -658,4 +702,49 @@ def test_zoop_collector_updates_snapshot_and_latest_metric(monkeypatch, tmp_path
     assert read_rows(metrics)[0]["views"] == "1500"
     assert read_rows(metrics)[0]["measurement_window"] == "72h"
     assert len(read_rows(snapshots)) == 1
+
+
+def test_zoop_collector_keeps_available_counts_without_views(monkeypatch, tmp_path):
+    fixed_now = datetime(2026, 9, 4, 12, 0, tzinfo=timezone.utc)
+    publications = tmp_path / "published.csv"
+    generated = tmp_path / "generated.csv"
+    metrics = tmp_path / "metrics.csv"
+    snapshots = tmp_path / "snapshots.csv"
+    write_rows(publications, PUBLICATION_FIELDS, [{
+        "experiment_id": "experiment-1",
+        "post_id": "131526",
+        "caption": "Earn it.",
+        "published_at": "2026-09-01T10:00:00+00:00",
+    }])
+    generated.write_text(
+        "experiment_id,caption\nexperiment-1,Earn it.\n",
+        encoding="utf-8",
+    )
+    payloads = [{
+        "url": "https://infdash-api.influencerindex.com/production/me/posts",
+        "payload": {"posts": [{
+            "id": 131526,
+            "message": "Earn it.",
+            "reactionsCount": 3,
+            "commentsCount": 1,
+        }]},
+    }]
+    monkeypatch.setattr("src.zoop_metrics.utc_now", lambda: fixed_now)
+    monkeypatch.setattr(
+        "src.zoop_metrics.capture_profile_payloads",
+        lambda state, profile_url, raw: payloads,
+    )
+    args = SimpleNamespace(
+        state="state.json",
+        profile_url="https://app.zoop.club/profile",
+        publications=str(publications),
+        generated=str(generated),
+        metrics=str(metrics),
+        snapshots=str(snapshots),
+        raw=str(tmp_path / "raw.json"),
+    )
+    assert collect(args) == 1
+    assert read_rows(metrics) == []
+    assert read_rows(snapshots)[0]["likes"] == "3"
+    assert read_rows(snapshots)[0]["comments"] == "1"
     collect,

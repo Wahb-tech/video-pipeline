@@ -98,7 +98,8 @@ snapshot after 24 hours, 72 hours and 7 days.
   three times in the learning model.
 - `output/zoop_metrics_raw.json` is uploaded as a short-lived diagnostic artifact and contains
   the Zoop API responses used by the parser.
-- A row is not sent to the learning model unless Zoop exposes a real view/reach count.
+- Likes/reactions and comments are still saved when views are unavailable, but a row is not sent
+  to the learning model unless Zoop exposes a real view/reach count.
 
 The manual `Record ZOOP Metrics` workflow remains available as a fallback.
 On its first runs, the collector also backfills older generated posts when their caption has one

@@ -24,11 +24,11 @@ SNAPSHOT_FIELDS = METRIC_FIELDS
 
 ID_KEYS = ("post_id", "postId", "publication_id", "publicationId", "id")
 URL_KEYS = ("post_url", "postUrl", "permalink", "share_url", "shareUrl", "url")
-CAPTION_KEYS = ("caption", "description", "body", "text", "content")
+CAPTION_KEYS = ("caption", "message", "description", "body", "text", "content")
 DATE_KEYS = ("published_at", "publishedAt", "created_at", "createdAt", "scheduled_at", "scheduledAt", "publish_at", "publishAt")
 METRIC_ALIASES = {
     "views": ("views", "view_count", "views_count", "viewCount", "viewsCount", "play_count", "playCount", "plays", "reach"),
-    "likes": ("likes", "like_count", "likes_count", "likeCount", "likesCount"),
+    "likes": ("likes", "like_count", "likes_count", "likeCount", "likesCount", "reactionsCount", "reactions_count"),
     "comments": ("comments", "comment_count", "comments_count", "commentCount", "commentsCount"),
     "shares": ("shares", "share_count", "shares_count", "shareCount", "sharesCount", "reposts", "repost_count"),
     "completion_rate": ("completion_rate", "completionRate", "watch_completion_rate", "watchCompletionRate"),
@@ -63,6 +63,19 @@ def iso_datetime(value):
         return text
 
 
+def parse_datetime(value):
+    normalized = iso_datetime(value)
+    if not normalized:
+        return None
+    try:
+        parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
 def read_rows(path):
     target = Path(path)
     if not target.exists() or target.stat().st_size == 0:
@@ -75,7 +88,7 @@ def write_rows(path, fields, rows):
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for row in rows:
             writer.writerow({field: row.get(field, "") for field in fields})
@@ -327,24 +340,55 @@ def generated_index(path):
 def discover_publications(candidates, generated_rows, publications, now=None):
     now = now or utc_now()
     known = {row.get("experiment_id", "") for row in publications}
+    known_posts = {
+        row.get("post_id") or row.get("post_url")
+        for row in publications
+        if row.get("post_id") or row.get("post_url")
+    }
     identities = {}
     for candidate in candidates:
         identity = candidate.get("post_id") or candidate.get("post_url")
         if identity:
             identities[identity] = candidate
+    available = {
+        row.get("experiment_id", ""): row
+        for row in generated_rows
+        if row.get("experiment_id") and row.get("experiment_id") not in known
+    }
     discovered = []
-    for generated in generated_rows:
-        experiment_id = generated.get("experiment_id", "")
-        caption = normalize_text(generated.get("caption") or generated.get("overlay_text"))
-        if not experiment_id or experiment_id in known or not caption:
+    ordered_candidates = sorted(
+        identities.values(),
+        key=lambda candidate: candidate.get("published_at", ""),
+    )
+    for candidate in ordered_candidates:
+        identity = candidate.get("post_id") or candidate.get("post_url")
+        if not identity or identity in known_posts:
             continue
+        caption = normalize_text(candidate.get("caption"))
         matches = [
-            candidate for candidate in identities.values()
-            if normalize_text(candidate.get("caption")) == caption
+            row for row in available.values()
+            if caption and normalize_text(row.get("caption") or row.get("overlay_text")) == caption
         ]
-        if len(matches) != 1:
+        if not matches:
             continue
-        candidate = matches[0]
+        published = parse_datetime(candidate.get("published_at"))
+        if published:
+            dated = [
+                (abs((published - created).total_seconds()), row)
+                for row in matches
+                if (created := parse_datetime(row.get("created_at"))) is not None
+            ]
+            dated.sort(key=lambda pair: pair[0])
+            if not dated or dated[0][0] > 12 * 3600:
+                continue
+            if len(dated) > 1 and dated[0][0] == dated[1][0]:
+                continue
+            generated = dated[0][1]
+        elif len(matches) == 1:
+            generated = matches[0]
+        else:
+            continue
+        experiment_id = generated.get("experiment_id", "")
         post_id = candidate.get("post_id", "")
         post_url = candidate.get("post_url", "")
         if post_url.startswith("/"):
@@ -365,6 +409,8 @@ def discover_publications(candidates, generated_rows, publications, now=None):
             "source_url": candidate.get("source_url", ""),
         })
         known.add(experiment_id)
+        known_posts.add(identity)
+        available.pop(experiment_id, None)
     return discovered
 
 
@@ -469,6 +515,17 @@ def capture_profile_payloads(state, profile_url, raw_path):
             href = links.nth(index).get_attribute("href")
             if href:
                 urls.append(urljoin("https://app.zoop.club", href))
+        for entry in captured:
+            payload = entry.get("payload", {})
+            posts = payload.get("posts", []) if isinstance(payload, dict) else []
+            if not isinstance(posts, list):
+                continue
+            for post in posts:
+                if isinstance(post, dict) and post.get("id") not in (None, ""):
+                    urls.append(
+                        f"https://app.zoop.club/profile/post/{post['id']}"
+                    )
+        print(f"ZOOP_METRICS_DETAIL_PAGES {len(set(urls))}")
         for url in list(dict.fromkeys(urls))[:80]:
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
             page.wait_for_timeout(1200)
@@ -506,9 +563,6 @@ def collect(args):
         if not candidate:
             print(f"No matching Zoop statistics for {publication.get('experiment_id')}")
             continue
-        if candidate.get("views", "") in ("", 0):
-            print(f"Zoop did not expose views for {publication.get('experiment_id')}; skipping learning row")
-            continue
         if not publication.get("post_id") and candidate.get("post_id"):
             publication["post_id"] = candidate["post_id"]
         if not publication.get("post_url") and candidate.get("post_url"):
@@ -516,8 +570,14 @@ def collect(args):
         publication["last_seen_at"] = now.isoformat()
         publication["status"] = "published"
         metric = build_metric_row(publication, candidate, generated, window, now)
-        upsert_row(args.metrics, METRIC_FIELDS, metric, ("experiment_id",))
         upsert_row(args.snapshots, SNAPSHOT_FIELDS, metric, ("experiment_id", "measurement_window"))
+        if candidate.get("views", "") not in ("", 0):
+            upsert_row(args.metrics, METRIC_FIELDS, metric, ("experiment_id",))
+        else:
+            print(
+                f"Zoop did not expose views for {publication.get('experiment_id')}; "
+                "saved available metrics without updating the learning model"
+            )
         snapshots.append(metric)
         recorded += 1
     write_rows(args.publications, PUBLICATION_FIELDS, publications)
