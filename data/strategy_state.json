@@ -88,7 +88,7 @@
   },
   "next_variant": {
     "theme": "money",
-    "copy_variant": "identity_shift",
+    "copy_variant": "minimal",
     "caption_variant": "aspiration",
     "sample_count": 0
   },
