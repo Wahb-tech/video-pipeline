@@ -7,10 +7,13 @@ import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from .config import BASELINE, THEME_PRESETS
+from .config import BASELINE, COPY_VARIANTS, THEME_PRESETS
 from .gemini import generate_plan
 from .stock import STOCK_BLOCKED_CATEGORIES, find_clip, download, load_usage_history, append_used
-from .render import music_cut_lengths, normalize_clip, concat_clips, make_text_overlay, add_overlay, add_music
+from .render import (
+    music_cut_lengths, choose_music_start, normalize_clip, concat_clips,
+    make_text_overlay, add_overlay, add_music,
+)
 from .strategy import choose_variant
 from .audio import choose_audio
 from .csvutil import append_row
@@ -53,7 +56,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--style", default=BASELINE["style"], choices=["dark_luxury", "summer_luxury", "dubai", "yacht_life", "mixed"])
     p.add_argument("--theme", default="auto", choices=["auto", "dark_cars", "money", "dark_life", "mixed_dark"])
-    p.add_argument("--copy-variant", default="auto", choices=["auto", "one_day", "soon", "built_silence", "different_standard", "no_plan_b", "earned_not_given", "one_goal", "destiny", "end_goal", "none"])
+    p.add_argument("--copy-variant", default="auto", choices=["auto", *COPY_VARIANTS])
     p.add_argument("--caption-variant", default="auto", choices=["auto", "choice", "aspiration", "minimal"])
     p.add_argument("--duration", type=float, default=BASELINE["duration"])
     p.add_argument("--clips", type=int, default=BASELINE["clips"])
@@ -149,14 +152,15 @@ def main():
     audio = None if args.music else choose_audio(theme, args.audio)
     direct_music = Path(args.music) if args.music and Path(args.music).exists() else None
     music = direct_music or (audio.get("file") if audio else None)
-    start_sec = None if direct_music else (audio.get("selected_start_sec") if audio else None)
+    preferred_music_start = None if direct_music else (audio.get("selected_start_sec") if audio else None)
+    music_start_sec = choose_music_start(music, args.duration, preferred_music_start) if music else 0.0
     audio_plan = {
         "audio_id": audio.get("audio_id") if audio else "",
         "title": audio.get("title") if audio else "",
         "artist": audio.get("artist") if audio else "",
         "version": audio.get("version") if audio else "",
         "preferred_start_sec": audio.get("preferred_start_sec") if audio else "",
-        "selected_start_sec": start_sec if start_sec is not None else "",
+        "selected_start_sec": music_start_sec if music else "",
         "popular_window": audio.get("popular_window") if audio else "",
         "alternate_start_sec": audio.get("alternate_start_sec") if audio else [],
         "available": bool(music),
@@ -169,7 +173,7 @@ def main():
     (out.parent / "EXPERIMENT_ID.txt").write_text(experiment_id, encoding="utf-8")
 
     lengths, cut_method = music_cut_lengths(
-        music, start_sec, args.duration, args.clips, args.bpm, with_method=True
+        music, music_start_sec, args.duration, args.clips, args.bpm, with_method=True
     )
     elapsed = 0.0
     audio_plan["cut_method"] = cut_method
@@ -256,11 +260,11 @@ def main():
             author_key = f'author:{item.get("author", "authorized creator").lower()}'
             run_counts[author_key] = run_counts.get(author_key, 0) + 1
         previous_starts = usage_history.get(item_key, {}).get("starts", []) + current_starts.get(item_key, [])
-        start_sec = normalize_clip(input_clip, norm, lengths[i], args.style, previous_starts)
-        current_starts.setdefault(item_key, []).append(start_sec)
+        clip_start_sec = normalize_clip(input_clip, norm, lengths[i], args.style, previous_starts)
+        current_starts.setdefault(item_key, []).append(clip_start_sec)
         normalized.append(norm)
         item["category"] = category
-        item["start_sec"] = round(start_sec, 3)
+        item["start_sec"] = round(clip_start_sec, 3)
         item["cut_seconds"] = lengths[i]
         item["sequence_index"] = i
         sources.append(item)
@@ -274,7 +278,7 @@ def main():
     concat_clips(normalized, concat)
     overlay_path = make_text_overlay(plan.get("overlay_text", ""), overlay, args.text_position)
     add_overlay(concat, overlay_path, texted)
-    add_music(texted, music, out, args.duration, start_sec=start_sec)
+    add_music(texted, music, out, args.duration, start_sec=music_start_sec)
 
     generated = {
         "experiment_id": experiment_id,

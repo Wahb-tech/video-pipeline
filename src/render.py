@@ -43,6 +43,17 @@ def probe_dimensions(path):
     return int(width), int(height)
 
 
+def choose_music_start(music, target_duration, preferred=None):
+    """Resolve one audio start that is shared by analysis and final mixing."""
+    if not music:
+        return 0.0
+    total = probe_duration(music)
+    max_start = max(0.0, total - float(target_duration) - 0.1)
+    if preferred is None or preferred == "":
+        return random.uniform(0, max_start) if max_start > 0 else 0.0
+    return max(0.0, min(float(preferred), max_start))
+
+
 def _should_ai_upscale(width, height):
     enabled = os.getenv("ENABLE_AI_UPSCALE", "").lower() in {"1", "true", "yes"}
     script = Path(os.getenv("REALESRGAN_SCRIPT", ""))
@@ -322,12 +333,7 @@ def add_overlay(video, overlay, output):
 def add_music(video, music, output, target_duration, music_volume=0.75, start_sec=None):
     if not music:
         raise RuntimeError("No music file available; refusing to export a silent video")
-    m_total = probe_duration(music)
-    max_start = max(0.0, m_total - target_duration - 0.1)
-    if start_sec is None:
-        start = random.uniform(0, max_start) if max_start > 0 else 0
-    else:
-        start = max(0.0, min(float(start_sec), max_start if max_start > 0 else float(start_sec)))
+    start = choose_music_start(music, target_duration, start_sec)
     fade_out = max(0, target_duration - 1.0)
     af = f"volume={music_volume},afade=t=in:st=0:d=0.4,afade=t=out:st={fade_out:.2f}:d=1.0"
     run([

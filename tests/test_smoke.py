@@ -5,8 +5,8 @@ from types import SimpleNamespace
 import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
-from src.main import choose_cleanup_fallback, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths
+from src.main import choose_cleanup_fallback, parse_args, shuffled_categories
+from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -80,6 +80,24 @@ def test_music_behavior_prefers_section_change_over_isolated_spike():
     energy[20] = 1.0
     novelty = _behavior_novelty(energy, bass, texture, window=10)
     assert novelty[50] > novelty[20]
+
+
+def test_music_start_is_resolved_once_and_clamped(monkeypatch):
+    monkeypatch.setattr("src.render.probe_duration", lambda _: 40.0)
+    assert choose_music_start("music.mp3", 25.0, 8.0) == 8.0
+    assert choose_music_start("music.mp3", 25.0, 99.0) == 14.9
+
+
+def test_direct_music_start_is_resolved_before_analysis(monkeypatch):
+    monkeypatch.setattr("src.render.probe_duration", lambda _: 40.0)
+    monkeypatch.setattr("src.render.random.uniform", lambda low, high: 6.25)
+    assert choose_music_start("music.mp3", 25.0) == 6.25
+
+
+def test_cli_accepts_every_current_copy_variant(monkeypatch):
+    for variant in COPY_VARIANTS:
+        monkeypatch.setattr("sys.argv", ["zoop", "--copy-variant", variant])
+        assert parse_args().copy_variant == variant
 
 
 def test_performance_score_positive():
