@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "money",
-    "copy_variant": "minimal",
-    "caption_variant": "aspiration",
+    "theme": "dark_cars",
+    "copy_variant": "obsession",
+    "caption_variant": "choice",
     "sample_count": 0
   },
   "audio": {
