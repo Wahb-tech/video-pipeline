@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "mixed_dark",
-    "copy_variant": "discipline",
-    "caption_variant": "minimal",
+    "theme": "money",
+    "copy_variant": "identity_shift",
+    "caption_variant": "aspiration",
     "sample_count": 0
   },
   "audio": {

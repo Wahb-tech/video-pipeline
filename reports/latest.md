@@ -50,8 +50,8 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 ## Suggested next visual test
 
-- Theme: `mixed_dark`
-- Overlay: `discipline`
-- Caption: `minimal`
+- Theme: `money`
+- Overlay: `identity_shift`
+- Caption: `aspiration`
 
 Audio and segment selection are handled separately by `src.audio`: the system explores under-tested tracks/segments, then increasingly exploits combinations with the strongest observed performance.
