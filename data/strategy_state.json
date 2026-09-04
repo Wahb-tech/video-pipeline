@@ -88,8 +88,8 @@
   },
   "next_variant": {
     "theme": "dark_cars",
-    "copy_variant": "obsession",
-    "caption_variant": "choice",
+    "copy_variant": "legacy",
+    "caption_variant": "minimal",
     "sample_count": 0
   },
   "audio": {
