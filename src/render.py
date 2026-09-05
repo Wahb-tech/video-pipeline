@@ -1,5 +1,6 @@
 import os
 import random
+import hashlib
 import subprocess
 import sys
 import tempfile
@@ -58,6 +59,40 @@ def _should_ai_upscale(width, height):
     enabled = os.getenv("ENABLE_AI_UPSCALE", "").lower() in {"1", "true", "yes"}
     script = Path(os.getenv("REALESRGAN_SCRIPT", ""))
     return enabled and script.is_file() and 600 <= width < 1000 and height > width * 1.4
+
+
+CREATOR_STYLE_PROFILES = {
+    "graphite": "colorbalance=bs=0.025:gs=-0.008:rh=0.015",
+    "midnight_blue": "colorbalance=bs=0.055:bm=0.018:rs=-0.018",
+    "noir_gold": "colorbalance=bs=0.025:rh=0.045:gh=0.018",
+    "deep_burgundy": "colorbalance=rs=0.028:bs=-0.015:rh=0.025",
+}
+
+
+def creator_style_profile(seed):
+    names = tuple(CREATOR_STYLE_PROFILES)
+    digest = hashlib.sha256(str(seed).encode("utf-8")).digest()
+    return names[digest[0] % len(names)]
+
+
+def _creator_restyle_enabled():
+    return os.getenv("ENABLE_CREATOR_RESTYLE", "").lower() in {"1", "true", "yes"}
+
+
+def _ai_retouch_segment(src, start, seconds, destination, seed):
+    if os.getenv("ENABLE_AI_CAR_RECOLOR", "").lower() not in {"1", "true", "yes"}:
+        return False
+    timeout = int(os.getenv("AI_RETOUCH_TIMEOUT_SECONDS", "900"))
+    try:
+        subprocess.run([
+            sys.executable, "-m", "src.ai_retouch", "--input", str(src),
+            "--output", str(destination), "--start", f"{start:.3f}",
+            "--seconds", f"{seconds:.3f}", "--seed", str(seed),
+        ], check=True, timeout=timeout)
+        return Path(destination).is_file() and Path(destination).stat().st_size > 0
+    except (OSError, subprocess.SubprocessError):
+        print("AI car mask unavailable; keeping the creator restyle without local recoloring")
+        return False
 
 
 def _ai_upscale_segment(src, start, seconds, destination):
@@ -208,26 +243,58 @@ def choose_clip_start(total, seconds, prior_starts=()):
     return random.choice(candidates[: min(4, len(candidates))])
 
 
-def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
-    total = probe_duration(src)
+def normalize_clip(
+    src, dst, seconds, style="mixed", prior_starts=(), segment_start=0.0,
+    segment_duration=None, creator_restyle=False, restyle_seed="zoop", metadata=None,
+):
+    source_total = probe_duration(src)
+    segment_start = max(0.0, min(float(segment_start or 0), source_total))
+    total = min(float(segment_duration), source_total - segment_start) if segment_duration else source_total
     width, height = probe_dimensions(src)
-    start = choose_clip_start(total, seconds, prior_starts)
+    local_prior = [
+        float(value) - segment_start for value in prior_starts
+        if segment_start <= float(value) <= segment_start + total
+    ]
+    start = segment_start + choose_clip_start(total, seconds, local_prior)
     ai_source = Path(dst).with_suffix(".ai.mkv")
+    restyled_source = Path(dst).with_suffix(".restyled.mkv")
     source = src
     source_start = start
     ai_applied = False
+    car_recolor_applied = False
+    restyle_active = bool(creator_restyle and _creator_restyle_enabled())
+    if restyle_active:
+        car_recolor_applied = _ai_retouch_segment(
+            src, start, seconds, restyled_source, restyle_seed
+        )
+        if car_recolor_applied:
+            source = restyled_source
+            source_start = 0.0
+            width, height = probe_dimensions(source)
     if _should_ai_upscale(width, height):
-        ai_applied = _ai_upscale_segment(src, start, seconds, ai_source)
+        ai_applied = _ai_upscale_segment(source, source_start, seconds, ai_source)
         if ai_applied:
             source = ai_source
             source_start = 0.0
             width, height = probe_dimensions(source)
-    filters = [
-        "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos",
-        "crop=1080:1920",
-        "fps=30",
-        "setsar=1"
-    ]
+    profile = creator_style_profile(restyle_seed) if restyle_active else ""
+    if restyle_active:
+        digest = hashlib.sha256(f"crop:{restyle_seed}".encode("utf-8")).digest()
+        zoom = (1.025, 1.04, 1.055)[digest[0] % 3]
+        scaled_width = int(1080 * zoom) // 2 * 2
+        scaled_height = int(1920 * zoom) // 2 * 2
+        x_ratio = (0.28, 0.5, 0.72)[digest[1] % 3]
+        y_ratio = (0.35, 0.5, 0.65)[digest[2] % 3]
+        filters = [
+            f"scale={scaled_width}:{scaled_height}:force_original_aspect_ratio=increase:flags=lanczos",
+            f"crop=1080:1920:x=(in_w-out_w)*{x_ratio}:y=(in_h-out_h)*{y_ratio}",
+            "fps=30", "setsar=1",
+        ]
+    else:
+        filters = [
+            "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos",
+            "crop=1080:1920", "fps=30", "setsar=1",
+        ]
     if not ai_applied and (width < 1080 or height < 1920):
         filters.append("unsharp=5:5:0.28:3:3:0.0")
     if style == "dark_luxury":
@@ -235,7 +302,16 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
             "eq=brightness=-0.10:contrast=1.18:saturation=0.78:gamma=0.93",
             "vignette=PI/6"
         ])
+    if restyle_active:
+        filters.extend([
+            CREATOR_STYLE_PROFILES[profile],
+            "curves=all='0/0 0.20/0.15 0.72/0.79 1/1'",
+        ])
     vf = ",".join(filters)
+    if metadata is not None:
+        metadata["restyle_profile"] = profile
+        metadata["ai_car_recolor_applied"] = car_recolor_applied
+        metadata["ai_upscale_applied"] = ai_applied
     try:
         run([
             "ffmpeg", "-y", "-ss", f"{source_start:.3f}", "-i", str(source), "-t", f"{seconds:.3f}",
@@ -244,6 +320,8 @@ def normalize_clip(src, dst, seconds, style="mixed", prior_starts=()):
     finally:
         if ai_source.exists():
             ai_source.unlink()
+        if restyled_source.exists():
+            restyled_source.unlink()
     return start
 
 

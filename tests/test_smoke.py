@@ -6,10 +6,11 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, parse_args, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start
+from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, _shot_ranges, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.ai_retouch import palette_for_seed
 from src.text_cleanup import TextCleanupError, clean_creator_text, recurring_text_region
 from src.zoop_metrics import (
     METRIC_FIELDS,
@@ -228,6 +229,7 @@ def test_weak_stock_categories_are_blocked():
 
 
 def test_authorized_urls_accept_multiline_secret(monkeypatch):
+    monkeypatch.delenv("AUTHORIZED_RESTYLE_VIDEO_URLS", raising=False)
     monkeypatch.setenv("AUTHORIZED_VIDEO_URLS", "https://youtu.be/a\nhttps://youtu.be/b")
     assert configured_urls() == ["https://youtu.be/a", "https://youtu.be/b"]
 
@@ -236,6 +238,7 @@ def test_authorized_handles_become_instagram_reel_feeds(monkeypatch):
     monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
+    monkeypatch.delenv("AUTHORIZED_RESTYLE_VIDEO_URLS", raising=False)
     monkeypatch.setenv("AUTHORIZED_TEXT_CREATOR_HANDLES", "@theluxevora\n369godsplan, crestvalue")
     assert configured_sources() == [
         ("https://www.instagram.com/theluxevora/reels/", True),
@@ -394,6 +397,7 @@ def test_unavailable_authorized_source_does_not_abort(monkeypatch, tmp_path):
 
 
 def test_text_sources_are_marked_for_cleanup(monkeypatch):
+    monkeypatch.delenv("AUTHORIZED_RESTYLE_VIDEO_URLS", raising=False)
     monkeypatch.setenv("AUTHORIZED_VIDEO_URLS", "https://youtu.be/clean")
     monkeypatch.setenv("AUTHORIZED_TEXT_VIDEO_URLS", "https://youtu.be/text")
     assert configured_sources() == [
@@ -408,7 +412,63 @@ def test_noir_wealth_source_is_never_marked_for_cleanup(monkeypatch):
     monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
     monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
     monkeypatch.delenv("AUTHORIZED_TEXT_CREATOR_HANDLES", raising=False)
+    monkeypatch.delenv("AUTHORIZED_RESTYLE_VIDEO_URLS", raising=False)
     assert configured_sources() == [(url, False)]
+
+
+def test_restyle_sources_are_clean_and_tracking_parameters_are_removed(monkeypatch):
+    monkeypatch.delenv("AUTHORIZED_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_VIDEO_URLS", raising=False)
+    monkeypatch.delenv("AUTHORIZED_CREATOR_HANDLES", raising=False)
+    monkeypatch.delenv("AUTHORIZED_TEXT_CREATOR_HANDLES", raising=False)
+    monkeypatch.setenv(
+        "AUTHORIZED_RESTYLE_VIDEO_URLS",
+        "https://www.instagram.com/stevenishh/reel/example/?utm_source=chatgpt.com.",
+    )
+    assert configured_sources() == [
+        ("https://www.instagram.com/stevenishh/reel/example/", False)
+    ]
+
+
+def test_short_instagram_reel_url_is_direct_media_not_a_profile():
+    url = "https://www.instagram.com/reel/DbqjybsuI1f/"
+    assert _is_direct_instagram_media(url)
+    assert _instagram_username(url) == ""
+
+
+def test_scene_boundaries_become_independent_usable_shots():
+    assert _shot_ranges([0.4, 1.5, 3.8], 5.0, minimum_seconds=0.7) == [
+        (0.4, 1.1), (1.5, 2.3), (3.8, 1.2)
+    ]
+
+
+def test_authorized_shot_must_fit_requested_music_cut(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "short", "duration": 1.2},
+        {"provider": "authorized_creator", "id": "long", "duration": 2.8},
+    ]
+    assert choose_authorized_clip(items, {}, {}, 0, minimum_duration=2.0)["id"] == "long"
+
+
+def test_only_one_scene_per_source_reel_is_used_in_an_edit(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [
+        {"provider": "authorized_creator", "id": "reel-a_shot_00", "source_media_id": "reel-a"},
+        {"provider": "authorized_creator", "id": "reel-a_shot_01", "source_media_id": "reel-a"},
+        {"provider": "authorized_creator", "id": "reel-b_shot_00", "source_media_id": "reel-b"},
+    ]
+    chosen = choose_authorized_clip(
+        items, {}, {}, 0, excluded_ids={"authorized_creator:reel-a"}
+    )
+    assert chosen["id"] == "reel-b_shot_00"
+
+
+def test_creator_restyle_profiles_are_stable_and_varied():
+    assert creator_style_profile("clip-a") == creator_style_profile("clip-a")
+    assert palette_for_seed("clip-a") == palette_for_seed("clip-a")
+    assert len({creator_style_profile(f"clip-{index}") for index in range(20)}) >= 3
+    assert len({palette_for_seed(f"clip-{index}") for index in range(20)}) >= 3
 
 
 def test_recurring_text_region_ignores_one_frame_text():

@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import re
 import subprocess
 import atexit
 import shutil
@@ -33,13 +34,18 @@ def _is_instagram(url):
 def _instagram_username(url):
     if not _is_instagram(url):
         return ""
-    return url.split("instagram.com/", 1)[-1].split("?", 1)[0].strip("/").split("/", 1)[0]
+    first = url.split("instagram.com/", 1)[-1].split("?", 1)[0].strip("/").split("/", 1)[0]
+    return "" if first.lower() in {"reel", "p", "tv"} else first
 
 
 def _is_direct_instagram_media(url):
     path = url.lower().split("instagram.com/", 1)[-1].split("?", 1)[0].strip("/")
     parts = path.split("/")
-    return len(parts) >= 3 and parts[1] in {"reel", "p", "tv"}
+    return (
+        len(parts) >= 2 and parts[0] in {"reel", "p", "tv"}
+    ) or (
+        len(parts) >= 3 and parts[1] in {"reel", "p", "tv"}
+    )
 
 
 def _media_files(group):
@@ -51,10 +57,11 @@ def _probe_media(path):
     try:
         result = subprocess.run([
             "ffprobe", "-v", "error", "-select_streams", "v:0",
-            "-show_entries", "stream=width,height,avg_frame_rate,bit_rate",
+            "-show_entries", "stream=width,height,avg_frame_rate,bit_rate:format=duration",
             "-of", "json", str(path),
         ], check=True, capture_output=True, text=True)
-        stream = json.loads(result.stdout).get("streams", [{}])[0]
+        payload = json.loads(result.stdout)
+        stream = payload.get("streams", [{}])[0]
         rate = str(stream.get("avg_frame_rate") or "0/1")
         numerator, denominator = rate.split("/", 1)
         fps = float(numerator) / max(float(denominator), 1.0)
@@ -63,9 +70,84 @@ def _probe_media(path):
             "height": int(stream.get("height") or 0),
             "fps": round(fps, 3),
             "bit_rate": int(stream.get("bit_rate") or 0),
+            "duration": float(payload.get("format", {}).get("duration") or 0),
         }
     except (OSError, subprocess.SubprocessError, ValueError, KeyError, IndexError, json.JSONDecodeError):
-        return {"width": 0, "height": 0, "fps": 0.0, "bit_rate": 0}
+        return {"width": 0, "height": 0, "fps": 0.0, "bit_rate": 0, "duration": 0.0}
+
+
+def _normalized_source_url(url):
+    value = str(url or "").split("?", 1)[0].rstrip("./")
+    return f"{value}/" if value else ""
+
+
+def _configured_restyle_urls():
+    return {
+        _normalized_source_url(url)
+        for url in _split_urls(os.getenv("AUTHORIZED_RESTYLE_VIDEO_URLS", ""))
+    }
+
+
+def _source_for_group(group, sources):
+    source_index = Path(group).name.split("_", 1)[-1]
+    if source_index.isdigit() and int(source_index) < len(sources):
+        return sources[int(source_index)][0]
+    return ""
+
+
+def _shot_ranges(cut_times, duration, minimum_seconds=0.70):
+    points = [0.0]
+    points.extend(
+        sorted({float(value) for value in cut_times if 0.0 < float(value) < float(duration)})
+    )
+    points.append(float(duration))
+    return [
+        (round(start, 3), round(end - start, 3))
+        for start, end in zip(points, points[1:])
+        if end - start >= minimum_seconds
+    ]
+
+
+def _detect_shots(path, duration):
+    threshold = float(os.getenv("AUTHORIZED_SCENE_THRESHOLD", "0.28"))
+    minimum = float(os.getenv("AUTHORIZED_MIN_SHOT_SECONDS", "0.70"))
+    try:
+        result = subprocess.run([
+            "ffmpeg", "-hide_banner", "-i", str(path), "-an",
+            "-vf", f"select='gt(scene,{threshold})',showinfo", "-f", "null", "-",
+        ], check=False, capture_output=True, text=True, timeout=180)
+        cut_times = [
+            float(value)
+            for value in re.findall(r"pts_time:([0-9]+(?:\.[0-9]+)?)", result.stderr)
+        ]
+        return _shot_ranges(cut_times, duration, minimum)
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return [(0.0, round(float(duration), 3))] if duration >= minimum else []
+
+
+def _expand_restyle_shots(items):
+    expanded = []
+    for item in items:
+        if not item.get("creator_restyle"):
+            expanded.append(item)
+            continue
+        duration = float(item.get("duration") or 0)
+        if duration <= 0:
+            duration = _probe_media(item["local_path"])["duration"]
+        shots = _detect_shots(item["local_path"], duration) if duration > 0 else []
+        if not shots:
+            expanded.append(item)
+            continue
+        for index, (start, shot_duration) in enumerate(shots):
+            shot = item.copy()
+            shot["source_media_id"] = item["id"]
+            shot["id"] = f'{item["id"]}_shot_{index:02d}'
+            shot["segment_start"] = start
+            shot["segment_duration"] = shot_duration
+            shot["duration"] = shot_duration
+            shot["search_query"] = "authorized creator scene library"
+            expanded.append(shot)
+    return expanded
 
 
 def _cookie_args():
@@ -160,6 +242,8 @@ def configured_sources():
         sources.append((url, False))
     for url in _split_urls(os.getenv("AUTHORIZED_TEXT_VIDEO_URLS", "")):
         sources.append((url, True))
+    for url in _split_urls(os.getenv("AUTHORIZED_RESTYLE_VIDEO_URLS", "")):
+        sources.append((_normalized_source_url(url), False))
     for handle in _split_urls(os.getenv("AUTHORIZED_CREATOR_HANDLES", "")):
         sources.append((_creator_url(handle), False))
     for handle in _split_urls(os.getenv("AUTHORIZED_TEXT_CREATOR_HANDLES", "")):
@@ -224,6 +308,8 @@ def download_authorized_library(destination):
         if not downloaded:
             print(f"Authorized source unavailable, skipping: {url}")
     owner = os.getenv("AUTHORIZED_SOURCE_OWNER", "authorized creator").strip()
+    restyle_owner = os.getenv("AUTHORIZED_RESTYLE_SOURCE_OWNER", "@stevenishh").strip()
+    restyle_urls = _configured_restyle_urls()
     items = []
     for info_path in destination.glob("**/*.info.json"):
         info = json.loads(info_path.read_text(encoding="utf-8"))
@@ -232,15 +318,18 @@ def download_authorized_library(destination):
         video = next((p for p in matches if p.suffix.lower() in {".mp4", ".mov", ".mkv", ".webm"}), None)
         if not video:
             continue
-        author = info.get("uploader") or owner
+        configured_url = _source_for_group(info_path.parent, sources)
+        page_url = info.get("webpage_url") or info.get("original_url") or configured_url
+        is_restyle = _normalized_source_url(configured_url or page_url) in restyle_urls
+        author = info.get("uploader") or _instagram_username(configured_url) or (restyle_owner if is_restyle else owner)
         media = _probe_media(video)
         items.append({
             "provider": "authorized_creator",
             "id": video_id,
             "local_path": str(video),
-            "page_url": info.get("webpage_url") or info.get("original_url") or "",
+            "page_url": page_url,
             "author": author,
-            "author_url": info.get("channel_url") or "",
+            "author_url": info.get("channel_url") or configured_url,
             "license_reference": f"Direct permission from {author}",
             "duration": float(info.get("duration") or 0),
             "width": media["width"] or int(info.get("width") or 0),
@@ -250,15 +339,17 @@ def download_authorized_library(destination):
             "tags": "authorized creator footage dark luxury wealth lifestyle",
             "search_query": "authorized creator library",
             "cleanup_text": info_path.parent.name.startswith("text_"),
+            "creator_restyle": is_restyle,
         })
     indexed_paths = {Path(item["local_path"]).resolve() for item in items}
     for video in _media_files(destination):
         if video.resolve() in indexed_paths:
             continue
         cleanup_text = video.parent.name.startswith("text_")
-        source_index = video.parent.name.split("_", 1)[-1]
-        source_url = sources[int(source_index)][0] if source_index.isdigit() and int(source_index) < len(sources) else ""
-        author = source_url.split("instagram.com/", 1)[-1].split("/", 1)[0] if _is_instagram(source_url) else owner
+        source_url = _source_for_group(video.parent, sources)
+        is_restyle = _normalized_source_url(source_url) in restyle_urls
+        author = _instagram_username(source_url) if _is_instagram(source_url) else ""
+        author = author or (restyle_owner if is_restyle else owner)
         media = _probe_media(video)
         items.append({
             "provider": "authorized_creator",
@@ -268,7 +359,7 @@ def download_authorized_library(destination):
             "author": author or owner,
             "author_url": source_url,
             "license_reference": f"Direct permission from {author or owner}",
-            "duration": 0,
+            "duration": media["duration"],
             "width": media["width"],
             "height": media["height"],
             "fps": media["fps"],
@@ -276,14 +367,20 @@ def download_authorized_library(destination):
             "tags": "authorized creator footage dark luxury wealth lifestyle",
             "search_query": "authorized creator library",
             "cleanup_text": cleanup_text,
+            "creator_restyle": is_restyle,
         })
-    return items
+    return _expand_restyle_shots(items)
 
 
-def choose_authorized_clip(items, usage_history, run_counts, position, excluded_ids=()):
+def choose_authorized_clip(items, usage_history, run_counts, position, excluded_ids=(), minimum_duration=0):
     available = [
         item for item in items
         if f'{item["provider"]}:{item["id"]}' not in excluded_ids
+        and f'{item["provider"]}:{item.get("source_media_id", item["id"])}' not in excluded_ids
+        and (
+            not float(item.get("segment_duration") or item.get("duration") or 0)
+            or float(item.get("segment_duration") or item.get("duration") or 0) >= float(minimum_duration) + 0.05
+        )
     ]
     if not available:
         return None

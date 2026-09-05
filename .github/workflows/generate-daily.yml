@@ -49,6 +49,7 @@ jobs:
           realesrgan_root="$RUNNER_TEMP/Real-ESRGAN"
           git clone --depth 1 https://github.com/xinntao/Real-ESRGAN.git "$realesrgan_root"
           python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install opencv-python-headless
           python -m pip install -r "$realesrgan_root/requirements.txt"
           python -m pip install -e "$realesrgan_root"
           python - <<'PY'
@@ -73,8 +74,10 @@ jobs:
       - name: Cache Real-ESRGAN weights
         uses: actions/cache@v4
         with:
-          path: ${{ runner.temp }}/Real-ESRGAN/weights
-          key: realesrgan-general-x4v3-v1
+          path: |
+            ${{ runner.temp }}/Real-ESRGAN/weights
+            ~/.cache/torch/hub/checkpoints
+          key: zoop-ai-models-v2
 
       - name: Install Playwright
         run: |
@@ -132,6 +135,12 @@ jobs:
             https://www.instagram.com/sexinporsche/reel/DZh9DBCtD7E/
             https://www.instagram.com/sexinporsche/reel/DYXcVsatoQb/
             https://www.instagram.com/apjavi/reel/DbKLgpmxixu/
+          AUTHORIZED_RESTYLE_VIDEO_URLS: |
+            https://www.instagram.com/stevenishh/reel/DcTy3WguTaw/
+            https://www.instagram.com/stevenishh/reel/DcQytsWOy9T/
+            https://www.instagram.com/stevenishh/reel/DcE6zKWuJgM/
+            https://www.instagram.com/stevenishh/reel/DblIB1uOJ0x/
+            https://www.instagram.com/stevenishh/reel/DbqjybsuI1f/
           AUTHORIZED_TEXT_VIDEO_URLS: |
             ${{ secrets.AUTHORIZED_TEXT_VIDEO_URLS }}
             https://www.instagram.com/crestvalue/reel/Db-_Jq9zX9T/
@@ -151,7 +160,11 @@ jobs:
           AUTHORIZED_TEXT_CREATOR_HANDLES: ""
           BANNED_STOCK_IDS: ${{ secrets.BANNED_STOCK_IDS }}
           AUTHORIZED_SOURCE_OWNER: "@noirwealthlifestyle"
+          AUTHORIZED_RESTYLE_SOURCE_OWNER: "@stevenishh"
           REQUIRE_AUTHORIZED_FOOTAGE: "true"
+          ENABLE_CREATOR_RESTYLE: "true"
+          ENABLE_AI_CAR_RECOLOR: "true"
+          AI_RETOUCH_TIMEOUT_SECONDS: "900"
         run: |
           python -m src.main \
             --style dark_luxury \

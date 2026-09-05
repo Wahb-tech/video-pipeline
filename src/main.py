@@ -87,7 +87,13 @@ def make_rights_manifest(sources, experiment_id):
                 "author": x.get("author", ""),
                 "author_url": x.get("author_url", ""),
                 "license_reference": x.get("license_reference", ""),
-                "retrieved_at": x.get("retrieved_at", "")
+                "retrieved_at": x.get("retrieved_at", ""),
+                "source_media_id": x.get("source_media_id", ""),
+                "segment_start": x.get("segment_start", ""),
+                "segment_duration": x.get("segment_duration", ""),
+                "restyle_profile": x.get("restyle_profile", ""),
+                "ai_car_recolor_applied": x.get("ai_car_recolor_applied", False),
+                "ai_upscale_applied": x.get("ai_upscale_applied", False),
             }
             for x in sources
         ]
@@ -108,6 +114,7 @@ def main():
         random.seed(args.seed)
     authorized_names = (
         "AUTHORIZED_VIDEO_URLS",
+        "AUTHORIZED_RESTYLE_VIDEO_URLS",
         "AUTHORIZED_TEXT_VIDEO_URLS",
         "AUTHORIZED_CREATOR_HANDLES",
         "AUTHORIZED_TEXT_CREATOR_HANDLES",
@@ -206,7 +213,7 @@ def main():
         random.shuffle(alternatives)
         attempts.extend(alternatives)
         item = choose_authorized_clip(
-            authorized, usage_history, run_counts, i, current_video_ids
+            authorized, usage_history, run_counts, i, current_video_ids, lengths[i]
         ) if i in authorized_positions else None
         errors = []
         for attempted_category in ([] if item else attempts):
@@ -218,7 +225,7 @@ def main():
                 errors.append(str(exc))
         if item is None and authorized:
             item = choose_authorized_clip(
-                authorized, usage_history, run_counts, i, current_video_ids
+                authorized, usage_history, run_counts, i, current_video_ids, lengths[i]
             )
         if item is None:
             raise RuntimeError("; ".join(errors))
@@ -255,12 +262,22 @@ def main():
                 download(item.get("local_path") or item["url"], raw)
                 input_clip = raw
         current_video_ids.add(item_key)
+        current_video_ids.add(
+            f'{item["provider"]}:{item.get("source_media_id", item["id"])}'
+        )
         run_counts[item_key] = run_counts.get(item_key, 0) + 1
         if item["provider"] == "authorized_creator":
             author_key = f'author:{item.get("author", "authorized creator").lower()}'
             run_counts[author_key] = run_counts.get(author_key, 0) + 1
         previous_starts = usage_history.get(item_key, {}).get("starts", []) + current_starts.get(item_key, [])
-        clip_start_sec = normalize_clip(input_clip, norm, lengths[i], args.style, previous_starts)
+        clip_start_sec = normalize_clip(
+            input_clip, norm, lengths[i], args.style, previous_starts,
+            segment_start=item.get("segment_start", 0.0),
+            segment_duration=item.get("segment_duration"),
+            creator_restyle=item.get("creator_restyle", False),
+            restyle_seed=f'{item.get("source_media_id", item.get("id", "clip"))}:{i}',
+            metadata=item,
+        )
         current_starts.setdefault(item_key, []).append(clip_start_sec)
         normalized.append(norm)
         item["category"] = category
