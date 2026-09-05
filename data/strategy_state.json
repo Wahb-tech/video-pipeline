@@ -87,8 +87,8 @@
     }
   },
   "next_variant": {
-    "theme": "dark_cars",
-    "copy_variant": "legacy",
+    "theme": "dark_life",
+    "copy_variant": "future_self",
     "caption_variant": "minimal",
     "sample_count": 0
   },
