@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "dark_life",
+    "theme": "dark_cars",
     "copy_variant": "pov_relationship",
-    "caption_variant": "choice",
+    "caption_variant": "aspiration",
     "sample_count": 0
   },
   "audio": {
