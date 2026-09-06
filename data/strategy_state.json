@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "money",
-    "copy_variant": "future_self",
-    "caption_variant": "aspiration",
+    "theme": "dark_life",
+    "copy_variant": "pov_relationship",
+    "caption_variant": "choice",
     "sample_count": 0
   },
   "audio": {
