@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "mixed_dark",
-    "copy_variant": "legacy",
-    "caption_variant": "aspiration",
+    "theme": "dark_cars",
+    "copy_variant": "silent_revenge",
+    "caption_variant": "choice",
     "sample_count": 0
   },
   "audio": {
