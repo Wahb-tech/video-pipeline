@@ -87,8 +87,8 @@
     }
   },
   "next_variant": {
-    "theme": "dark_life",
-    "copy_variant": "discipline",
+    "theme": "mixed_dark",
+    "copy_variant": "legacy",
     "caption_variant": "aspiration",
     "sample_count": 0
   },
@@ -129,6 +129,41 @@
       "score": 8.0
     },
     "montagem_fuego_super_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_coma_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_vozes_profundas_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_tomada_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_mysterious_game_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_ritmada_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "funk_estranho_super_slowed": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 8.0
+    },
+    "montagem_coral_slowed": {
       "count": 0,
       "raw_mean": 0.0,
       "score": 8.0

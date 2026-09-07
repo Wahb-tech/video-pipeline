@@ -47,11 +47,18 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | sempero_super_slowed | 0 | 8.00 | 0.00 |
 | passo_bem_solto_slowed | 0 | 8.00 | 0.00 |
 | montagem_fuego_super_slowed | 0 | 8.00 | 0.00 |
+| montagem_coma_slowed | 0 | 8.00 | 0.00 |
+| montagem_vozes_profundas_slowed | 0 | 8.00 | 0.00 |
+| montagem_tomada_slowed | 0 | 8.00 | 0.00 |
+| montagem_mysterious_game_slowed | 0 | 8.00 | 0.00 |
+| montagem_ritmada_slowed | 0 | 8.00 | 0.00 |
+| funk_estranho_super_slowed | 0 | 8.00 | 0.00 |
+| montagem_coral_slowed | 0 | 8.00 | 0.00 |
 
 ## Suggested next visual test
 
-- Theme: `dark_life`
-- Overlay: `discipline`
+- Theme: `mixed_dark`
+- Overlay: `legacy`
 - Caption: `aspiration`
 
 Audio and segment selection are handled separately by `src.audio`: the system explores under-tested tracks/segments, then increasingly exploits combinations with the strongest observed performance.
