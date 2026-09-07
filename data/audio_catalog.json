@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-25",
+  "updated_at": "2026-09-07",
   "segment_method": "Preferred starts are seeded from current Shazam Popular Segments. They are starting points for 25-second dark-luxury edits, not a claim about ZOOP's algorithm.",
   "tracks": {
     "te_conoci_super_slowed": {
@@ -89,6 +89,83 @@
       "alternate_start_sec": [15.0, 30.0, 45.0],
       "theme_weights": {"dark_cars": 1.55, "money": 1.45, "dark_life": 1.2, "mixed_dark": 1.5},
       "source": "Shazam Popular Segments"
+    },
+    "montagem_coma_slowed": {
+      "title": "MONTAGEM COMA",
+      "artist": "ANDROMEDA & elysian.",
+      "version": "Slowed",
+      "expected_file_stem": "montagem_coma_slowed",
+      "preferred_start_sec": 57.0,
+      "popular_window": "Locally detected high-energy 25-second window around 00:57",
+      "alternate_start_sec": [4.0, 32.0, 44.5],
+      "theme_weights": {"dark_cars": 1.55, "money": 1.2, "dark_life": 1.5, "mixed_dark": 1.55},
+      "source": "Local music-structure analysis"
+    },
+    "montagem_vozes_profundas_slowed": {
+      "title": "MONTAGEM VOZES PROFUNDAS",
+      "artist": "DJ MAXZZ",
+      "version": "Slowed",
+      "expected_file_stem": "montagem_vozes_profundas_slowed",
+      "preferred_start_sec": 5.5,
+      "popular_window": "Locally detected high-energy 25-second window around 00:05",
+      "alternate_start_sec": [18.0, 29.5, 33.5],
+      "theme_weights": {"dark_cars": 1.45, "money": 1.35, "dark_life": 1.4, "mixed_dark": 1.5},
+      "source": "Local music-structure analysis"
+    },
+    "montagem_tomada_slowed": {
+      "title": "MONTAGEM TOMADA",
+      "artist": "MXZI",
+      "version": "Slowed",
+      "expected_file_stem": "montagem_tomada_slowed",
+      "preferred_start_sec": 18.0,
+      "popular_window": "Locally detected high-energy 25-second window around 00:18",
+      "alternate_start_sec": [4.0, 40.0, 54.5],
+      "theme_weights": {"dark_cars": 1.55, "money": 1.4, "dark_life": 1.2, "mixed_dark": 1.5},
+      "source": "Local music-structure analysis"
+    },
+    "montagem_mysterious_game_slowed": {
+      "title": "MONTAGEM MYSTERIOUS GAME",
+      "artist": "LXNGVX",
+      "version": "Slowed",
+      "expected_file_stem": "montagem_mysterious_game_slowed",
+      "preferred_start_sec": 68.0,
+      "popular_window": "Locally detected high-energy 25-second window around 01:08",
+      "alternate_start_sec": [3.5, 36.5, 55.5],
+      "theme_weights": {"dark_cars": 1.5, "money": 1.15, "dark_life": 1.5, "mixed_dark": 1.55},
+      "source": "Local music-structure analysis"
+    },
+    "montagem_ritmada_slowed": {
+      "title": "MONTAGEM RITMADA",
+      "artist": "Cape & MXSTERIXD",
+      "version": "Slowed",
+      "expected_file_stem": "montagem_ritmada_slowed",
+      "preferred_start_sec": 43.0,
+      "popular_window": "Locally detected high-energy 25-second window around 00:43",
+      "alternate_start_sec": [10.0, 26.0, 57.5],
+      "theme_weights": {"dark_cars": 1.5, "money": 1.35, "dark_life": 1.25, "mixed_dark": 1.5},
+      "source": "Local music-structure analysis"
+    },
+    "funk_estranho_super_slowed": {
+      "title": "FUNK ESTRANHO",
+      "artist": "ALXIKE",
+      "version": "Super Slowed",
+      "expected_file_stem": "funk_estranho_super_slowed",
+      "preferred_start_sec": 53.5,
+      "popular_window": "Locally detected high-energy 25-second window around 00:53",
+      "alternate_start_sec": [8.0, 98.5, 111.0],
+      "theme_weights": {"dark_cars": 1.6, "money": 1.25, "dark_life": 1.45, "mixed_dark": 1.6},
+      "source": "Local music-structure analysis"
+    },
+    "montagem_coral_slowed": {
+      "title": "MONTAGEM CORAL",
+      "artist": "SHXDWLXRD",
+      "version": "Slowed",
+      "expected_file_stem": "montagem_coral_slowed",
+      "preferred_start_sec": 38.0,
+      "popular_window": "Locally detected high-energy 25-second window around 00:38",
+      "alternate_start_sec": [14.5, 70.5, 96.0],
+      "theme_weights": {"dark_cars": 1.35, "money": 1.25, "dark_life": 1.6, "mixed_dark": 1.55},
+      "source": "Local music-structure analysis"
     }
   }
 }

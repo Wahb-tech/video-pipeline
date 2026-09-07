@@ -30,3 +30,21 @@ def test_montagem_fuego_is_available_for_dark_luxury():
     assert audio["title"] == "MONTAGEM FUEGO"
     assert audio["version"] == "Super Slowed"
     assert audio["audio_id"] == "montagem_fuego_super_slowed"
+
+
+def test_new_dark_luxury_music_rotation_is_available():
+    expected = {
+        "montagem_coma_slowed",
+        "montagem_vozes_profundas_slowed",
+        "montagem_tomada_slowed",
+        "montagem_mysterious_game_slowed",
+        "montagem_ritmada_slowed",
+        "funk_estranho_super_slowed",
+        "montagem_coral_slowed",
+    }
+    catalog = load_catalog()
+    assert expected <= set(catalog)
+    for audio_id in expected:
+        track = catalog[audio_id]
+        assert resolve_audio_file(track) is not None
+        assert len(track["alternate_start_sec"]) >= 3
