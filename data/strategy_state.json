@@ -87,8 +87,8 @@
     }
   },
   "next_variant": {
-    "theme": "money",
-    "copy_variant": "minimal",
+    "theme": "mixed_dark",
+    "copy_variant": "pov_relationship",
     "caption_variant": "choice",
     "sample_count": 0
   },
