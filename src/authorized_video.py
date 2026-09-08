@@ -9,6 +9,8 @@ from pathlib import Path
 
 import requests
 
+from .text_cleanup import conspicuous_text_region, detect_recurring_text
+
 
 def _split_urls(raw):
     return [line.strip() for line in raw.replace(",", "\n").splitlines() if line.strip()]
@@ -139,6 +141,19 @@ def _expand_restyle_shots(items):
             expanded.append(item)
             continue
         for index, (start, shot_duration) in enumerate(shots):
+            try:
+                region, width, height = detect_recurring_text(
+                    item["local_path"], samples=4,
+                    start_sec=start, duration_sec=shot_duration,
+                )
+            except (OSError, subprocess.SubprocessError, ValueError):
+                region, width, height = None, 0, 0
+            if conspicuous_text_region(region, width, height):
+                print(
+                    f'Skipping creator scene {item["id"]} shot {index}: '
+                    f'embedded text/watermark detected at {region}'
+                )
+                continue
             shot = item.copy()
             shot["source_media_id"] = item["id"]
             shot["id"] = f'{item["id"]}_shot_{index:02d}'

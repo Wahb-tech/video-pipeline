@@ -9,9 +9,9 @@ from src.main import choose_cleanup_fallback, parse_args, shuffled_categories
 from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
-from src.authorized_video import _cookie_args, _download_with_ytdlp, _instagram_username, _is_direct_instagram_media, _shot_ranges, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
+from src.authorized_video import _cookie_args, _download_with_ytdlp, _expand_restyle_shots, _instagram_username, _is_direct_instagram_media, _shot_ranges, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.ai_retouch import palette_for_seed
-from src.text_cleanup import TextCleanupError, clean_creator_text, recurring_text_region
+from src.text_cleanup import TextCleanupError, clean_creator_text, conspicuous_text_region, recurring_text_region
 from src.zoop_metrics import (
     METRIC_FIELDS,
     PUBLICATION_FIELDS,
@@ -487,6 +487,32 @@ def test_recurring_text_region_finds_static_overlay():
     assert region is not None
     assert region[0] < 300
     assert region[2] > 400
+
+
+def test_conspicuous_text_rejects_watermark_but_not_tiny_plate():
+    assert conspicuous_text_region((850, 900, 190, 60), 1080, 1920)
+    assert not conspicuous_text_region((480, 1200, 100, 28), 1080, 1920)
+
+
+def test_restyle_shots_with_embedded_text_are_removed(monkeypatch):
+    item = {
+        "id": "steven-reel",
+        "local_path": "source.mp4",
+        "duration": 4.0,
+        "creator_restyle": True,
+    }
+    monkeypatch.setattr(
+        "src.authorized_video._detect_shots",
+        lambda path, duration: [(0.0, 2.0), (2.0, 2.0)],
+    )
+
+    def fake_text(path, samples, start_sec, duration_sec):
+        region = (850, 900, 190, 60) if start_sec == 0.0 else None
+        return region, 1080, 1920
+
+    monkeypatch.setattr("src.authorized_video.detect_recurring_text", fake_text)
+    shots = _expand_restyle_shots([item])
+    assert [shot["id"] for shot in shots] == ["steven-reel_shot_01"]
 
 
 def test_center_text_is_rejected_instead_of_blurred(monkeypatch, tmp_path):

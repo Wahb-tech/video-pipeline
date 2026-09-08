@@ -58,15 +58,18 @@ def _ocr_boxes(frame):
     return boxes
 
 
-def detect_recurring_text(path, samples=6):
+def detect_recurring_text(path, samples=6, start_sec=0.0, duration_sec=None):
     path = Path(path)
     width, height = _probe_size(path)
-    duration = probe_duration(path)
+    source_duration = probe_duration(path)
+    start_sec = max(0.0, min(float(start_sec or 0), source_duration))
+    available = max(0.0, source_duration - start_sec)
+    duration = min(float(duration_sec), available) if duration_sec is not None else available
     frame_dir = path.parent / f"{path.stem}_ocr"
     frame_dir.mkdir(exist_ok=True)
     boxes = []
     for index in range(samples):
-        timestamp = max(0.0, duration * (index + 1) / (samples + 1))
+        timestamp = start_sec + max(0.0, duration * (index + 1) / (samples + 1))
         frame = frame_dir / f"frame_{index:02d}.jpg"
         subprocess.run([
             "ffmpeg", "-y", "-loglevel", "error", "-ss", f"{timestamp:.3f}",
@@ -75,6 +78,18 @@ def detect_recurring_text(path, samples=6):
         boxes.append(_ocr_boxes(frame))
     shutil.rmtree(frame_dir, ignore_errors=True)
     return recurring_text_region(boxes, width, height), width, height
+
+
+def conspicuous_text_region(region, width, height):
+    """Return true for title/watermark-sized text, not tiny plates or dashboard labels."""
+    if not region or width <= 0 or height <= 0:
+        return False
+    _, _, region_width, region_height = region
+    return (
+        region_width >= width * 0.11
+        and region_height >= height * 0.022
+        and region_width * region_height >= width * height * 0.003
+    )
 
 
 def clean_creator_text(src, dst):
