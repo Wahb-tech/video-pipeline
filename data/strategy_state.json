@@ -87,8 +87,8 @@
     }
   },
   "next_variant": {
-    "theme": "mixed_dark",
-    "copy_variant": "legacy",
+    "theme": "dark_life",
+    "copy_variant": "silent_revenge",
     "caption_variant": "aspiration",
     "sample_count": 0
   },
