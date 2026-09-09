@@ -88,8 +88,8 @@
   },
   "next_variant": {
     "theme": "mixed_dark",
-    "copy_variant": "pov_relationship",
-    "caption_variant": "minimal",
+    "copy_variant": "legacy",
+    "caption_variant": "aspiration",
     "sample_count": 0
   },
   "audio": {
