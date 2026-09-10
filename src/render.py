@@ -21,6 +21,15 @@ INTERMEDIATE_VIDEO_ARGS = [
     "-profile:v", "high", "-level:v", "4.1", "-pix_fmt", "yuv420p"
 ]
 
+# Keep the nocturnal luxury identity without crushing detail in black cars,
+# suits, buildings, and night skies. Source footage should still look natural.
+DARK_LUXURY_VIDEO_FILTERS = [
+    "eq=brightness=-0.035:contrast=1.10:saturation=0.88:gamma=0.98",
+    "vignette=PI/10",
+]
+
+CREATOR_RESTYLE_CURVE = "curves=all='0/0 0.20/0.18 0.72/0.77 1/1'"
+
 
 def run(cmd):
     print(" ".join(str(x) for x in cmd))
@@ -298,14 +307,11 @@ def normalize_clip(
     if not ai_applied and (width < 1080 or height < 1920):
         filters.append("unsharp=5:5:0.28:3:3:0.0")
     if style == "dark_luxury":
-        filters.extend([
-            "eq=brightness=-0.10:contrast=1.18:saturation=0.78:gamma=0.93",
-            "vignette=PI/6"
-        ])
+        filters.extend(DARK_LUXURY_VIDEO_FILTERS)
     if restyle_active:
         filters.extend([
             CREATOR_STYLE_PROFILES[profile],
-            "curves=all='0/0 0.20/0.15 0.72/0.79 1/1'",
+            CREATOR_RESTYLE_CURVE,
         ])
     vf = ",".join(filters)
     if metadata is not None:

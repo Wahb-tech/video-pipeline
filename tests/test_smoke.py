@@ -6,7 +6,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, parse_args, shuffled_categories
-from src.render import HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile
+from src.render import CREATOR_RESTYLE_CURVE, DARK_LUXURY_VIDEO_FILTERS, HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _expand_restyle_shots, _instagram_username, _is_direct_instagram_media, _shot_ranges, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -469,6 +469,14 @@ def test_creator_restyle_profiles_are_stable_and_varied():
     assert palette_for_seed("clip-a") == palette_for_seed("clip-a")
     assert len({creator_style_profile(f"clip-{index}") for index in range(20)}) >= 3
     assert len({palette_for_seed(f"clip-{index}") for index in range(20)}) >= 3
+
+
+def test_dark_luxury_grade_preserves_shadow_detail():
+    assert DARK_LUXURY_VIDEO_FILTERS == [
+        "eq=brightness=-0.035:contrast=1.10:saturation=0.88:gamma=0.98",
+        "vignette=PI/10",
+    ]
+    assert "0.20/0.18" in CREATOR_RESTYLE_CURVE
 
 
 def test_recurring_text_region_ignores_one_frame_text():
