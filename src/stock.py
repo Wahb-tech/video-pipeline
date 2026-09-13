@@ -20,6 +20,7 @@ STRICT_TERMS = {
     "watch": {"watch", "rolex", "timepiece"},
     "cash": {"cash", "money", "dollar", "banknote"},
     "hotel": {"hotel", "suite", "lobby", "five-star", "five star"},
+    "twilight_luxury": {"sunset", "dusk", "twilight", "blue hour", "golden hour"},
     "dark_feminine": {
         "woman", "women", "lady", "female", "black dress", "evening dress",
         "short dress", "bikini", "swimsuit"

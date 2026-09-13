@@ -213,7 +213,7 @@ def main():
         random.shuffle(alternatives)
         attempts.extend(alternatives)
         item = choose_authorized_clip(
-            authorized, usage_history, run_counts, i, current_video_ids, lengths[i]
+            authorized, usage_history, run_counts, i, current_video_ids, lengths[i], preferred_mood=category
         ) if i in authorized_positions else None
         errors = []
         for attempted_category in ([] if item else attempts):
@@ -225,13 +225,13 @@ def main():
                 errors.append(str(exc))
         if item is None and authorized:
             item = choose_authorized_clip(
-                authorized, usage_history, run_counts, i, current_video_ids, lengths[i]
+                authorized, usage_history, run_counts, i, current_video_ids, lengths[i], preferred_mood=category
             )
         if item is None:
             raise RuntimeError("; ".join(errors))
         item_key = f'{item["provider"]}:{item["id"]}'
         raw = work / f"raw_{i:02d}.mp4"
-        norm = work / f"clip_{i:02d}.mp4"
+        norm = work / f"clip_{i:02d}.mkv"
         download(item.get("local_path") or item["url"], raw)
         input_clip = raw
         if item.get("cleanup_text"):
@@ -277,6 +277,7 @@ def main():
             creator_restyle=item.get("creator_restyle", False),
             restyle_seed=f'{item.get("source_media_id", item.get("id", "clip"))}:{i}',
             metadata=item,
+            category=category,
         )
         current_starts.setdefault(item_key, []).append(clip_start_sec)
         normalized.append(norm)
@@ -289,7 +290,7 @@ def main():
     (out.parent / "sources.json").write_text(json.dumps(sources, indent=2, ensure_ascii=False), encoding="utf-8")
     rights = make_rights_manifest(sources, experiment_id)
     (out.parent / "rights_manifest.json").write_text(json.dumps(rights, indent=2, ensure_ascii=False), encoding="utf-8")
-    concat = work / "concat.mp4"
+    concat = work / "concat.mkv"
     texted = work / "texted.mp4"
     overlay = work / "overlay.png"
     concat_clips(normalized, concat)

@@ -12,20 +12,29 @@ from PIL import Image, ImageDraw, ImageFont
 
 HIGH_QUALITY_VIDEO_ARGS = [
     "-c:v", "libx264", "-preset", "slow", "-crf", "12",
+    "-tune", "film", "-x264-params", "aq-mode=3:deblock=-1,-1",
     "-profile:v", "high", "-level:v", "4.1",
-    "-pix_fmt", "yuv420p", "-movflags", "+faststart"
+    "-pix_fmt", "yuv420p", "-colorspace", "bt709",
+    "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart"
 ]
 
 INTERMEDIATE_VIDEO_ARGS = [
-    "-c:v", "libx264", "-preset", "slow", "-crf", "10",
-    "-profile:v", "high", "-level:v", "4.1", "-pix_fmt", "yuv420p"
+    "-c:v", "ffv1", "-level", "3", "-g", "1", "-pix_fmt", "yuv420p"
 ]
+
+FINAL_DETAIL_FILTER = "unsharp=5:5:0.22:3:3:0.0"
 
 # Keep the nocturnal luxury identity without crushing detail in black cars,
 # suits, buildings, and night skies. Source footage should still look natural.
 DARK_LUXURY_VIDEO_FILTERS = [
     "eq=brightness=-0.035:contrast=1.10:saturation=0.88:gamma=0.98",
     "vignette=PI/10",
+]
+
+TWILIGHT_LUXURY_VIDEO_FILTERS = [
+    "eq=brightness=0.005:contrast=1.08:saturation=1.06:gamma=1.00",
+    "colorbalance=rs=0.012:bs=-0.008:rh=0.030:gh=0.010:bh=-0.018",
+    "vignette=PI/14",
 ]
 
 CREATOR_RESTYLE_CURVE = "curves=all='0/0 0.20/0.18 0.72/0.77 1/1'"
@@ -88,6 +97,15 @@ def _creator_restyle_enabled():
     return os.getenv("ENABLE_CREATOR_RESTYLE", "").lower() in {"1", "true", "yes"}
 
 
+def uses_twilight_grade(category, metadata=None):
+    metadata = metadata or {}
+    if category == "twilight_luxury" and metadata.get("provider") != "authorized_creator":
+        return True
+    identity = " ".join(str(metadata.get(key) or "") for key in ("source_media_id", "id", "page_url"))
+    ids = {v.strip() for v in os.getenv("AUTHORIZED_TWILIGHT_SOURCE_IDS", "").replace("\n", ",").split(",") if v.strip()}
+    return any(source_id in identity for source_id in ids)
+
+
 def _ai_retouch_segment(src, start, seconds, destination, seed):
     if os.getenv("ENABLE_AI_CAR_RECOLOR", "").lower() not in {"1", "true", "yes"}:
         return False
@@ -119,11 +137,12 @@ def _ai_upscale_segment(src, start, seconds, destination):
                 "-t", f"{seconds:.3f}", "-an", "-vf", "fps=30",
                 str(frames / "frame_%08d.png"),
             ], check=True, timeout=120)
-            subprocess.run([
-                sys.executable, str(script), "-n", "realesr-general-x4v3",
-                "-i", str(frames), "-o", str(enhanced), "-s", "1.5",
-                "-dn", "0.35", "--suffix", "out", "--fp32", "--tile", "128", "--ext", "png",
-            ], check=True, timeout=timeout)
+            model = os.getenv("REALESRGAN_MODEL", "realesr-general-x4v3")
+            command = [sys.executable, str(script), "-n", model, "-i", str(frames), "-o", str(enhanced), "-s", os.getenv("REALESRGAN_OUTPUT_SCALE", "2"), "--suffix", "out", "--fp32", "--tile", "128", "--ext", "png"]
+            if model == "realesr-general-x4v3":
+                index = command.index("--suffix")
+                command[index:index] = ["-dn", os.getenv("REALESRGAN_DENOISE", "0.10")]
+            subprocess.run(command, check=True, timeout=timeout)
             output_frames = sorted(enhanced.glob("frame_*_out.png"))
             if not output_frames:
                 raise RuntimeError("Real-ESRGAN produced no frames")
@@ -254,7 +273,7 @@ def choose_clip_start(total, seconds, prior_starts=()):
 
 def normalize_clip(
     src, dst, seconds, style="mixed", prior_starts=(), segment_start=0.0,
-    segment_duration=None, creator_restyle=False, restyle_seed="zoop", metadata=None,
+    segment_duration=None, creator_restyle=False, restyle_seed="zoop", metadata=None, category=None,
 ):
     source_total = probe_duration(src)
     segment_start = max(0.0, min(float(segment_start or 0), source_total))
@@ -289,7 +308,8 @@ def normalize_clip(
     profile = creator_style_profile(restyle_seed) if restyle_active else ""
     if restyle_active:
         digest = hashlib.sha256(f"crop:{restyle_seed}".encode("utf-8")).digest()
-        zoom = (1.025, 1.04, 1.055)[digest[0] % 3]
+        zooms = (1.025, 1.04, 1.055) if ai_applied or width >= 1000 else (1.0, 1.01, 1.02)
+        zoom = zooms[digest[0] % 3]
         scaled_width = int(1080 * zoom) // 2 * 2
         scaled_height = int(1920 * zoom) // 2 * 2
         x_ratio = (0.28, 0.5, 0.72)[digest[1] % 3]
@@ -306,7 +326,10 @@ def normalize_clip(
         ]
     if not ai_applied and (width < 1080 or height < 1920):
         filters.append("unsharp=5:5:0.28:3:3:0.0")
-    if style == "dark_luxury":
+    twilight_active = uses_twilight_grade(category, metadata)
+    if style == "dark_luxury" and twilight_active:
+        filters.extend(TWILIGHT_LUXURY_VIDEO_FILTERS)
+    elif style == "dark_luxury":
         filters.extend(DARK_LUXURY_VIDEO_FILTERS)
     if restyle_active:
         filters.extend([
@@ -318,6 +341,7 @@ def normalize_clip(
         metadata["restyle_profile"] = profile
         metadata["ai_car_recolor_applied"] = car_recolor_applied
         metadata["ai_upscale_applied"] = ai_applied
+        metadata["visual_grade"] = "twilight_luxury" if twilight_active else style
     try:
         run([
             "ffmpeg", "-y", "-ss", f"{source_start:.3f}", "-i", str(source), "-t", f"{seconds:.3f}",
@@ -409,7 +433,7 @@ def add_overlay(video, overlay, output):
         return
     run([
         "ffmpeg", "-y", "-i", str(video), "-i", str(overlay),
-        "-filter_complex", "[0:v][1:v]overlay=0:0:format=auto[v]",
+        "-filter_complex", f"[0:v]{FINAL_DETAIL_FILTER}[detail];[detail][1:v]overlay=0:0:format=auto[v]",
         "-map", "[v]", "-an", *HIGH_QUALITY_VIDEO_ARGS, str(output)
     ])
 

@@ -11,6 +11,7 @@ CATEGORIES = {
     "cash": ["counting cash money dark", "luxury cash money aesthetic", "money counting night"],
     "business": ["businessman luxury dark", "man suit luxury night", "wealth lifestyle man dark"],
     "hotel": ["luxury hotel lobby", "five star hotel room", "luxury resort"],
+    "twilight_luxury": ["luxury supercar sunset cinematic", "supercar blue hour mountain", "luxury cars winter sunset"],
     "monaco": ["monaco luxury yacht", "monaco supercar", "french riviera luxury"],
     "restaurant": ["luxury restaurant rooftop", "fine dining luxury", "rooftop dinner city"],
     "dark_feminine": ["adult woman luxury nightlife", "adult woman elegant resort", "adult woman yacht party"]
@@ -25,6 +26,7 @@ DARK_QUERIES = {
     "watch": ["Rolex watch dark cinematic", "luxury watch macro black", "expensive watch low light"],
     "cash": ["counting hundred dollar bills dark", "cash stacks black background", "money safe dark cinematic"],
     "hotel": ["five star hotel lobby dark", "luxury hotel suite night", "dark marble hotel interior"],
+    "twilight_luxury": ["luxury supercar sunset cinematic", "Ferrari mountain blue hour", "supercar winter sunset luxury", "luxury car orange dusk cinematic"],
     "dark_feminine": [
         "elegant woman black dress luxury car night",
         "woman private jet dark luxury",
@@ -37,7 +39,7 @@ DARK_QUERIES = {
 }
 
 STYLE_PRESETS = {
-    "dark_luxury": ["supercar", "cash", "watch", "dubai", "private_jet", "villa", "hotel", "yacht", "dark_feminine"],
+    "dark_luxury": ["supercar", "cash", "watch", "dubai", "private_jet", "villa", "hotel", "yacht", "dark_feminine", "twilight_luxury", "twilight_luxury"],
     "summer_luxury": ["pool", "beach", "yacht", "monaco", "villa", "restaurant"],
     "dubai": ["dubai", "supercar", "pool", "restaurant", "hotel", "private_jet", "nightlife"],
     "yacht_life": ["yacht", "beach", "pool", "monaco", "nightlife", "villa"],
@@ -45,9 +47,9 @@ STYLE_PRESETS = {
 }
 
 THEME_PRESETS = {
-    "dark_cars": ["supercar", "supercar", "dubai", "watch", "private_jet", "hotel", "villa", "dark_feminine"],
-    "money": ["cash", "cash", "watch", "supercar", "private_jet", "hotel", "villa", "dark_feminine"],
-    "dark_life": ["hotel", "villa", "dubai", "private_jet", "watch", "yacht", "supercar", "dark_feminine"],
+    "dark_cars": ["supercar", "supercar", "dubai", "watch", "private_jet", "hotel", "villa", "dark_feminine", "twilight_luxury", "twilight_luxury"],
+    "money": ["cash", "cash", "watch", "supercar", "private_jet", "hotel", "villa", "dark_feminine", "twilight_luxury", "twilight_luxury"],
+    "dark_life": ["hotel", "villa", "dubai", "private_jet", "watch", "yacht", "supercar", "dark_feminine", "twilight_luxury", "twilight_luxury"],
     "mixed_dark": STYLE_PRESETS["dark_luxury"]
 }
 

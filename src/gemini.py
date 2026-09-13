@@ -60,7 +60,7 @@ Duration: {duration} seconds
 Number of visual cuts: {clip_count}
 Text mode: {text_mode}
 
-The edit must show unmistakable wealth in every shot: black supercars at night, private jets, superyachts, cash, luxury watches, mansions, penthouses, five-star hotels or Dubai at night. Adult women may wear elegant dresses, short outfits or swimwear only when wealth and dark luxury dominate the same shot: a superyacht at night, dark penthouse pool, illuminated mansion, supercar, private jet, jewelry or five-star hotel. The setting and lighting must remain dark, expensive, cinematic and restrained. Do not select bright generic beach clips, isolated swimwear portraits, parties, DJs, costumes or ordinary lifestyle footage.
+The edit must show unmistakable wealth in every shot: black supercars at night, private jets, superyachts, cash, luxury watches, mansions, penthouses, five-star hotels, Dubai at night, or luxury cars during a saturated sunset/blue hour. Twilight shots are deliberate contrast moments: they must still feature obvious wealth and cinematic light, never a generic landscape or sunset. Adult women may wear elegant dresses, short outfits or swimwear only when wealth and dark luxury dominate the same shot. The setting and lighting must remain expensive, cinematic and restrained. Do not select bright generic beach clips, isolated swimwear portraits, parties, DJs, costumes or ordinary lifestyle footage.
 
 Return ONLY valid JSON:
 {{

@@ -270,6 +270,12 @@ def configured_urls():
     return [url for url, _ in configured_sources()]
 
 
+def authorized_visual_mood(item):
+    identity = " ".join(str(item.get(key) or "") for key in ("source_media_id", "id", "page_url"))
+    ids = {v.strip() for v in os.getenv("AUTHORIZED_TWILIGHT_SOURCE_IDS", "").replace("\n", ",").split(",") if v.strip()}
+    return "twilight_luxury" if any(source_id in identity for source_id in ids) else "dark_luxury"
+
+
 def authorized_quality_penalty(item):
     width = int(item.get("width") or 0)
     height = int(item.get("height") or 0)
@@ -387,7 +393,7 @@ def download_authorized_library(destination):
     return _expand_restyle_shots(items)
 
 
-def choose_authorized_clip(items, usage_history, run_counts, position, excluded_ids=(), minimum_duration=0):
+def choose_authorized_clip(items, usage_history, run_counts, position, excluded_ids=(), minimum_duration=0, preferred_mood=None):
     available = [
         item for item in items
         if f'{item["provider"]}:{item["id"]}' not in excluded_ids
@@ -399,6 +405,14 @@ def choose_authorized_clip(items, usage_history, run_counts, position, excluded_
     ]
     if not available:
         return None
+    if preferred_mood == "twilight_luxury":
+        available = [item for item in available if authorized_visual_mood(item) == "twilight_luxury"]
+        if not available:
+            return None
+    elif preferred_mood:
+        dark_available = [item for item in available if authorized_visual_mood(item) != "twilight_luxury"]
+        if dark_available:
+            available = dark_available
     def rank(item):
         key = f'{item["provider"]}:{item["id"]}'
         author_key = f'author:{item.get("author", "authorized creator").lower()}'

@@ -6,7 +6,7 @@ import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
 from src.main import choose_cleanup_fallback, parse_args, shuffled_categories
-from src.render import CREATOR_RESTYLE_CURVE, DARK_LUXURY_VIDEO_FILTERS, HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile
+from src.render import CREATOR_RESTYLE_CURVE, DARK_LUXURY_VIDEO_FILTERS, FINAL_DETAIL_FILTER, HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, TWILIGHT_LUXURY_VIDEO_FILTERS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile, uses_twilight_grade
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _expand_restyle_shots, _instagram_username, _is_direct_instagram_media, _shot_ranges, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
@@ -320,10 +320,13 @@ def test_ytdlp_requests_best_available_source_quality(monkeypatch, tmp_path):
 def test_render_uses_high_quality_encoding():
     assert HIGH_QUALITY_VIDEO_ARGS == [
         "-c:v", "libx264", "-preset", "slow", "-crf", "12",
+        "-tune", "film", "-x264-params", "aq-mode=3:deblock=-1,-1",
         "-profile:v", "high", "-level:v", "4.1",
-        "-pix_fmt", "yuv420p", "-movflags", "+faststart"
+        "-pix_fmt", "yuv420p", "-colorspace", "bt709",
+        "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart"
     ]
-    assert INTERMEDIATE_VIDEO_ARGS[INTERMEDIATE_VIDEO_ARGS.index("-crf") + 1] == "10"
+    assert INTERMEDIATE_VIDEO_ARGS == ["-c:v", "ffv1", "-level", "3", "-g", "1", "-pix_fmt", "yuv420p"]
+    assert FINAL_DETAIL_FILTER == "unsharp=5:5:0.22:3:3:0.0"
 
 
 def test_ai_upscale_only_targets_sub_1080_portrait(monkeypatch, tmp_path):
@@ -477,6 +480,13 @@ def test_dark_luxury_grade_preserves_shadow_detail():
         "vignette=PI/10",
     ]
     assert "0.20/0.18" in CREATOR_RESTYLE_CURVE
+
+
+def test_twilight_grade_and_source_detection(monkeypatch):
+    assert len(TWILIGHT_LUXURY_VIDEO_FILTERS) == 3
+    monkeypatch.setenv("AUTHORIZED_TWILIGHT_SOURCE_IDS", "DaL8vDEN8bP")
+    assert uses_twilight_grade("supercar", {"provider": "authorized_creator", "id": "instagram_DaL8vDEN8bP"})
+    assert not uses_twilight_grade("twilight_luxury", {"provider": "authorized_creator", "id": "ordinary-night"})
 
 
 def test_recurring_text_region_ignores_one_frame_text():
