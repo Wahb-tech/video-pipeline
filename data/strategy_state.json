@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "mixed_dark",
-    "copy_variant": "standards",
-    "caption_variant": "choice",
+    "theme": "dark_life",
+    "copy_variant": "obsession",
+    "caption_variant": "minimal",
     "sample_count": 0
   },
   "audio": {
