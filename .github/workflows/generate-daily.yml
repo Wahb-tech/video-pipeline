@@ -72,7 +72,7 @@ jobs:
           echo "REALESRGAN_MODEL=realesr-general-x4v3" >> "$GITHUB_ENV"
           echo "REALESRGAN_DENOISE=0.10" >> "$GITHUB_ENV"
           echo "REALESRGAN_OUTPUT_SCALE=2" >> "$GITHUB_ENV"
-          echo "AI_UPSCALE_TIMEOUT_SECONDS=1500" >> "$GITHUB_ENV"
+          echo "AI_UPSCALE_TIMEOUT_SECONDS=600" >> "$GITHUB_ENV"
 
       - name: Cache Real-ESRGAN weights
         uses: actions/cache@v4
@@ -81,6 +81,17 @@ jobs:
             ${{ runner.temp }}/Real-ESRGAN/weights
             ~/.cache/torch/hub/checkpoints
           key: zoop-ai-models-crystal-v1
+
+      - name: Set authorized library cache key
+        run: echo "AUTHORIZED_CACHE_DATE=$(date -u +%F)" >> "$GITHUB_ENV"
+
+      - name: Cache authorized creator library
+        uses: actions/cache@v4
+        with:
+          path: .cache/authorized
+          key: zoop-authorized-v2-${{ env.AUTHORIZED_CACHE_DATE }}
+          restore-keys: |
+            zoop-authorized-v2-
 
       - name: Install Playwright
         run: |
@@ -169,18 +180,51 @@ jobs:
           ENABLE_AI_CAR_RECOLOR: "true"
           AI_RETOUCH_TIMEOUT_SECONDS: "900"
           AUTHORIZED_TWILIGHT_SOURCE_IDS: "DaL8vDEN8bP"
+          AUTHORIZED_LIBRARY_DIR: ".cache/authorized"
+          AUTHORIZED_LIBRARY_TARGET: "18"
+          AUTHORIZED_DOWNLOAD_TIMEOUT_SECONDS: "150"
         run: |
-          python -m src.main \
-            --style dark_luxury \
-            --theme auto \
-            --copy-variant auto \
-            --caption-variant auto \
-            --text-mode minimal \
-            --authorized-share 0.82 \
-            --duration 25 \
-            --clips 12 \
-            --bpm 100 \
+          render_args=(
+            python -m src.main
+            --style dark_luxury
+            --theme auto
+            --copy-variant auto
+            --caption-variant auto
+            --text-mode minimal
+            --authorized-share 0.82
+            --duration 25
+            --clips 12
+            --bpm 100
             --audio auto
+          )
+
+          set +e
+          timeout 7200s "${render_args[@]}"
+          render_status=$?
+          set -e
+          if [ "$render_status" -eq 0 ]; then
+            exit 0
+          fi
+
+          echo "::warning::Premium render failed with status $render_status; retrying cached sources without CPU-heavy AI"
+          rm -rf output/work
+          set +e
+          env ENABLE_AI_UPSCALE=false ENABLE_AI_CAR_RECOLOR=false \
+            timeout 2700s "${render_args[@]}"
+          render_status=$?
+          set -e
+          if [ "$render_status" -eq 0 ]; then
+            exit 0
+          fi
+
+          echo "::warning::Authorized-source retry failed with status $render_status; creating licensed-stock fallback"
+          rm -rf output/work
+          env ENABLE_AI_UPSCALE=false ENABLE_AI_CAR_RECOLOR=false \
+            REQUIRE_AUTHORIZED_FOOTAGE=false \
+            AUTHORIZED_VIDEO_URLS="" AUTHORIZED_RESTYLE_VIDEO_URLS="" \
+            AUTHORIZED_TEXT_VIDEO_URLS="" AUTHORIZED_CREATOR_HANDLES="" \
+            AUTHORIZED_TEXT_CREATOR_HANDLES="" \
+            timeout 1800s "${render_args[@]}"
 
       - name: Verify burned-in overlay
         run: |

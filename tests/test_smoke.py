@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 from src.gemini import fallback_plan
 from src.config import COPY_VARIANTS
-from src.main import choose_cleanup_fallback, parse_args, shuffled_categories
+from src.main import choose_cleanup_fallback, choose_reusable_authorized_clip, parse_args, shuffled_categories
 from src.render import CREATOR_RESTYLE_CURVE, DARK_LUXURY_VIDEO_FILTERS, FINAL_DETAIL_FILTER, HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, TWILIGHT_LUXURY_VIDEO_FILTERS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile, uses_twilight_grade
 from src.strategy import COPIES, choose_variant, performance_score
 from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
@@ -275,7 +275,7 @@ def test_ytdlp_does_not_filter_direct_instagram_reels_by_duration(monkeypatch, t
     class Result:
         returncode = 1
 
-    def fake_run(command, check=False):
+    def fake_run(command, check=False, **kwargs):
         commands.append(command)
         return Result()
 
@@ -290,7 +290,7 @@ def test_ytdlp_keeps_duration_filter_for_other_sources(monkeypatch, tmp_path):
     class Result:
         returncode = 1
 
-    def fake_run(command, check=False):
+    def fake_run(command, check=False, **kwargs):
         commands.append(command)
         return Result()
 
@@ -306,7 +306,7 @@ def test_ytdlp_requests_best_available_source_quality(monkeypatch, tmp_path):
     class Result:
         returncode = 1
 
-    def fake_run(command, check=False):
+    def fake_run(command, check=False, **kwargs):
         commands.append(command)
         return Result()
 
@@ -569,6 +569,19 @@ def test_authorized_clip_is_unique_inside_one_reel(monkeypatch):
     assert choose_authorized_clip(
         items, {}, {}, 2, {"authorized_creator:a", "authorized_creator:b"}
     ) is None
+
+
+def test_authorized_source_can_be_reused_when_unique_library_is_exhausted(monkeypatch):
+    monkeypatch.setattr("src.authorized_video.random.random", lambda: 0.0)
+    items = [{
+        "provider": "authorized_creator", "id": "only-clean-source",
+        "duration": 8.0, "width": 1080, "height": 1920,
+    }]
+    chosen = choose_reusable_authorized_clip(
+        items, {}, {"authorized_creator:only-clean-source": 1}, 5,
+        minimum_duration=2.0, preferred_mood="twilight_luxury",
+    )
+    assert chosen["id"] == "only-clean-source"
 
 
 def test_authorized_rotation_prefers_true_1080_source(monkeypatch):

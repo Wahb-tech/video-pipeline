@@ -225,13 +225,16 @@ def _download_instagram_instaloader(url, group, limit):
 
 def _download_instagram_gallery(url, group, limit):
     before = set(_media_files(group))
-    result = subprocess.run([
-        "gallery-dl", "--no-mtime", "--range", f"1-{limit}",
-        "--filter", "extension in ('mp4', 'mov', 'mkv', 'webm')",
-        "-D", str(group), "-f", "instagram_{shortcode}_{num}.{extension}",
-        *_cookie_args(), url,
-    ], check=False)
-    return result.returncode == 0 and bool(set(_media_files(group)) - before)
+    try:
+        result = subprocess.run([
+            "gallery-dl", "--no-mtime", "--range", f"1-{limit}",
+            "--filter", "extension in ('mp4', 'mov', 'mkv', 'webm')",
+            "-D", str(group), "-f", "instagram_{shortcode}_{num}.{extension}",
+            *_cookie_args(), url,
+        ], check=False, timeout=int(os.getenv("AUTHORIZED_DOWNLOAD_TIMEOUT_SECONDS", "150")))
+        return result.returncode == 0 and bool(set(_media_files(group)) - before)
+    except (OSError, subprocess.SubprocessError):
+        return False
 
 
 def _download_with_ytdlp(url, group, limit):
@@ -239,16 +242,19 @@ def _download_with_ytdlp(url, group, limit):
     duration_filter = [] if _is_direct_instagram_media(url) else [
         "--match-filter", "duration >= 8 & duration <= 1800",
     ]
-    result = subprocess.run([
-        "yt-dlp", "--no-warnings", "--ignore-errors",
-        "--playlist-end", limit,
-        *duration_filter,
-        "--write-info-json", "--merge-output-format", "mp4",
-        "-f", "bv*+ba/b",
-        "-S", "res,fps,br",
-        "-o", output, *_cookie_args(), url,
-    ], check=False)
-    return result.returncode == 0 and bool(_media_files(group))
+    try:
+        result = subprocess.run([
+            "yt-dlp", "--no-warnings", "--ignore-errors",
+            "--playlist-end", limit,
+            *duration_filter,
+            "--write-info-json", "--merge-output-format", "mp4",
+            "-f", "bv*+ba/b",
+            "-S", "res,fps,br",
+            "-o", output, *_cookie_args(), url,
+        ], check=False, timeout=int(os.getenv("AUTHORIZED_DOWNLOAD_TIMEOUT_SECONDS", "150")))
+        return result.returncode == 0 and bool(_media_files(group))
+    except (OSError, subprocess.SubprocessError):
+        return False
 
 
 def configured_sources():
@@ -314,14 +320,21 @@ def download_authorized_library(destination):
         return []
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
-    atexit.register(shutil.rmtree, destination, ignore_errors=True)
+    if not os.getenv("AUTHORIZED_LIBRARY_DIR", "").strip():
+        atexit.register(shutil.rmtree, destination, ignore_errors=True)
+    target = max(1, int(os.getenv("AUTHORIZED_LIBRARY_TARGET", "18")))
     for index, (url, cleanup_text) in enumerate(sources):
+        if len(_media_files(destination)) >= target:
+            print(f"Authorized library target reached ({target} files); skipping remaining downloads")
+            break
         group = destination / (f"text_{index}" if cleanup_text else f"clean_{index}")
         group.mkdir(exist_ok=True)
         limit = os.getenv("AUTHORIZED_PLAYLIST_LIMIT", "12")
-        downloaded = False
+        downloaded = bool(_media_files(group))
+        if downloaded:
+            print(f"Reusing cached authorized source: {url}")
         if _is_instagram(url) and not _is_direct_instagram_media(url):
-            downloaded = _download_instagram_instaloader(url, group, limit)
+            downloaded = downloaded or _download_instagram_instaloader(url, group, limit)
             if not downloaded:
                 downloaded = _download_instagram_gallery(url, group, limit)
         if not downloaded:
@@ -344,6 +357,9 @@ def download_authorized_library(destination):
         is_restyle = _normalized_source_url(configured_url or page_url) in restyle_urls
         author = info.get("uploader") or _instagram_username(configured_url) or (restyle_owner if is_restyle else owner)
         media = _probe_media(video)
+        if media["width"] <= 0 or media["height"] <= 0 or media["duration"] <= 0:
+            print(f"Skipping unreadable authorized media: {video}")
+            continue
         items.append({
             "provider": "authorized_creator",
             "id": video_id,
@@ -372,6 +388,9 @@ def download_authorized_library(destination):
         author = _instagram_username(source_url) if _is_instagram(source_url) else ""
         author = author or (restyle_owner if is_restyle else owner)
         media = _probe_media(video)
+        if media["width"] <= 0 or media["height"] <= 0 or media["duration"] <= 0:
+            print(f"Skipping unreadable authorized media: {video}")
+            continue
         items.append({
             "provider": "authorized_creator",
             "id": video.stem,

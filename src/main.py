@@ -108,6 +108,26 @@ def choose_cleanup_fallback(items, rejected_id, usage_history, run_counts, posit
     return choose_authorized_clip(candidates, usage_history, run_counts, position, excluded_ids)
 
 
+def choose_reusable_authorized_clip(
+    items, usage_history, run_counts, position, minimum_duration=0, preferred_mood=None
+):
+    """Reuse authorized footage when unique scenes are exhausted.
+
+    ``normalize_clip`` still chooses a different start from the starts already used,
+    so reusing the source does not mean repeating the exact same shot.
+    """
+    item = choose_authorized_clip(
+        items, usage_history, run_counts, position, (), minimum_duration,
+        preferred_mood=preferred_mood,
+    )
+    if item is None and preferred_mood:
+        item = choose_authorized_clip(
+            items, usage_history, run_counts, position, (), minimum_duration,
+            preferred_mood=None,
+        )
+    return item
+
+
 def main():
     args = parse_args()
     if args.seed is not None:
@@ -134,7 +154,10 @@ def main():
     if work.exists():
         shutil.rmtree(work)
     work.mkdir(parents=True)
-    authorized = download_authorized_library(work / "authorized")
+    authorized_library = Path(
+        os.getenv("AUTHORIZED_LIBRARY_DIR", "").strip() or work / "authorized"
+    )
+    authorized = download_authorized_library(authorized_library)
     if any(os.getenv(name) for name in authorized_names) and not authorized:
         message = "No usable authorized footage was downloaded"
         if os.getenv("REQUIRE_AUTHORIZED_FOOTAGE", "").lower() in {"1", "true", "yes"}:
@@ -227,6 +250,15 @@ def main():
             item = choose_authorized_clip(
                 authorized, usage_history, run_counts, i, current_video_ids, lengths[i], preferred_mood=category
             )
+        if item is None and authorized:
+            item = choose_reusable_authorized_clip(
+                authorized, usage_history, run_counts, i, lengths[i], preferred_mood=category
+            )
+            if item is not None:
+                print(
+                    f"No unused footage remains for position {i}; reusing authorized source "
+                    f"{item['id']} at a different segment"
+                )
         if item is None:
             raise RuntimeError("; ".join(errors))
         item_key = f'{item["provider"]}:{item["id"]}'
