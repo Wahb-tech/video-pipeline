@@ -98,6 +98,17 @@ jobs:
           python -m pip install playwright
           python -m playwright install chromium
 
+      - name: Restore ZOOP session
+        env:
+          ZOOP_STORAGE_STATE_B64: ${{ secrets.ZOOP_STORAGE_STATE_B64 }}
+        run: |
+          test -n "$ZOOP_STORAGE_STATE_B64"
+          printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
+          chmod 600 zoop_state.json
+
+      - name: Validate ZOOP session before rendering
+        run: python src/zoop_auth_test.py
+
       - name: Prepare authorized Instagram session
         env:
           INSTAGRAM_COOKIES_B64: ${{ secrets.INSTAGRAM_COOKIES_B64 }}
@@ -264,14 +275,6 @@ jobs:
             output/sources.json
             output/rights_manifest.json
           retention-days: 30
-
-      - name: Restore ZOOP session
-        env:
-          ZOOP_STORAGE_STATE_B64: ${{ secrets.ZOOP_STORAGE_STATE_B64 }}
-        run: |
-          test -n "$ZOOP_STORAGE_STATE_B64"
-          printf '%s' "$ZOOP_STORAGE_STATE_B64" | base64 --decode > zoop_state.json
-          chmod 600 zoop_state.json
 
       - name: Load generated caption
         run: |
