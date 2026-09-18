@@ -88,7 +88,7 @@
   },
   "next_variant": {
     "theme": "dark_cars",
-    "copy_variant": "discipline",
+    "copy_variant": "identity_shift",
     "caption_variant": "minimal",
     "sample_count": 0
   },
