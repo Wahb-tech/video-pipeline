@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "money",
+    "theme": "dark_life",
     "copy_variant": "discipline",
-    "caption_variant": "minimal",
+    "caption_variant": "choice",
     "sample_count": 0
   },
   "audio": {
