@@ -88,8 +88,8 @@
   },
   "next_variant": {
     "theme": "money",
-    "copy_variant": "standards",
-    "caption_variant": "choice",
+    "copy_variant": "discipline",
+    "caption_variant": "minimal",
     "sample_count": 0
   },
   "audio": {
