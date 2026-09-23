@@ -87,9 +87,9 @@
     }
   },
   "next_variant": {
-    "theme": "dark_life",
+    "theme": "dark_cars",
     "copy_variant": "silent_revenge",
-    "caption_variant": "choice",
+    "caption_variant": "minimal",
     "sample_count": 0
   },
   "audio": {
