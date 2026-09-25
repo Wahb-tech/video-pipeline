@@ -57,7 +57,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 ## Suggested next visual test
 
-- Theme: `dark_life`
+- Theme: `mixed_dark`
 - Overlay: `future_self`
 - Caption: `minimal`
 
