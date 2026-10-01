@@ -2,13 +2,11 @@ name: Automatic ZOOP Content Factory
 
 on:
   schedule:
-    # Four daily runs. GitHub cron is UTC; these correspond to
-    # 08:17, 12:47, 18:07 and 22:17 in Switzerland during summer time.
+    # Two daily runs: enough volume to test without flooding a small audience.
+    # GitHub cron is UTC (12:47 and 20:17 in Switzerland during summer time).
     # Non-round minutes also reduce GitHub Actions scheduling congestion.
-    - cron: "17 6 * * *"
     - cron: "47 10 * * *"
-    - cron: "7 16 * * *"
-    - cron: "17 20 * * *"
+    - cron: "17 18 * * *"
   workflow_dispatch:
 
 permissions:
@@ -198,13 +196,12 @@ jobs:
           render_args=(
             python -m src.main
             --style dark_luxury
+            --content-format auto
             --theme auto
             --copy-variant auto
             --caption-variant auto
             --text-mode minimal
             --authorized-share 0.82
-            --duration 25
-            --clips 12
             --bpm 100
             --audio auto
           )
@@ -245,9 +242,10 @@ jobs:
 
           plan = json.loads(Path("output/creative_plan.json").read_text())
           overlay = plan.get("overlay_text", "").strip()
-          if not overlay:
+          content_format = plan.get("content_format", "")
+          if not overlay and content_format != "cinematic_no_text":
               raise SystemExit("Missing burned-in overlay text; refusing to publish")
-          print(f"Overlay verified: {overlay}")
+          print(f"Creative verified: format={content_format}, overlay={overlay or '[none by design]'}")
           PY
 
       - name: Save experiment history

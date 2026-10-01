@@ -30,7 +30,8 @@ def generate(metrics="data/metrics.csv", report="reports/latest.md", state_path=
         "The score below is an internal experiment score, not ZOOP's ranking formula. It weights likes, comments, shares, follows and optional completion rate so the pipeline can compare its own variants consistently.",
         ""
     ]
-    lines += table("Themes", state["theme"])
+    lines += table("Content formats", state["content_format"])
+    lines += table("Visual worlds", state["theme"])
     lines += table("Overlay copy", state["copy_variant"])
     lines += table("Caption type", state["caption_variant"])
     lines += table("Known audio", audio_stats)
@@ -40,6 +41,7 @@ def generate(metrics="data/metrics.csv", report="reports/latest.md", state_path=
     lines += [
         "## Suggested next visual test",
         "",
+        f"- Format: `{nxt['content_format']}`",
         f"- Theme: `{nxt['theme']}`",
         f"- Overlay: `{nxt['copy_variant']}`",
         f"- Caption: `{nxt['caption_variant']}`",

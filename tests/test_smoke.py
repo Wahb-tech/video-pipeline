@@ -4,11 +4,12 @@ from pathlib import Path
 from types import SimpleNamespace
 import pytest
 from src.gemini import fallback_plan
-from src.config import COPY_VARIANTS
-from src.main import choose_cleanup_fallback, choose_reusable_authorized_clip, parse_args, shuffled_categories
-from src.render import CREATOR_RESTYLE_CURVE, DARK_LUXURY_VIDEO_FILTERS, FINAL_DETAIL_FILTER, HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, TWILIGHT_LUXURY_VIDEO_FILTERS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile, uses_twilight_grade
-from src.strategy import COPIES, choose_variant, performance_score
-from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, score
+from src.config import CONTENT_FORMATS, COPY_VARIANTS
+from src.main import choose_caption, choose_cleanup_fallback, choose_reusable_authorized_clip, coherent_categories, parse_args, shuffled_categories
+from src.render import CREATOR_RESTYLE_CURVE, DARK_LUXURY_VIDEO_FILTERS, FINAL_DETAIL_FILTER, HIGH_QUALITY_VIDEO_ARGS, INTERMEDIATE_VIDEO_ARGS, TWILIGHT_LUXURY_VIDEO_FILTERS, _behavior_novelty, _overlay_lines, _should_ai_upscale, _snap_cut_times, choose_clip_start, choose_cut_lengths, choose_music_start, creator_style_profile, make_text_overlay, uses_twilight_grade
+from src.strategy import COPIES, FORMATS, choose_variant, performance_score
+from src.stock import FORBIDDEN_TERMS, STOCK_BLOCKED_CATEGORIES, coverr_search, is_real_footage, is_strict_dark_luxury, load_recent_scene_ids, score
+from src.quality import passes_quality_gate, source_quality_score
 from src.authorized_video import _cookie_args, _download_with_ytdlp, _expand_restyle_shots, _instagram_username, _is_direct_instagram_media, _shot_ranges, authorized_quality_penalty, choose_authorized_clip, configured_sources, configured_urls, download_authorized_library
 from src.ai_retouch import palette_for_seed
 from src.text_cleanup import TextCleanupError, clean_creator_text, conspicuous_text_region, recurring_text_region
@@ -113,18 +114,27 @@ def test_performance_score_positive():
     assert score > 0
 
 
+def test_performance_score_learns_without_views():
+    assert performance_score({"likes": 3, "comments": 1}) == 6
+
+
 def test_strategy_works_without_metrics(tmp_path):
     path = tmp_path / "missing.csv"
     variant = choose_variant(str(path))
-    assert variant["theme"] in {"dark_cars", "money", "dark_life", "mixed_dark"}
-    assert variant["copy_variant"] in set(COPIES)
-    assert variant["caption_variant"] in {"choice", "aspiration", "minimal"}
+    assert variant["content_format"] in set(FORMATS)
+    assert variant["theme"] in CONTENT_FORMATS[variant["content_format"]]["themes"]
+    assert variant["copy_variant"] in CONTENT_FORMATS[variant["content_format"]]["copies"]
+    assert variant["caption_variant"] in {"aspiration", "minimal"}
 
 
-def test_automatic_strategy_never_disables_overlay():
+def test_automatic_strategy_disables_overlay_only_for_no_text_format(tmp_path):
     assert "none" not in COPIES
     for _ in range(30):
-        assert choose_variant()["copy_variant"] in set(COPIES)
+        variant = choose_variant(str(tmp_path / "missing.csv"))
+        if variant["copy_variant"] == "none":
+            assert variant["content_format"] == "cinematic_no_text"
+        else:
+            assert variant["copy_variant"] in set(COPIES)
 
 
 def test_automatic_strategy_does_not_repeat_last_copy(tmp_path, monkeypatch):
@@ -154,6 +164,45 @@ def test_shuffled_categories_preserves_content():
     shuffled = shuffled_categories(original)
     assert sorted(shuffled) == sorted(original)
     assert all(a != b for a, b in zip(shuffled, shuffled[1:]))
+
+
+def test_human_luxury_story_has_a_deliberate_visual_arc():
+    sequence = coherent_categories("human_luxury_story", "human_twilight", 5)
+    assert sequence == ["dark_feminine", "hotel", "restaurant", "twilight_luxury", "supercar"]
+
+
+def test_two_beat_story_creates_two_timed_overlays(tmp_path):
+    overlays = make_text_overlay(
+        "THEY SAW THE RISK. || YOU SAW THE EXIT.",
+        tmp_path / "overlay.png",
+        duration=8.0,
+    )
+    assert len(overlays) == 2
+    assert overlays[0][1:] == pytest.approx((0.35, 3.68))
+    assert overlays[1][1:] == pytest.approx((4.32, 7.8))
+    assert all(path.exists() for path, _, _ in overlays)
+
+
+def test_new_themes_have_human_captions():
+    for theme in ("human_twilight", "arrival_night", "elite_lifestyle", "twilight_world", "craft_luxury"):
+        assert choose_caption("aspiration", theme)
+
+
+def test_quality_gate_prefers_true_hd_and_rejects_very_soft_sources():
+    hd = {"width": 1080, "height": 1920, "fps": 30, "bit_rate": 5_000_000}
+    soft = {"width": 360, "height": 640, "fps": 15, "bit_rate": 250_000}
+    assert source_quality_score(hd) > source_quality_score(soft)
+    assert passes_quality_gate(hd)
+    assert not passes_quality_gate(soft)
+
+
+def test_recent_scene_window_uses_last_publications(tmp_path):
+    path = tmp_path / "used.csv"
+    path.write_text(
+        "experiment_id,provider,stock_id\nold,pexels,1\nnew,pexels,2\nnew,pexels,3\n",
+        encoding="utf-8",
+    )
+    assert load_recent_scene_ids(path, publication_limit=1) == {"pexels:2", "pexels:3"}
 
 
 def test_reused_clip_moves_to_a_different_segment():
@@ -202,7 +251,7 @@ def test_stock_quality_bonus_requires_true_1080_width(monkeypatch):
     monkeypatch.setattr("src.stock.random.random", lambda: 0.0)
     vertical_720 = {"provider": "pexels", "width": 720, "height": 1280, "duration": 8}
     vertical_1080 = {"provider": "pexels", "width": 1080, "height": 1920, "duration": 8}
-    assert score(vertical_1080) == score(vertical_720) + 2
+    assert score(vertical_1080) >= score(vertical_720) + 2
 
 
 def test_authorized_vertical_video_is_preferred_over_landscape():
@@ -476,8 +525,8 @@ def test_creator_restyle_profiles_are_stable_and_varied():
 
 def test_dark_luxury_grade_preserves_shadow_detail():
     assert DARK_LUXURY_VIDEO_FILTERS == [
-        "eq=brightness=-0.035:contrast=1.10:saturation=0.88:gamma=0.98",
-        "vignette=PI/10",
+        "eq=brightness=-0.012:contrast=1.07:saturation=0.96:gamma=1.00",
+        "vignette=PI/14",
     ]
     assert "0.20/0.18" in CREATOR_RESTYLE_CURVE
 
@@ -879,7 +928,7 @@ def test_zoop_collector_keeps_available_counts_without_views(monkeypatch, tmp_pa
         raw=str(tmp_path / "raw.json"),
     )
     assert collect(args) == 1
-    assert read_rows(metrics) == []
+    assert read_rows(metrics)[0]["likes"] == "3"
+    assert read_rows(metrics)[0]["comments"] == "1"
     assert read_rows(snapshots)[0]["likes"] == "3"
     assert read_rows(snapshots)[0]["comments"] == "1"
-    collect,

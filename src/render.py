@@ -27,8 +27,8 @@ FINAL_DETAIL_FILTER = "unsharp=5:5:0.22:3:3:0.0"
 # Keep the nocturnal luxury identity without crushing detail in black cars,
 # suits, buildings, and night skies. Source footage should still look natural.
 DARK_LUXURY_VIDEO_FILTERS = [
-    "eq=brightness=-0.035:contrast=1.10:saturation=0.88:gamma=0.98",
-    "vignette=PI/10",
+    "eq=brightness=-0.012:contrast=1.07:saturation=0.96:gamma=1.00",
+    "vignette=PI/14",
 ]
 
 TWILIGHT_LUXURY_VIDEO_FILTERS = [
@@ -399,7 +399,7 @@ def _overlay_lines(text):
     return [" ".join(words[:best]), " ".join(words[best:])]
 
 
-def make_text_overlay(text, output, position="center"):
+def _render_overlay_frame(text, output, position="center"):
     if not text:
         return None
     canvas = Image.new("RGBA", (1080, 1920), (0, 0, 0, 0))
@@ -427,14 +427,51 @@ def make_text_overlay(text, output, position="center"):
     return output
 
 
-def add_overlay(video, overlay, output):
-    if not overlay:
+def make_text_overlay(text, output, position="center", duration=None):
+    """Create either one persistent overlay or a two-beat story overlay.
+
+    A ``||`` delimiter keeps the hook off screen for the first instant, shows
+    the setup, then replaces it with the payoff.  Returning timed overlays
+    keeps the renderer backwards compatible for ordinary one-line hooks.
+    """
+    if not text:
+        return []
+    beats = [part.strip() for part in text.split("||") if part.strip()]
+    if len(beats) == 1 or not duration:
+        path = _render_overlay_frame(beats[0], output, position)
+        return [(path, 0.0, float(duration or 10_000))]
+    duration = float(duration)
+    gap = min(0.35, duration * 0.04)
+    midpoint = duration * 0.50
+    windows = [(0.35, midpoint - gap), (midpoint + gap, duration - 0.20)]
+    overlays = []
+    for index, (beat, (start, end)) in enumerate(zip(beats[:2], windows)):
+        path = Path(output).with_name(f"{Path(output).stem}_{index}{Path(output).suffix}")
+        overlays.append((_render_overlay_frame(beat, path, position), start, end))
+    return overlays
+
+
+def add_overlay(video, overlays, output):
+    if not overlays:
         Path(output).write_bytes(Path(video).read_bytes())
         return
+    if isinstance(overlays, (str, Path)):
+        overlays = [(overlays, 0.0, 10_000.0)]
+    inputs = [str(video)]
+    chains = [f"[0:v]{FINAL_DETAIL_FILTER}[base0]"]
+    previous = "base0"
+    for index, (overlay, start, end) in enumerate(overlays, start=1):
+        inputs.extend(["-i", str(overlay)])
+        output_label = f"base{index}"
+        chains.append(
+            f"[{previous}][{index}:v]overlay=0:0:format=auto:"
+            f"enable='between(t,{float(start):.3f},{float(end):.3f})'[{output_label}]"
+        )
+        previous = output_label
     run([
-        "ffmpeg", "-y", "-i", str(video), "-i", str(overlay),
-        "-filter_complex", f"[0:v]{FINAL_DETAIL_FILTER}[detail];[detail][1:v]overlay=0:0:format=auto[v]",
-        "-map", "[v]", "-an", *HIGH_QUALITY_VIDEO_ARGS, str(output)
+        "ffmpeg", "-y", "-i", *inputs,
+        "-filter_complex", ";".join(chains),
+        "-map", f"[{previous}]", "-an", *HIGH_QUALITY_VIDEO_ARGS, str(output)
     ])
 
 

@@ -26,6 +26,8 @@ DARK_QUERIES = {
     "watch": ["Rolex watch dark cinematic", "luxury watch macro black", "expensive watch low light"],
     "cash": ["counting hundred dollar bills dark", "cash stacks black background", "money safe dark cinematic"],
     "hotel": ["five star hotel lobby dark", "luxury hotel suite night", "dark marble hotel interior"],
+    "monaco": ["Monaco supercar sunset luxury", "Monaco marina blue hour", "French Riviera luxury dusk"],
+    "restaurant": ["luxury rooftop restaurant night", "fine dining cinematic luxury", "exclusive restaurant city lights"],
     "twilight_luxury": ["luxury supercar sunset cinematic", "Ferrari mountain blue hour", "supercar winter sunset luxury", "luxury car orange dusk cinematic"],
     "dark_feminine": [
         "elegant woman black dress luxury car night",
@@ -50,10 +52,86 @@ THEME_PRESETS = {
     "dark_cars": ["supercar", "supercar", "dubai", "watch", "private_jet", "hotel", "villa", "dark_feminine", "twilight_luxury", "twilight_luxury"],
     "money": ["cash", "cash", "watch", "supercar", "private_jet", "hotel", "villa", "dark_feminine", "twilight_luxury", "twilight_luxury"],
     "dark_life": ["hotel", "villa", "dubai", "private_jet", "watch", "yacht", "supercar", "dark_feminine", "twilight_luxury", "twilight_luxury"],
-    "mixed_dark": STYLE_PRESETS["dark_luxury"]
+    "mixed_dark": STYLE_PRESETS["dark_luxury"],
+    "midnight_luxury": ["supercar", "dubai", "hotel", "villa", "private_jet", "yacht", "dark_feminine"],
+    "twilight_world": ["twilight_luxury", "supercar", "villa", "yacht", "private_jet", "monaco"],
+    "elite_lifestyle": ["dark_feminine", "hotel", "restaurant", "villa", "supercar", "private_jet", "yacht"],
+    "human_twilight": ["dark_feminine", "hotel", "restaurant", "twilight_luxury", "supercar", "villa", "yacht"],
+    "arrival_night": ["dark_feminine", "supercar", "hotel", "restaurant", "villa", "dubai"],
+    "craft_luxury": ["watch", "supercar", "private_jet", "hotel", "villa"],
+}
+
+# Four deliberately different products. The first 28 automatic runs form a
+# controlled rollout (8/8/6/6) instead of another stream of interchangeable
+# 25-second montages.
+CONTENT_FORMATS = {
+    "contrast_story": {
+        "duration": 8.0,
+        "clips": 4,
+        "text_mode": "minimal",
+        "themes": ["human_twilight", "arrival_night"],
+        "copies": ["contrast"],
+        "authorized_share": 0.90,
+        "rollout_target": 8,
+    },
+    "human_luxury_story": {
+        "duration": 10.5,
+        "clips": 5,
+        "text_mode": "minimal",
+        "themes": ["human_twilight", "arrival_night", "elite_lifestyle"],
+        "copies": ["human_pov", "future_self"],
+        "authorized_share": 0.92,
+        "rollout_target": 8,
+    },
+    "cinematic_no_text": {
+        "duration": 7.5,
+        "clips": 4,
+        "text_mode": "none",
+        "themes": ["twilight_world", "human_twilight"],
+        "copies": ["none"],
+        "authorized_share": 0.95,
+        "rollout_target": 6,
+    },
+    "craft_detail": {
+        "duration": 9.0,
+        "clips": 4,
+        "text_mode": "minimal",
+        "themes": ["craft_luxury"],
+        "copies": ["craft"],
+        "authorized_share": 0.90,
+        "rollout_target": 6,
+    },
 }
 
 COPY_VARIANTS = {
+    "contrast": [
+        "THEY SAW THE RISK. || YOU SAW THE EXIT.",
+        "PLAN A: INHERIT IT. || PLAN B: BUILD IT.",
+        "THEY CHOSE COMFORT. || YOU CHOSE OPTIONS.",
+        "FIRST IT LOOKS IMPOSSIBLE. || THEN IT LOOKS INEVITABLE.",
+        "THEY CALLED IT TOO MUCH. || YOU CALLED IT THE STANDARD.",
+        "THE DREAM WAS EXPENSIVE. || SO WAS STAYING THE SAME.",
+        "LESS ATTENTION. || MORE ACCESS.",
+        "NO SHORTCUT. || JUST A DIFFERENT DESTINATION."
+    ],
+    "human_pov": [
+        "POV: THE EVENING YOU USED TO IMAGINE.",
+        "POV: YOUR LIFE FINALLY MATCHES YOUR TASTE.",
+        "POV: NO RUSH. NO NOISE. JUST ARRIVAL.",
+        "POV: THE RESERVATION IS UNDER YOUR NAME.",
+        "POV: A RANDOM TUESDAY IN THE LIFE YOU BUILT.",
+        "POV: YOU STOPPED WATCHING FROM THE OUTSIDE.",
+        "POV: THE CITY FEELS DIFFERENT FROM HERE.",
+        "POV: THIS TIME, YOU ARE NOT THE GUEST."
+    ],
+    "craft": [
+        "DETAILS REVEAL THE STANDARD.",
+        "REAL LUXURY WHISPERS.",
+        "BUILT SLOWLY. NOTICED INSTANTLY.",
+        "PRECISION IS THE FLEX.",
+        "THE DIFFERENCE LIVES IN THE DETAILS.",
+        "NOT LOUD. UNMISTAKABLE."
+    ],
     "pov_relationship": [
         "POV: She wants double texts. You want double the income.",
         "POV: She asks why you reply late. You're busy building what they said you couldn't.",
@@ -164,13 +242,23 @@ CAPTION_TEMPLATES = {
         "dark_cars": ["What is the first car on your list?", "How close are you?", "What are you building toward?"],
         "money": ["What does made it look like to you?", "How close are you?", "What are you building toward?"],
         "dark_life": ["What does freedom look like to you?", "Where would you wake up first?", "What are you building toward?"],
-        "mixed_dark": ["What does made it look like to you?", "How close are you?", "What are you building toward?"]
+        "mixed_dark": ["What does made it look like to you?", "How close are you?", "What are you building toward?"],
+        "human_twilight": ["Some evenings used to exist only in your head.", "A life that feels as good as it looks.", "Eventually, you arrive."],
+        "arrival_night": ["The city looks different when you built the view.", "Your name on the reservation.", "Arrival changes everything."],
+        "elite_lifestyle": ["A quiet life with expensive details.", "Taste becomes a lifestyle.", "Built for moments like this."],
+        "twilight_world": ["Golden hour, earned slowly.", "The destination was worth the wait.", "Some views change the standard."],
+        "craft_luxury": ["The standard lives in the details.", "Precision never needs to shout.", "Made to be noticed slowly."]
     },
     "minimal": {
         "dark_cars": ["Built in silence.", "One day.", "Soon."],
         "money": ["Different standards.", "One day.", "Soon."],
         "dark_life": ["Built for more.", "One day.", "Soon."],
-        "mixed_dark": ["Built in silence.", "One day.", "Soon."]
+        "mixed_dark": ["Built in silence.", "One day.", "Soon."],
+        "human_twilight": ["This evening.", "Arrived.", "No rush."],
+        "arrival_night": ["Your table is ready.", "After hours.", "The arrival."],
+        "elite_lifestyle": ["Quietly exceptional.", "The standard.", "Well lived."],
+        "twilight_world": ["Golden hour.", "One day.", "Worth the wait."],
+        "craft_luxury": ["In the details.", "Precision.", "Quiet excellence."]
     }
 }
 

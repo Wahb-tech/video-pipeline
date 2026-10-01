@@ -6,6 +6,7 @@ import subprocess
 import atexit
 import shutil
 from pathlib import Path
+from .quality import passes_quality_gate, source_quality_score
 
 import requests
 
@@ -311,7 +312,7 @@ def authorized_quality_penalty(item):
     fps = float(item.get("fps") or 0)
     if fps and fps < 24.5:
         penalty += 5
-    return penalty
+    return penalty + max(0.0, (75.0 - source_quality_score(item)) / 3.0)
 
 
 def download_authorized_library(destination):
@@ -409,7 +410,14 @@ def download_authorized_library(destination):
             "cleanup_text": cleanup_text,
             "creator_restyle": is_restyle,
         })
-    return _expand_restyle_shots(items)
+    expanded = _expand_restyle_shots(items)
+    accepted = [item for item in expanded if passes_quality_gate(item)]
+    rejected = len(expanded) - len(accepted)
+    if rejected:
+        print(f"Quality gate rejected {rejected} low-resolution/low-bitrate authorized scene(s)")
+    for item in accepted:
+        item["quality_score"] = source_quality_score(item)
+    return accepted
 
 
 def choose_authorized_clip(items, usage_history, run_counts, position, excluded_ids=(), minimum_duration=0, preferred_mood=None):

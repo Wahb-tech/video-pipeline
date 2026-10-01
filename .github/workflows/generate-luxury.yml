@@ -3,12 +3,18 @@ name: Generate ZOOP Luxury Video
 on:
   workflow_dispatch:
     inputs:
+      content_format:
+        description: Creative format
+        required: true
+        type: choice
+        default: auto
+        options: [auto, custom, contrast_story, human_luxury_story, cinematic_no_text, craft_detail]
       theme:
         description: Dark luxury theme
         required: true
         type: choice
         default: auto
-        options: [auto, dark_cars, money, dark_life, mixed_dark]
+        options: [auto, dark_cars, money, dark_life, mixed_dark, midnight_luxury, twilight_world, elite_lifestyle, human_twilight, arrival_night, craft_luxury]
       copy_variant:
         description: Overlay text
         required: true
@@ -174,6 +180,7 @@ jobs:
         run: |
           python -m src.main \
             --style dark_luxury \
+            --content-format "${{ inputs.content_format }}" \
             --theme "${{ inputs.theme }}" \
             --copy-variant "${{ inputs.copy_variant }}" \
             --caption-variant "${{ inputs.caption_variant }}" \
