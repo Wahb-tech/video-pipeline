@@ -1,173 +1,287 @@
 {
-  "samples": 0,
+  "samples": 11,
+  "content_format": {
+    "contrast_story": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "human_luxury_story": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "cinematic_no_text": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "craft_detail": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    }
+  },
   "theme": {
     "dark_cars": {
-      "count": 0,
+      "count": 2,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "money": {
-      "count": 0,
+      "count": 2,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "dark_life": {
-      "count": 0,
+      "count": 3,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "mixed_dark": {
+      "count": 4,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "midnight_luxury": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
+    },
+    "twilight_world": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "elite_lifestyle": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "human_twilight": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "arrival_night": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "craft_luxury": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
     }
   },
   "copy_variant": {
-    "pov_relationship": {
+    "contrast": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
+    },
+    "human_pov": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "craft": {
+      "count": 0,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "pov_relationship": {
+      "count": 2,
+      "raw_mean": 0.0,
+      "score": 0.0
     },
     "future_self": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "silent_revenge": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "obsession": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "standards": {
-      "count": 0,
+      "count": 2,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "discipline": {
-      "count": 0,
+      "count": 2,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "identity_shift": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "legacy": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "minimal": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     }
   },
   "caption_variant": {
-    "choice": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 8.0
-    },
     "aspiration": {
-      "count": 0,
+      "count": 5,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "minimal": {
-      "count": 0,
+      "count": 4,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     }
   },
   "next_variant": {
-    "theme": "dark_life",
-    "copy_variant": "future_self",
-    "caption_variant": "choice",
-    "sample_count": 0
+    "content_format": "human_luxury_story",
+    "theme": "arrival_night",
+    "copy_variant": "human_pov",
+    "caption_variant": "aspiration",
+    "sample_count": 11
   },
   "audio": {
     "te_conoci_super_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "gozalo_super_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "no_era_amor_super_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "luz_roja_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "luna_bala_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "sempero_super_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "passo_bem_solto_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_fuego_super_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_coma_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_vozes_profundas_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_tomada_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_mysterious_game_slowed": {
-      "count": 0,
+      "count": 2,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_ritmada_slowed": {
       "count": 0,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "funk_estranho_super_slowed": {
-      "count": 0,
+      "count": 3,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     },
     "montagem_coral_slowed": {
-      "count": 0,
+      "count": 2,
       "raw_mean": 0.0,
-      "score": 8.0
+      "score": 0.0
     }
   },
-  "audio_segment": {}
+  "audio_segment": {
+    "funk_estranho_super_slowed@53.5": {
+      "count": 2,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "funk_estranho_super_slowed@98.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "gozalo_super_slowed@0.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "luz_roja_slowed@25.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_coral_slowed@70.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_coral_slowed@96.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_mysterious_game_slowed@3.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_mysterious_game_slowed@55.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_tomada_slowed@4.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "te_conoci_super_slowed@8.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    }
+  }
 }
