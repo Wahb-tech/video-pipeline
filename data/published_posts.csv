@@ -144,3 +144,4 @@ experiment_id,post_id,post_url,caption,scheduled_at,published_at,status,created_
 20261001T171243Z-35d9a5,,,This evening.,2026-10-01T18:00:00+00:00,2026-10-01T18:00:00+00:00,scheduled,2026-10-01T17:14:37.851766+00:00,,https://infdash-api.influencerindex.com/production/me/generate-upload-s3-url
 20261001T224425Z-c836d5,,,The arrival.,2026-10-01T23:30:00+00:00,2026-10-01T23:30:00+00:00,scheduled,2026-10-01T22:46:16.886320+00:00,,https://infdash-api.influencerindex.com/production/me/generate-upload-s3-url
 20261002T162621Z-7b7652,,,Arrived.,2026-10-02T17:00:00+00:00,2026-10-02T17:00:00+00:00,scheduled,2026-10-02T16:28:38.117627+00:00,,https://infdash-api.influencerindex.com/production/me/generate-upload-s3-url
+20261002T221653Z-aac860,,,Precision.,2026-10-02T23:00:00+00:00,2026-10-02T23:00:00+00:00,scheduled,2026-10-02T22:19:03.930942+00:00,,https://infdash-api.influencerindex.com/production/me/generate-upload-s3-url
