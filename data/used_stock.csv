@@ -2061,3 +2061,7 @@ experiment_id,provider,stock_id,category,search_query,page_url,start_sec,cut_sec
 20261001T224425Z-c836d5,pixabay,152184,supercar,black Lamborghini night cinematic,https://pixabay.com/videos/id-152184/,6.122,1.5000000000000004,1,2026-10-01T22:45:34.185671+00:00
 20261001T224425Z-c836d5,pexels,35605168,hotel,dark marble hotel interior,https://www.pexels.com/video/luxurious-venetian-hotel-lobby-interior-35605168/,7.676,1.8499999999999996,2,2026-10-01T22:45:34.185679+00:00
 20261001T224425Z-c836d5,pexels,29797321,hotel,luxury hotel suite night,https://www.pexels.com/video/luxurious-canopy-bed-in-elegant-hotel-room-29797321/,4.167,1.7999999999999998,3,2026-10-01T22:45:34.185686+00:00
+20261002T162621Z-7b7652,pexels,36431050,dark_feminine,elegant woman black dress luxury car night,https://www.pexels.com/video/elegant-woman-using-phone-in-hotel-room-36431050/,0.0,1.1500000000000001,0,2026-10-02T16:27:54.668885+00:00
+20261002T162621Z-7b7652,pixabay,25905,hotel,luxury hotel suite night,https://pixabay.com/videos/id-25905/,13.452,3.95,1,2026-10-02T16:27:54.668916+00:00
+20261002T162621Z-7b7652,pexels,32114968,yacht,luxury yacht marina night,https://www.pexels.com/video/luxurious-yachts-in-dubai-marina-32114968/,0.813,1.7000000000000002,2,2026-10-02T16:27:54.668928+00:00
+20261002T162621Z-7b7652,pexels,32779590,supercar,black Lamborghini night cinematic,https://www.pexels.com/video/sleek-blue-supercar-parked-on-city-street-32779590/,12.129,1.1999999999999993,3,2026-10-02T16:27:54.668940+00:00
