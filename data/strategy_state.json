@@ -1,5 +1,5 @@
 {
-  "samples": 11,
+  "samples": 15,
   "content_format": {
     "contrast_story": {
       "count": 0,
@@ -24,12 +24,12 @@
   },
   "theme": {
     "dark_cars": {
-      "count": 2,
+      "count": 4,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "money": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -39,7 +39,7 @@
       "score": 0.0
     },
     "mixed_dark": {
-      "count": 4,
+      "count": 5,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -101,7 +101,7 @@
       "score": 0.0
     },
     "silent_revenge": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -116,7 +116,7 @@
       "score": 0.0
     },
     "discipline": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -126,19 +126,19 @@
       "score": 0.0
     },
     "legacy": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "minimal": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     }
   },
   "caption_variant": {
     "aspiration": {
-      "count": 5,
+      "count": 7,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -149,15 +149,15 @@
     }
   },
   "next_variant": {
-    "content_format": "human_luxury_story",
-    "theme": "arrival_night",
-    "copy_variant": "human_pov",
+    "content_format": "craft_detail",
+    "theme": "craft_luxury",
+    "copy_variant": "craft",
     "caption_variant": "aspiration",
-    "sample_count": 11
+    "sample_count": 15
   },
   "audio": {
     "te_conoci_super_slowed": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -177,7 +177,7 @@
       "score": 0.0
     },
     "luna_bala_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -197,12 +197,12 @@
       "score": 0.0
     },
     "montagem_coma_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "montagem_vozes_profundas_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -248,7 +248,17 @@
       "raw_mean": 0.0,
       "score": 0.0
     },
+    "luna_bala_slowed@0.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
     "luz_roja_slowed@25.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_coma_slowed@4.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
@@ -274,6 +284,16 @@
       "score": 0.0
     },
     "montagem_tomada_slowed@4.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_vozes_profundas_slowed@18.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "te_conoci_super_slowed@20.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
