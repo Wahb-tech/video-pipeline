@@ -1,8 +1,8 @@
 {
-  "samples": 15,
+  "samples": 22,
   "content_format": {
     "contrast_story": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -24,12 +24,12 @@
   },
   "theme": {
     "dark_cars": {
-      "count": 4,
+      "count": 7,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "money": {
-      "count": 3,
+      "count": 5,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -39,7 +39,7 @@
       "score": 0.0
     },
     "mixed_dark": {
-      "count": 5,
+      "count": 6,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -59,7 +59,7 @@
       "score": 0.0
     },
     "human_twilight": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -76,7 +76,7 @@
   },
   "copy_variant": {
     "contrast": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -96,12 +96,12 @@
       "score": 0.0
     },
     "future_self": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "silent_revenge": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -111,7 +111,7 @@
       "score": 0.0
     },
     "standards": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -121,12 +121,12 @@
       "score": 0.0
     },
     "identity_shift": {
-      "count": 1,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "legacy": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -138,26 +138,26 @@
   },
   "caption_variant": {
     "aspiration": {
-      "count": 7,
+      "count": 8,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "minimal": {
-      "count": 4,
+      "count": 7,
       "raw_mean": 0.0,
       "score": 0.0
     }
   },
   "next_variant": {
-    "content_format": "craft_detail",
-    "theme": "craft_luxury",
-    "copy_variant": "craft",
-    "caption_variant": "aspiration",
-    "sample_count": 15
+    "content_format": "cinematic_no_text",
+    "theme": "twilight_world",
+    "copy_variant": "none",
+    "caption_variant": "minimal",
+    "sample_count": 22
   },
   "audio": {
     "te_conoci_super_slowed": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -197,7 +197,7 @@
       "score": 0.0
     },
     "montagem_coma_slowed": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -212,17 +212,17 @@
       "score": 0.0
     },
     "montagem_mysterious_game_slowed": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "montagem_ritmada_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "funk_estranho_super_slowed": {
-      "count": 3,
+      "count": 6,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -233,8 +233,18 @@
     }
   },
   "audio_segment": {
+    "funk_estranho_super_slowed@111.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
     "funk_estranho_super_slowed@53.5": {
-      "count": 2,
+      "count": 3,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "funk_estranho_super_slowed@8.0": {
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -254,6 +264,11 @@
       "score": 0.0
     },
     "luz_roja_slowed@25.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_coma_slowed@32.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
@@ -278,7 +293,17 @@
       "raw_mean": 0.0,
       "score": 0.0
     },
+    "montagem_mysterious_game_slowed@36.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
     "montagem_mysterious_game_slowed@55.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_ritmada_slowed@43.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
@@ -294,6 +319,11 @@
       "score": 0.0
     },
     "te_conoci_super_slowed@20.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "te_conoci_super_slowed@35.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
