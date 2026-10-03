@@ -1,6 +1,6 @@
 # ZOOP Experiment Report
 
-Recorded posts: **26**
+Recorded posts: **28**
 
 The score below is an internal experiment score, not ZOOP's ranking formula. It weights likes, comments, shares, follows and optional completion rate so the pipeline can compare its own variants consistently.
 
@@ -17,7 +17,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
-| dark_cars | 7 | 0.00 | 0.00 |
+| dark_cars | 9 | 0.00 | 0.00 |
 | money | 7 | 0.00 | 0.00 |
 | dark_life | 3 | 0.00 | 0.00 |
 | mixed_dark | 7 | 0.00 | 0.00 |
@@ -36,21 +36,21 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | human_pov | 0 | 0.00 | 0.00 |
 | craft | 0 | 0.00 | 0.00 |
 | pov_relationship | 3 | 0.00 | 0.00 |
-| future_self | 2 | 0.00 | 0.00 |
+| future_self | 3 | 0.00 | 0.00 |
 | silent_revenge | 2 | 0.00 | 0.00 |
 | obsession | 1 | 0.00 | 0.00 |
 | standards | 4 | 0.00 | 0.00 |
 | discipline | 3 | 0.00 | 0.00 |
 | identity_shift | 4 | 0.00 | 0.00 |
 | legacy | 3 | 0.00 | 0.00 |
-| minimal | 2 | 0.00 | 0.00 |
+| minimal | 3 | 0.00 | 0.00 |
 
 ## Caption type
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
 | aspiration | 10 | 0.00 | 0.00 |
-| minimal | 9 | 0.00 | 0.00 |
+| minimal | 10 | 0.00 | 0.00 |
 
 ## Known audio
 
@@ -60,13 +60,13 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | gozalo_super_slowed | 1 | 0.00 | 0.00 |
 | no_era_amor_super_slowed | 0 | 0.00 | 0.00 |
 | luz_roja_slowed | 1 | 0.00 | 0.00 |
-| luna_bala_slowed | 1 | 0.00 | 0.00 |
+| luna_bala_slowed | 2 | 0.00 | 0.00 |
 | sempero_super_slowed | 1 | 0.00 | 0.00 |
 | passo_bem_solto_slowed | 1 | 0.00 | 0.00 |
 | montagem_fuego_super_slowed | 0 | 0.00 | 0.00 |
 | montagem_coma_slowed | 3 | 0.00 | 0.00 |
 | montagem_vozes_profundas_slowed | 1 | 0.00 | 0.00 |
-| montagem_tomada_slowed | 1 | 0.00 | 0.00 |
+| montagem_tomada_slowed | 2 | 0.00 | 0.00 |
 | montagem_mysterious_game_slowed | 3 | 0.00 | 0.00 |
 | montagem_ritmada_slowed | 1 | 0.00 | 0.00 |
 | funk_estranho_super_slowed | 6 | 0.00 | 0.00 |
@@ -82,6 +82,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | funk_estranho_super_slowed@98.5 | 1 | 0.00 | 0.00 |
 | gozalo_super_slowed@0.0 | 1 | 0.00 | 0.00 |
 | luna_bala_slowed@0.0 | 1 | 0.00 | 0.00 |
+| luna_bala_slowed@35.0 | 1 | 0.00 | 0.00 |
 | luz_roja_slowed@25.0 | 1 | 0.00 | 0.00 |
 | montagem_coma_slowed@32.0 | 1 | 0.00 | 0.00 |
 | montagem_coma_slowed@4.0 | 1 | 0.00 | 0.00 |
@@ -92,6 +93,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | montagem_mysterious_game_slowed@36.5 | 1 | 0.00 | 0.00 |
 | montagem_mysterious_game_slowed@55.5 | 1 | 0.00 | 0.00 |
 | montagem_ritmada_slowed@43.0 | 1 | 0.00 | 0.00 |
+| montagem_tomada_slowed@18.0 | 1 | 0.00 | 0.00 |
 | montagem_tomada_slowed@4.0 | 1 | 0.00 | 0.00 |
 | montagem_vozes_profundas_slowed@18.0 | 1 | 0.00 | 0.00 |
 | passo_bem_solto_slowed@0.0 | 1 | 0.00 | 0.00 |

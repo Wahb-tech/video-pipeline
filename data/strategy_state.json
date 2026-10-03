@@ -1,5 +1,5 @@
 {
-  "samples": 26,
+  "samples": 28,
   "content_format": {
     "contrast_story": {
       "count": 2,
@@ -24,7 +24,7 @@
   },
   "theme": {
     "dark_cars": {
-      "count": 7,
+      "count": 9,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -96,7 +96,7 @@
       "score": 0.0
     },
     "future_self": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -131,7 +131,7 @@
       "score": 0.0
     },
     "minimal": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     }
@@ -143,7 +143,7 @@
       "score": 0.0
     },
     "minimal": {
-      "count": 9,
+      "count": 10,
       "raw_mean": 0.0,
       "score": 0.0
     }
@@ -153,7 +153,7 @@
     "theme": "elite_lifestyle",
     "copy_variant": "human_pov",
     "caption_variant": "aspiration",
-    "sample_count": 26
+    "sample_count": 28
   },
   "audio": {
     "te_conoci_super_slowed": {
@@ -177,7 +177,7 @@
       "score": 0.0
     },
     "luna_bala_slowed": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -207,7 +207,7 @@
       "score": 0.0
     },
     "montagem_tomada_slowed": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -263,6 +263,11 @@
       "raw_mean": 0.0,
       "score": 0.0
     },
+    "luna_bala_slowed@35.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
     "luz_roja_slowed@25.0": {
       "count": 1,
       "raw_mean": 0.0,
@@ -309,6 +314,11 @@
       "score": 0.0
     },
     "montagem_ritmada_slowed@43.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_tomada_slowed@18.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
