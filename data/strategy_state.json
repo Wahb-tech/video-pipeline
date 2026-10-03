@@ -1,8 +1,8 @@
 {
-  "samples": 22,
+  "samples": 26,
   "content_format": {
     "contrast_story": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -29,7 +29,7 @@
       "score": 0.0
     },
     "money": {
-      "count": 5,
+      "count": 7,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -39,7 +39,7 @@
       "score": 0.0
     },
     "mixed_dark": {
-      "count": 6,
+      "count": 7,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -64,7 +64,7 @@
       "score": 0.0
     },
     "arrival_night": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -76,7 +76,7 @@
   },
   "copy_variant": {
     "contrast": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -91,7 +91,7 @@
       "score": 0.0
     },
     "pov_relationship": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -111,7 +111,7 @@
       "score": 0.0
     },
     "standards": {
-      "count": 3,
+      "count": 4,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -121,7 +121,7 @@
       "score": 0.0
     },
     "identity_shift": {
-      "count": 3,
+      "count": 4,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -138,26 +138,26 @@
   },
   "caption_variant": {
     "aspiration": {
-      "count": 8,
+      "count": 10,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "minimal": {
-      "count": 7,
+      "count": 9,
       "raw_mean": 0.0,
       "score": 0.0
     }
   },
   "next_variant": {
-    "content_format": "cinematic_no_text",
-    "theme": "twilight_world",
-    "copy_variant": "none",
-    "caption_variant": "minimal",
-    "sample_count": 22
+    "content_format": "human_luxury_story",
+    "theme": "elite_lifestyle",
+    "copy_variant": "human_pov",
+    "caption_variant": "aspiration",
+    "sample_count": 26
   },
   "audio": {
     "te_conoci_super_slowed": {
-      "count": 3,
+      "count": 4,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -182,12 +182,12 @@
       "score": 0.0
     },
     "sempero_super_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
     "passo_bem_solto_slowed": {
-      "count": 0,
+      "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -197,7 +197,7 @@
       "score": 0.0
     },
     "montagem_coma_slowed": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -278,6 +278,11 @@
       "raw_mean": 0.0,
       "score": 0.0
     },
+    "montagem_coma_slowed@44.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
     "montagem_coral_slowed@70.5": {
       "count": 1,
       "raw_mean": 0.0,
@@ -318,8 +323,18 @@
       "raw_mean": 0.0,
       "score": 0.0
     },
-    "te_conoci_super_slowed@20.0": {
+    "passo_bem_solto_slowed@0.0": {
       "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "sempero_super_slowed@35.0": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "te_conoci_super_slowed@20.0": {
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
