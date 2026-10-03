@@ -1,8 +1,8 @@
 {
-  "samples": 28,
+  "samples": 30,
   "content_format": {
     "contrast_story": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -29,7 +29,7 @@
       "score": 0.0
     },
     "money": {
-      "count": 7,
+      "count": 8,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -59,7 +59,7 @@
       "score": 0.0
     },
     "human_twilight": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -76,7 +76,7 @@
   },
   "copy_variant": {
     "contrast": {
-      "count": 2,
+      "count": 3,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -111,7 +111,7 @@
       "score": 0.0
     },
     "standards": {
-      "count": 4,
+      "count": 5,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -143,7 +143,7 @@
       "score": 0.0
     },
     "minimal": {
-      "count": 10,
+      "count": 11,
       "raw_mean": 0.0,
       "score": 0.0
     }
@@ -152,8 +152,8 @@
     "content_format": "human_luxury_story",
     "theme": "elite_lifestyle",
     "copy_variant": "human_pov",
-    "caption_variant": "aspiration",
-    "sample_count": 28
+    "caption_variant": "minimal",
+    "sample_count": 30
   },
   "audio": {
     "te_conoci_super_slowed": {
@@ -222,7 +222,7 @@
       "score": 0.0
     },
     "funk_estranho_super_slowed": {
-      "count": 6,
+      "count": 8,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -234,7 +234,7 @@
   },
   "audio_segment": {
     "funk_estranho_super_slowed@111.0": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -244,7 +244,7 @@
       "score": 0.0
     },
     "funk_estranho_super_slowed@8.0": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
