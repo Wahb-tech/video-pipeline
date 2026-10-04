@@ -1,27 +1,5 @@
 {
   "samples": 31,
-  "content_format": {
-    "contrast_story": {
-      "count": 3,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "human_luxury_story": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "cinematic_no_text": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "craft_detail": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    }
-  },
   "theme": {
     "dark_cars": {
       "count": 10,
@@ -42,54 +20,9 @@
       "count": 7,
       "raw_mean": 0.0,
       "score": 0.0
-    },
-    "midnight_luxury": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "twilight_world": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "elite_lifestyle": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "human_twilight": {
-      "count": 2,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "arrival_night": {
-      "count": 1,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "craft_luxury": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
     }
   },
   "copy_variant": {
-    "contrast": {
-      "count": 3,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "human_pov": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
-    "craft": {
-      "count": 0,
-      "raw_mean": 0.0,
-      "score": 0.0
-    },
     "pov_relationship": {
       "count": 3,
       "raw_mean": 0.0,
@@ -137,6 +70,11 @@
     }
   },
   "caption_variant": {
+    "choice": {
+      "count": 9,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
     "aspiration": {
       "count": 10,
       "raw_mean": 0.0,
@@ -149,9 +87,8 @@
     }
   },
   "next_variant": {
-    "content_format": "cinematic_no_text",
-    "theme": "twilight_world",
-    "copy_variant": "none",
+    "theme": "dark_cars",
+    "copy_variant": "silent_revenge",
     "caption_variant": "aspiration",
     "sample_count": 31
   },

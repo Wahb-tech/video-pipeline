@@ -4,16 +4,7 @@ Recorded posts: **31**
 
 The score below is an internal experiment score, not ZOOP's ranking formula. It weights likes, comments, shares, follows and optional completion rate so the pipeline can compare its own variants consistently.
 
-## Content formats
-
-| Variant | Samples | Smoothed score | Raw mean |
-|---|---:|---:|---:|
-| contrast_story | 3 | 0.00 | 0.00 |
-| human_luxury_story | 0 | 0.00 | 0.00 |
-| cinematic_no_text | 0 | 0.00 | 0.00 |
-| craft_detail | 0 | 0.00 | 0.00 |
-
-## Visual worlds
+## Themes
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
@@ -21,20 +12,11 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | money | 8 | 0.00 | 0.00 |
 | dark_life | 3 | 0.00 | 0.00 |
 | mixed_dark | 7 | 0.00 | 0.00 |
-| midnight_luxury | 0 | 0.00 | 0.00 |
-| twilight_world | 0 | 0.00 | 0.00 |
-| elite_lifestyle | 0 | 0.00 | 0.00 |
-| human_twilight | 2 | 0.00 | 0.00 |
-| arrival_night | 1 | 0.00 | 0.00 |
-| craft_luxury | 0 | 0.00 | 0.00 |
 
 ## Overlay copy
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
-| contrast | 3 | 0.00 | 0.00 |
-| human_pov | 0 | 0.00 | 0.00 |
-| craft | 0 | 0.00 | 0.00 |
 | pov_relationship | 3 | 0.00 | 0.00 |
 | future_self | 4 | 0.00 | 0.00 |
 | silent_revenge | 2 | 0.00 | 0.00 |
@@ -49,6 +31,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
+| choice | 9 | 0.00 | 0.00 |
 | aspiration | 10 | 0.00 | 0.00 |
 | minimal | 12 | 0.00 | 0.00 |
 
@@ -105,9 +88,8 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 ## Suggested next visual test
 
-- Format: `cinematic_no_text`
-- Theme: `twilight_world`
-- Overlay: `none`
+- Theme: `dark_cars`
+- Overlay: `silent_revenge`
 - Caption: `aspiration`
 
 Audio and segment selection are handled separately by `src.audio`: the system explores under-tested tracks/segments, then increasingly exploits combinations with the strongest observed performance.
