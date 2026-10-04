@@ -1,6 +1,6 @@
 # ZOOP Experiment Report
 
-Recorded posts: **30**
+Recorded posts: **31**
 
 The score below is an internal experiment score, not ZOOP's ranking formula. It weights likes, comments, shares, follows and optional completion rate so the pipeline can compare its own variants consistently.
 
@@ -17,7 +17,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
-| dark_cars | 9 | 0.00 | 0.00 |
+| dark_cars | 10 | 0.00 | 0.00 |
 | money | 8 | 0.00 | 0.00 |
 | dark_life | 3 | 0.00 | 0.00 |
 | mixed_dark | 7 | 0.00 | 0.00 |
@@ -36,7 +36,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | human_pov | 0 | 0.00 | 0.00 |
 | craft | 0 | 0.00 | 0.00 |
 | pov_relationship | 3 | 0.00 | 0.00 |
-| future_self | 3 | 0.00 | 0.00 |
+| future_self | 4 | 0.00 | 0.00 |
 | silent_revenge | 2 | 0.00 | 0.00 |
 | obsession | 1 | 0.00 | 0.00 |
 | standards | 5 | 0.00 | 0.00 |
@@ -50,7 +50,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | Variant | Samples | Smoothed score | Raw mean |
 |---|---:|---:|---:|
 | aspiration | 10 | 0.00 | 0.00 |
-| minimal | 11 | 0.00 | 0.00 |
+| minimal | 12 | 0.00 | 0.00 |
 
 ## Known audio
 
@@ -68,7 +68,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | montagem_vozes_profundas_slowed | 1 | 0.00 | 0.00 |
 | montagem_tomada_slowed | 2 | 0.00 | 0.00 |
 | montagem_mysterious_game_slowed | 3 | 0.00 | 0.00 |
-| montagem_ritmada_slowed | 1 | 0.00 | 0.00 |
+| montagem_ritmada_slowed | 2 | 0.00 | 0.00 |
 | funk_estranho_super_slowed | 8 | 0.00 | 0.00 |
 | montagem_coral_slowed | 2 | 0.00 | 0.00 |
 
@@ -92,6 +92,7 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 | montagem_mysterious_game_slowed@3.5 | 1 | 0.00 | 0.00 |
 | montagem_mysterious_game_slowed@36.5 | 1 | 0.00 | 0.00 |
 | montagem_mysterious_game_slowed@55.5 | 1 | 0.00 | 0.00 |
+| montagem_ritmada_slowed@10.0 | 1 | 0.00 | 0.00 |
 | montagem_ritmada_slowed@43.0 | 1 | 0.00 | 0.00 |
 | montagem_tomada_slowed@18.0 | 1 | 0.00 | 0.00 |
 | montagem_tomada_slowed@4.0 | 1 | 0.00 | 0.00 |
@@ -104,9 +105,9 @@ The score below is an internal experiment score, not ZOOP's ranking formula. It 
 
 ## Suggested next visual test
 
-- Format: `human_luxury_story`
-- Theme: `elite_lifestyle`
-- Overlay: `human_pov`
-- Caption: `minimal`
+- Format: `cinematic_no_text`
+- Theme: `twilight_world`
+- Overlay: `none`
+- Caption: `aspiration`
 
 Audio and segment selection are handled separately by `src.audio`: the system explores under-tested tracks/segments, then increasingly exploits combinations with the strongest observed performance.

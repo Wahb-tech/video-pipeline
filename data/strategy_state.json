@@ -1,5 +1,5 @@
 {
-  "samples": 30,
+  "samples": 31,
   "content_format": {
     "contrast_story": {
       "count": 3,
@@ -24,7 +24,7 @@
   },
   "theme": {
     "dark_cars": {
-      "count": 9,
+      "count": 10,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -96,7 +96,7 @@
       "score": 0.0
     },
     "future_self": {
-      "count": 3,
+      "count": 4,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -143,17 +143,17 @@
       "score": 0.0
     },
     "minimal": {
-      "count": 11,
+      "count": 12,
       "raw_mean": 0.0,
       "score": 0.0
     }
   },
   "next_variant": {
-    "content_format": "human_luxury_story",
-    "theme": "elite_lifestyle",
-    "copy_variant": "human_pov",
-    "caption_variant": "minimal",
-    "sample_count": 30
+    "content_format": "cinematic_no_text",
+    "theme": "twilight_world",
+    "copy_variant": "none",
+    "caption_variant": "aspiration",
+    "sample_count": 31
   },
   "audio": {
     "te_conoci_super_slowed": {
@@ -217,7 +217,7 @@
       "score": 0.0
     },
     "montagem_ritmada_slowed": {
-      "count": 1,
+      "count": 2,
       "raw_mean": 0.0,
       "score": 0.0
     },
@@ -309,6 +309,11 @@
       "score": 0.0
     },
     "montagem_mysterious_game_slowed@55.5": {
+      "count": 1,
+      "raw_mean": 0.0,
+      "score": 0.0
+    },
+    "montagem_ritmada_slowed@10.0": {
       "count": 1,
       "raw_mean": 0.0,
       "score": 0.0
