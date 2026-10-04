@@ -14,7 +14,7 @@ PUBLICATION_FIELDS = [
 ]
 
 METRIC_FIELDS = [
-    "experiment_id", "published_at", "content_format", "visual_world", "theme", "copy_variant", "caption_variant",
+    "experiment_id", "published_at", "theme", "copy_variant", "caption_variant",
     "audio_id", "audio_start_sec", "audio_segment", "views", "likes", "comments",
     "shares", "follows", "completion_rate", "avg_watch_seconds", "post_url", "notes",
     "recorded_at", "measurement_window", "source",
@@ -422,8 +422,6 @@ def build_metric_row(publication, candidate, generated, window, now=None):
     return {
         "experiment_id": experiment_id,
         "published_at": publication.get("published_at", ""),
-        "content_format": meta.get("content_format", ""),
-        "visual_world": meta.get("visual_world", meta.get("theme", "")),
         "theme": meta.get("theme", ""),
         "copy_variant": meta.get("copy_variant", ""),
         "caption_variant": meta.get("caption_variant", ""),
@@ -573,11 +571,12 @@ def collect(args):
         publication["status"] = "published"
         metric = build_metric_row(publication, candidate, generated, window, now)
         upsert_row(args.snapshots, SNAPSHOT_FIELDS, metric, ("experiment_id", "measurement_window"))
-        upsert_row(args.metrics, METRIC_FIELDS, metric, ("experiment_id",))
-        if candidate.get("views", "") in ("", 0):
+        if candidate.get("views", "") not in ("", 0):
+            upsert_row(args.metrics, METRIC_FIELDS, metric, ("experiment_id",))
+        else:
             print(
                 f"Zoop did not expose views for {publication.get('experiment_id')}; "
-                "learning from reactions/comments instead"
+                "saved available metrics without updating the learning model"
             )
         snapshots.append(metric)
         recorded += 1

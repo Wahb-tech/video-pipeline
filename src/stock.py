@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from .config import CATEGORIES, DARK_QUERIES
-from .quality import passes_quality_gate, source_quality_score
 
 UA = "ZoopLuxuryFactory/2.0"
 
@@ -190,7 +189,6 @@ def score(item, usage=None, provider_usage=None):
         3.0,
         max(0, provider_usage.get(item.get("provider", ""), 0) - min(counts)) * 0.08,
     )
-    s += source_quality_score(item) / 15.0
     return s - reuse_penalty - provider_penalty + random.random() * 2
 
 
@@ -270,10 +268,7 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
         if value.strip()
     }
     exclude_ids = set(exclude_ids) | banned_ids
-    pool = [
-        x for x in pool
-        if f'{x["provider"]}:{x["id"]}' not in exclude_ids and passes_quality_gate(x)
-    ]
+    pool = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in exclude_ids]
     if isinstance(usage_history, set):
         history = {key: {"count": 1, "starts": []} for key in usage_history}
     else:
@@ -284,9 +279,7 @@ def find_clip(category, usage_history, style="mixed", exclude_ids=None):
         provider_usage[provider] = provider_usage.get(provider, 0) + int(entry.get("count", 0))
     unused = [x for x in pool if f'{x["provider"]}:{x["id"]}' not in history]
     if style == "dark_luxury":
-        strict_pool = [x for x in pool if is_real_footage(x) and is_strict_dark_luxury(x, category)]
-        strict_unused = [x for x in unused if x in strict_pool]
-        candidates = strict_unused or strict_pool
+        candidates = [x for x in unused if is_real_footage(x) and is_strict_dark_luxury(x, category)]
     else:
         candidates = unused or pool
     if not candidates:
@@ -335,27 +328,6 @@ def load_usage_history(path="data/used_stock.csv", limit=1200):
         except (KeyError, TypeError, ValueError):
             pass
     return history
-
-
-def load_recent_scene_ids(path="data/used_stock.csv", publication_limit=30):
-    p = Path(path)
-    if not p.exists() or p.stat().st_size == 0:
-        return set()
-    with p.open(newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    experiment_ids = []
-    for row in reversed(rows):
-        experiment_id = row.get("experiment_id", "")
-        if experiment_id and experiment_id not in experiment_ids:
-            experiment_ids.append(experiment_id)
-        if len(experiment_ids) >= publication_limit:
-            break
-    recent = set(experiment_ids)
-    return {
-        f'{row["provider"]}:{row["stock_id"]}'
-        for row in rows
-        if row.get("experiment_id") in recent and row.get("provider") and row.get("stock_id")
-    }
 
 
 def append_used(items, experiment_id, path="data/used_stock.csv"):

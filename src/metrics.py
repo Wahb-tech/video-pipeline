@@ -5,7 +5,7 @@ from pathlib import Path
 from .zoop_metrics import upsert_row
 
 METRICS_FIELDS = [
-    "experiment_id", "published_at", "content_format", "visual_world", "theme", "copy_variant", "caption_variant",
+    "experiment_id", "published_at", "theme", "copy_variant", "caption_variant",
     "audio_id", "audio_start_sec", "audio_segment", "views", "likes", "comments", "shares", "follows",
     "completion_rate", "avg_watch_seconds", "post_url", "notes", "recorded_at",
     "measurement_window", "source"
@@ -28,8 +28,6 @@ def record(args):
     row = {
         "experiment_id": args.experiment_id,
         "published_at": args.published_at,
-        "content_format": meta.get("content_format", ""),
-        "visual_world": meta.get("visual_world", meta.get("theme", "")),
         "theme": meta.get("theme", ""),
         "copy_variant": meta.get("copy_variant", ""),
         "caption_variant": meta.get("caption_variant", ""),

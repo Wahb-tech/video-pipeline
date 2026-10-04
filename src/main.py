@@ -7,12 +7,9 @@ import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from .config import BASELINE, CAPTION_TEMPLATES, CONTENT_FORMATS, COPY_VARIANTS, THEME_PRESETS
+from .config import BASELINE, COPY_VARIANTS, THEME_PRESETS
 from .gemini import generate_plan
-from .stock import (
-    STOCK_BLOCKED_CATEGORIES, find_clip, download, load_usage_history,
-    load_recent_scene_ids, append_used,
-)
+from .stock import STOCK_BLOCKED_CATEGORIES, find_clip, download, load_usage_history, append_used
 from .render import (
     music_cut_lengths, choose_music_start, normalize_clip, concat_clips,
     make_text_overlay, add_overlay, add_music,
@@ -24,36 +21,11 @@ from .authorized_video import download_authorized_library, choose_authorized_cli
 from .text_cleanup import TextCleanupError, clean_creator_text
 
 GENERATED_FIELDS = [
-    "experiment_id", "created_at", "style", "content_format", "visual_world", "theme", "copy_variant", "caption_variant",
+    "experiment_id", "created_at", "style", "theme", "copy_variant", "caption_variant",
     "duration", "clips", "bpm", "overlay_text", "caption", "audio_id", "audio_title",
     "audio_artist", "audio_version", "audio_start_sec", "audio_segment", "audio_available", "music_file",
     "sequence_signature"
 ]
-
-
-def coherent_categories(content_format, theme, count, proposed=()):
-    arcs = {
-        "contrast_story": {
-            "human_twilight": ["dark_feminine", "hotel", "twilight_luxury", "supercar"],
-            "arrival_night": ["dark_feminine", "supercar", "hotel", "restaurant"],
-        },
-        "human_luxury_story": {
-            "human_twilight": ["dark_feminine", "hotel", "restaurant", "twilight_luxury", "supercar"],
-            "arrival_night": ["dark_feminine", "supercar", "hotel", "restaurant", "villa"],
-            "elite_lifestyle": ["dark_feminine", "hotel", "restaurant", "supercar", "yacht"],
-        },
-        "cinematic_no_text": {
-            "twilight_world": ["twilight_luxury", "supercar", "villa", "yacht"],
-            "human_twilight": ["twilight_luxury", "dark_feminine", "hotel", "supercar"],
-        },
-        "craft_detail": {
-            "craft_luxury": ["watch", "supercar", "private_jet", "hotel"],
-        },
-    }
-    sequence = list(arcs.get(content_format, {}).get(theme, proposed))
-    if not sequence:
-        sequence = list(proposed) or list(THEME_PRESETS.get(theme, THEME_PRESETS["mixed_dark"]))
-    return [sequence[index % len(sequence)] for index in range(count)]
 
 
 def shuffled_categories(categories, recent_signatures=()):
@@ -80,20 +52,10 @@ def load_recent_sequences(path="data/generated.csv", limit=12):
     return {row.get("sequence_signature", "") for row in rows if row.get("sequence_signature")}
 
 
-def choose_caption(caption_variant, theme, overlay_text=""):
-    variants = CAPTION_TEMPLATES.get(caption_variant, {})
-    options = variants.get(theme) or variants.get("mixed_dark") or []
-    if options:
-        return random.choice(options)
-    clean_overlay = " ".join(part.strip() for part in overlay_text.split("||") if part.strip())
-    return clean_overlay or "One day."
-
-
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--style", default=BASELINE["style"], choices=["dark_luxury", "summer_luxury", "dubai", "yacht_life", "mixed"])
-    p.add_argument("--content-format", default="auto", choices=["auto", "custom", *CONTENT_FORMATS])
-    p.add_argument("--theme", default="auto", choices=["auto", *THEME_PRESETS])
+    p.add_argument("--theme", default="auto", choices=["auto", "dark_cars", "money", "dark_life", "mixed_dark"])
     p.add_argument("--copy-variant", default="auto", choices=["auto", *COPY_VARIANTS])
     p.add_argument("--caption-variant", default="auto", choices=["auto", "choice", "aspiration", "minimal"])
     p.add_argument("--duration", type=float, default=BASELINE["duration"])
@@ -181,21 +143,8 @@ def main():
         raise SystemExit("Configure an authorized creator source or a stock API key")
 
     selected = choose_variant()
-    content_format = selected["content_format"] if args.content_format == "auto" else args.content_format
-    preset = CONTENT_FORMATS.get(content_format)
-    if preset:
-        args.duration = float(preset["duration"])
-        args.clips = int(preset["clips"])
-        args.authorized_share = float(preset["authorized_share"])
     theme = selected["theme"] if args.theme == "auto" else args.theme
-    if args.theme == "auto" and preset and theme not in preset["themes"]:
-        theme = random.choice(preset["themes"])
-    if args.copy_variant == "auto":
-        copy_variant = selected["copy_variant"]
-        if preset and copy_variant not in preset["copies"]:
-            copy_variant = random.choice(preset["copies"])
-    else:
-        copy_variant = args.copy_variant
+    copy_variant = selected["copy_variant"] if args.copy_variant == "auto" else args.copy_variant
     caption_variant = selected["caption_variant"] if args.caption_variant == "auto" else args.caption_variant
     experiment_id = args.experiment_id or f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:6]}"
 
@@ -218,18 +167,12 @@ def main():
             )
         print(f"{message}; continuing with licensed stock providers")
 
-    text_mode = preset["text_mode"] if preset else args.text_mode
-    text_mode = "none" if copy_variant == "none" else text_mode
+    text_mode = "none" if copy_variant == "none" else args.text_mode
     plan = generate_plan(args.style, args.duration, args.clips, text_mode, theme, copy_variant)
-    if preset:
-        plan["categories"] = coherent_categories(content_format, theme, args.clips, plan["categories"])
-    else:
-        plan["categories"] = shuffled_categories(plan["categories"], load_recent_sequences())
-    caption = choose_caption(caption_variant, theme, plan["overlay_text"])
+    plan["categories"] = shuffled_categories(plan["categories"], load_recent_sequences())
+    caption = plan["overlay_text"]
     plan.update({
         "experiment_id": experiment_id,
-        "content_format": content_format,
-        "visual_world": theme,
         "theme": theme,
         "copy_variant": copy_variant,
         "caption_variant": caption_variant,
@@ -275,7 +218,6 @@ def main():
         json.dumps(audio_plan, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     usage_history = load_usage_history()
-    recent_scene_ids = load_recent_scene_ids(publication_limit=30)
     current_video_ids = set()
     current_starts = {}
     run_counts = {}
@@ -294,12 +236,12 @@ def main():
         random.shuffle(alternatives)
         attempts.extend(alternatives)
         item = choose_authorized_clip(
-            authorized, usage_history, run_counts, i, current_video_ids | recent_scene_ids, lengths[i], preferred_mood=category
+            authorized, usage_history, run_counts, i, current_video_ids, lengths[i], preferred_mood=category
         ) if i in authorized_positions else None
         errors = []
         for attempted_category in ([] if item else attempts):
             try:
-                item = find_clip(attempted_category, usage_history, args.style, current_video_ids | recent_scene_ids)
+                item = find_clip(attempted_category, usage_history, args.style, current_video_ids)
                 category = attempted_category
                 break
             except RuntimeError as exc:
@@ -308,8 +250,6 @@ def main():
             item = choose_authorized_clip(
                 authorized, usage_history, run_counts, i, current_video_ids, lengths[i], preferred_mood=category
             )
-            if item is not None:
-                print(f"Relaxing 30-publication scene window for position {i}: {item['id']}")
         if item is None and authorized:
             item = choose_reusable_authorized_clip(
                 authorized, usage_history, run_counts, i, lengths[i], preferred_mood=category
@@ -386,18 +326,14 @@ def main():
     texted = work / "texted.mp4"
     overlay = work / "overlay.png"
     concat_clips(normalized, concat)
-    overlay_paths = make_text_overlay(
-        plan.get("overlay_text", ""), overlay, args.text_position, duration=args.duration
-    )
-    add_overlay(concat, overlay_paths, texted)
+    overlay_path = make_text_overlay(plan.get("overlay_text", ""), overlay, args.text_position)
+    add_overlay(concat, overlay_path, texted)
     add_music(texted, music, out, args.duration, start_sec=music_start_sec)
 
     generated = {
         "experiment_id": experiment_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "style": args.style,
-        "content_format": content_format,
-        "visual_world": theme,
         "theme": theme,
         "copy_variant": copy_variant,
         "caption_variant": caption_variant,
@@ -424,7 +360,6 @@ def main():
         f"# ZOOP upload — {experiment_id}",
         "",
         f"**Theme:** {theme}",
-        f"**Format:** {content_format}",
         f"**Overlay:** {copy_variant}",
         f"**Caption type:** {caption_variant}",
         f"**Audio:** {audio_line}",

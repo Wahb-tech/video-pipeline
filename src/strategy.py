@@ -3,14 +3,11 @@ import json
 import random
 from collections import defaultdict
 from pathlib import Path
-from .config import THEME_PRESETS, COPY_VARIANTS, CAPTION_TEMPLATES, CONTENT_FORMATS
+from .config import THEME_PRESETS, COPY_VARIANTS, CAPTION_TEMPLATES
 
 THEMES = list(THEME_PRESETS.keys())
 COPIES = [value for value in COPY_VARIANTS if value != "none"]
-# Choice captions produced no comments in the first dataset. Keep them
-# available for manual experiments, but do not spend automatic traffic on them.
-CAPTIONS = ["aspiration", "minimal"]
-FORMATS = list(CONTENT_FORMATS.keys())
+CAPTIONS = list(CAPTION_TEMPLATES.keys())
 
 
 def _to_float(value):
@@ -21,23 +18,19 @@ def _to_float(value):
 
 
 def performance_score(row):
-    views = _to_float(row.get("views"))
+    views = max(_to_float(row.get("views")), 1.0)
     likes = _to_float(row.get("likes"))
     comments = _to_float(row.get("comments"))
     shares = _to_float(row.get("shares"))
     follows = _to_float(row.get("follows"))
     completion = _to_float(row.get("completion_rate"))
-    if views > 0:
-        engagement = 100.0 * (
-            likes / views
-            + 3.0 * comments / views
-            + 4.0 * shares / views
-            + 6.0 * follows / views
-        )
-        return engagement + 0.10 * max(0.0, min(100.0, completion))
-    # Zoop currently exposes reactions/comments but no views. Keep learning from
-    # the signals it does expose instead of silently discarding every result.
-    return likes + 3.0 * comments + 4.0 * shares + 6.0 * follows
+    engagement = 100.0 * (
+        likes / views
+        + 3.0 * comments / views
+        + 4.0 * shares / views
+        + 6.0 * follows / views
+    )
+    return engagement + 0.10 * max(0.0, min(100.0, completion))
 
 
 def load_metrics(path="data/metrics.csv"):
@@ -81,48 +74,21 @@ def _pick(stats, values, exploration=0.30, min_samples=3):
     return random.choice(winners)
 
 
-def _pick_70_20_10(stats, values, min_samples=3):
-    rollout_targets = {
-        value: int(CONTENT_FORMATS[value].get("rollout_target", min_samples))
-        for value in values
-    }
-    under_sampled = [value for value in values if stats[value]["count"] < rollout_targets[value]]
-    if under_sampled:
-        progress = {
-            value: stats[value]["count"] / rollout_targets[value]
-            for value in under_sampled
-        }
-        least = min(progress.values())
-        return random.choice([value for value in under_sampled if abs(progress[value] - least) < 1e-9])
-    ranked = sorted(values, key=lambda value: stats[value]["score"], reverse=True)
-    roll = random.random()
-    if roll < 0.70:
-        return ranked[0]
-    if roll < 0.90:
-        return random.choice(ranked[1:3] or ranked)
-    return random.choice(values)
-
-
 def choose_variant(metrics_path="data/metrics.csv", exploration=0.30):
     rows = load_metrics(metrics_path)
-    format_stats = factor_stats(rows, "content_format", FORMATS)
-    content_format = _pick_70_20_10(format_stats, FORMATS)
-    preset = CONTENT_FORMATS[content_format]
-    theme_values = preset["themes"]
-    copy_values = preset["copies"]
-    theme_stats = factor_stats(rows, "theme", theme_values)
-    copy_stats = factor_stats(rows, "copy_variant", copy_values)
+    theme_stats = factor_stats(rows, "theme", THEMES)
+    copy_stats = factor_stats(rows, "copy_variant", COPIES)
     caption_stats = factor_stats(rows, "caption_variant", CAPTIONS)
+    copy_values = COPIES[:]
     generated_path = Path("data/generated.csv")
     if generated_path.exists() and generated_path.stat().st_size:
         with generated_path.open(newline="", encoding="utf-8") as f:
             generated = list(csv.DictReader(f))
         if generated:
             last_copy = generated[-1].get("copy_variant")
-            copy_values = [value for value in copy_values if value != last_copy] or preset["copies"]
+            copy_values = [value for value in COPIES if value != last_copy] or COPIES
     return {
-        "content_format": content_format,
-        "theme": _pick(theme_stats, theme_values, exploration),
+        "theme": _pick(theme_stats, THEMES, exploration),
         "copy_variant": _pick(copy_stats, copy_values, exploration),
         "caption_variant": _pick(caption_stats, CAPTIONS, exploration),
         "sample_count": len(rows)
@@ -133,7 +99,6 @@ def build_state(metrics_path="data/metrics.csv"):
     rows = load_metrics(metrics_path)
     return {
         "samples": len(rows),
-        "content_format": factor_stats(rows, "content_format", FORMATS),
         "theme": factor_stats(rows, "theme", THEMES),
         "copy_variant": factor_stats(rows, "copy_variant", COPIES),
         "caption_variant": factor_stats(rows, "caption_variant", CAPTIONS),
